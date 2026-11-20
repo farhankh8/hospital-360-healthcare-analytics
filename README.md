@@ -50,15 +50,30 @@ service exposes validated KPIs and drill-downs; and a Next.js application presen
   journey, data quality, pipeline, KPI glossary and methodology.
 - Global URL-based filters, KPI cards with comparison/sparkline/definition, ECharts charts,
   sortable tables, drill-down drawers and CSV export.
-- Automated pytest suites (generator, silver, gold, KPI edge cases, API) and Playwright
-  end-to-end journey.
+- Automated pytest suites (generator, silver, gold, KPI edge cases, API) and 18 Playwright
+  end-to-end tests covering the §28 journey, all additional cases and all 21 routes.
+- Chart click-through drills into the page's underlying records; KPI clicks preserve filters.
 - Docker Compose, GitHub Actions CI, deployment documentation and a full data dictionary.
 
 ## 3. Screenshots
 
-Screenshots are captured from the running local stack (see section 11), not from mock data.
-Capture the Network Overview, Hospital Comparison, Appointments, Finance, Inpatient, Claims,
-Data Explorer and Data Quality pages after starting the API and web servers.
+Captured from the running local stack (section 11), not from mock data.
+
+| Network overview | Hospital comparison |
+|---|---|
+| ![Network Overview](docs/screenshots/overview.png) | ![Hospital Comparison](docs/screenshots/hospitals.png) |
+
+| Appointments | Finance |
+|---|---|
+| ![Appointments](docs/screenshots/appointments.png) | ![Finance](docs/screenshots/finance.png) |
+
+| Inpatient | Claims |
+|---|---|
+| ![Inpatient](docs/screenshots/inpatient.png) | ![Claims](docs/screenshots/claims.png) |
+
+| Data Explorer | Data Quality |
+|---|---|
+| ![Data Explorer](docs/screenshots/explorer.png) | ![Data Quality](docs/screenshots/data-quality.png) |
 
 ## 4. Architecture
 
@@ -230,12 +245,19 @@ npx playwright test --config=e2e/playwright.config.ts
 
 ```bash
 cd hospital360
-python -m pytest -q              # unit + data + API tests; data-dependent tests SKIP if data absent
-python -m ruff check .           # lint
+python -m ruff check .                     # Python lint
+python -m pytest -q                        # unit + data + KPI + API tests
+python scripts/verify_project.py           # bronze/manifest/DuckDB/API gate
+
+cd web
+npm run lint
+npm run build
+npx tsc --noEmit
+npx playwright test --config=e2e/playwright.config.ts
 ```
 
-Data-dependent suites skip gracefully until `python -m generator.generate` and
-`python -m etl.pipeline` have produced the DuckDB file.
+The frontend and API must already be running for Playwright (section 11). Data-dependent
+Python suites skip gracefully until generation and ETL have produced the DuckDB file.
 
 ## 15. Limitations
 
@@ -258,11 +280,12 @@ Measured from a local end-to-end run of `python -m generator.generate`,
 - Hospitals / patients: **10** / **15,240**
 - Coverage window achieved: **2025-01-01 → 2026-12-31 (24 months)**
 - Gold tables loaded in DuckDB: **12** (72 tables total; `gold_hospital_monthly` = 240 rows)
-- Automated data-quality score: **96.32 / 100** (297 rules, 1,212 failures, 1,172 quarantined records)
+- Automated data-quality score: **96.29 / 100** (297 rules, 12 failed rules, 1,172 quarantined rows)
 - API: **206 / 206 GET endpoints registered**; all **118 chart-data endpoints** returned HTTP 200 with non-empty data; verifier PASS for bronze, manifest, DuckDB and API
 - pytest result (passed / skipped / failed): **82 / 0 / 0**
 - Frontend: `npm run build` succeeded (21 routes + hospital profile); `tsc --noEmit` and `npm run lint` clean
-- Playwright e2e result: **8 passed / 0 failed** (run from `web/` with `npx playwright test --config=e2e/playwright.config.ts`)
+- Playwright e2e result: **18 passed / 0 failed** across Chromium and mobile; covers the §28 journey, additional cases and all 21 routes
+- Screenshots: captured in `docs/screenshots/` and embedded in section 3
 - Blueprint chart coverage: every layout page now renders its full §14 chart list, including 9 data-quality charts and 8 hospital-profile charts
 - Live deployment URL: **not deployed** (local stack via `docker-compose.yml`)
 

@@ -90,12 +90,20 @@ export function useApiQuery<T>(
   });
 }
 
-export function useKpis(path: string | undefined, filters: FilterState): UseQueryResult<ApiEnvelope<KpiMap>, ApiError> {
-  return useApiQuery<KpiMap>('kpis', path, filters);
+export function useKpis(
+  path: string | undefined,
+  filters: FilterState,
+  params?: Record<string, QueryParamValue>,
+): UseQueryResult<ApiEnvelope<KpiMap>, ApiError> {
+  return useApiQuery<KpiMap>('kpis', path, filters, params);
 }
 
-export function useChartData(path: string | undefined, filters: FilterState): UseQueryResult<ApiEnvelope<unknown>, ApiError> {
-  return useApiQuery<unknown>('chart', path, filters);
+export function useChartData(
+  path: string | undefined,
+  filters: FilterState,
+  params?: Record<string, QueryParamValue>,
+): UseQueryResult<ApiEnvelope<unknown>, ApiError> {
+  return useApiQuery<unknown>('chart', path, filters, params);
 }
 
 export function useTableData(

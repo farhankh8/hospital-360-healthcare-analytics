@@ -157,7 +157,14 @@ export const pages: Record<PageSlug, PageConfig> = {
     description: 'Compare every hospital in the network on volume, capacity, finance and outcomes.',
     navGroup: 'Overview',
     kpiEndpoint: '/overview/kpis',
-    kpiIds: ['total_patients', 'total_encounters', 'total_revenue', 'average_occupancy', 'patient_satisfaction', 'claim_denial_rate'],
+    kpiIds: [
+      'hospitals_selected',
+      'total_beds',
+      'patient_volume',
+      'revenue',
+      'average_occupancy',
+      'average_satisfaction'
+    ],
     charts: [
       chart('Revenue ranking', '/charts/hospital-rankings', 'horizontal-bar', 'rankings', { xKey: 'label', valueKey: 'revenue', span: 1 }),
       chart('Patient volume ranking', '/charts/hospital-rankings', 'bar', 'rankings', { xKey: 'label', valueKey: 'patient_volume', span: 1 }),
@@ -181,14 +188,14 @@ export const pages: Record<PageSlug, PageConfig> = {
     navGroup: 'Overview',
     kpiEndpoint: '/hospitals/{id}/kpis',
     kpiIds: [
-      'total_patients',
-      'total_encounters',
-      'total_admissions',
-      'total_revenue',
-      'average_occupancy',
-      'average_los',
+      'patients',
+      'encounters',
+      'admissions',
+      'revenue',
+      'occupancy',
+      'los',
       'patient_satisfaction',
-      'no_show_rate',
+      'staff_count'
     ],
     charts: [
       chart('Monthly patient volume', '/hospitals/{id}/trends', 'line', 'trends', { xKey: 'period', span: 2 }),
@@ -229,8 +236,10 @@ export const pages: Record<PageSlug, PageConfig> = {
       'no_show_appointments',
       'no_show_rate',
       'average_wait_for_appointment',
+      'average_checkin_waiting_time',
+      'appointment_utilization',
       'same_day_appointment_pct',
-      'rescheduling_rate',
+      'rescheduling_rate'
     ],
     charts: [
       chart('Appointment volume', '/appointments/trends', 'line', 'trends', { xKey: 'period', span: 2 }),
@@ -265,7 +274,8 @@ export const pages: Record<PageSlug, PageConfig> = {
       'patients_discharged',
       'patients_transferred',
       'left_without_being_seen',
-      'critical_patient_volume',
+      'emergency_throughput',
+      'critical_patient_volume'
     ],
     charts: [
       chart('Emergency visits trend', '/emergency/trend', 'line', 'trend', { xKey: 'period', span: 2 }),
@@ -306,13 +316,14 @@ export const pages: Record<PageSlug, PageConfig> = {
       'available_beds',
       'occupied_beds',
       'blocked_beds',
-      'average_occupancy',
+      'occupancy_rate',
       'average_los',
       'bed_turnover_rate',
+      'average_discharge_time',
       'admissions',
       'discharges',
       'readmission_rate',
-      'average_boarding_time',
+      'average_boarding_time'
     ],
     charts: [
       chart('Occupancy trend', '/inpatient/occupancy', 'line', 'occupancy', { xKey: 'period', span: 2 }),
@@ -503,6 +514,7 @@ export const pages: Record<PageSlug, PageConfig> = {
       'refund_amount',
       'writeoff_amount',
       'revenue_growth',
+      'revenue_per_hospital'
     ],
     charts: [
       chart('Revenue by hospital', '/charts/finance/hospital', 'bar', 'hospitals', { xKey: 'label', valueKey: 'net_revenue', span: 1 }),
@@ -532,14 +544,15 @@ export const pages: Record<PageSlug, PageConfig> = {
       'claims_submitted',
       'claims_approved',
       'claims_denied',
-      'claim_denial_rate',
+      'denial_rate',
       'pending_claims',
       'total_claimed_amount',
       'approved_amount',
+      'denied_amount',
       'paid_amount',
       'average_processing_time',
       'appeal_success_rate',
-      'outstanding_claim_value',
+      'outstanding_claim_value'
     ],
     charts: [
       chart('Claims trend', '/charts/claims/trend', 'line', 'claims', { xKey: 'period', span: 1 }),
@@ -567,12 +580,17 @@ export const pages: Record<PageSlug, PageConfig> = {
     kpiEndpoint: '/workforce/kpis',
     kpiIds: [
       'total_employees',
+      'active_employees',
       'scheduled_hours',
       'worked_hours',
       'overtime_hours',
       'absence_rate',
       'shift_coverage',
+      'staffing_shortage',
+      'nurse_to_patient_ratio',
+      'physician_utilization',
       'workforce_cost',
+      'open_staffing_gaps'
     ],
     charts: [
       chart('Staffing trend', '/charts/workforce/staffing', 'line', 'staffing', { xKey: 'period', span: 2 }),
@@ -611,14 +629,17 @@ export const pages: Record<PageSlug, PageConfig> = {
     kpiEndpoint: '/inventory/kpis',
     kpiIds: [
       'inventory_value',
+      'total_skus',
+      'stock_available',
       'low_stock_items',
       'stockout_items',
+      'expiring_items',
       'expired_inventory_value',
       'inventory_turnover',
       'purchase_orders',
       'procurement_value',
       'supplier_delivery_performance',
-      'inventory_waste',
+      'inventory_waste'
     ],
     charts: [
       chart('Inventory value trend', '/charts/inventory/value', 'line', 'value', { xKey: 'period', valueKey: 'inventory_value', span: 2 }),
@@ -659,13 +680,15 @@ export const pages: Record<PageSlug, PageConfig> = {
     kpiEndpoint: '/experience/kpis',
     kpiIds: [
       'total_feedback',
-      'average_satisfaction',
+      'average_satisfaction_score',
       'satisfaction_percentage',
       'net_promoter_score',
       'positive_feedback_percentage',
       'negative_feedback_percentage',
       'complaints',
       'complaint_resolution_time',
+      'response_rate',
+      'experience_trend'
     ],
     charts: [
       chart('Satisfaction trend', '/experience/trend', 'line', 'trend', { xKey: 'period', span: 2 }),
@@ -712,6 +735,7 @@ export const pages: Record<PageSlug, PageConfig> = {
       'investigation_completion_rate',
       'average_investigation_time',
       'readmission_rate',
+      'compliance_indicator'
     ],
     charts: [
       chart('Incident trend', '/quality/trend', 'line', 'trend', { xKey: 'period', span: 2 }),

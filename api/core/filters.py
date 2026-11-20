@@ -40,6 +40,51 @@ ALLOWED_FILTER_COLUMNS = {
     "patient_type": {"patient_type"},
 }
 
+# Page-scoped filters requested by the blueprint. Each value is an allowlist of
+# possible column names; the first column present on a table is used. Values are
+# always bound parameters, never interpolated.
+PAGE_FILTER_COLUMNS: dict[str, tuple[str, ...]] = {
+    "doctor_id": ("doctor_id", "surgeon_id", "provider_id"),
+    "appointment_type": ("appointment_type",),
+    "status": ("status",),
+    "age_group": ("age_group",),
+    "booking_channel": ("booking_channel",),
+    "triage_category": ("triage_category",),
+    "disposition": ("disposition",),
+    "arrival_mode": ("arrival_mode",),
+    "ward": ("ward",),
+    "bed_type": ("bed_type",),
+    "admission_type": ("admission_type",),
+    "discharge_type": ("discharge_status", "discharge_disposition"),
+    "or_room": ("or_room",),
+    "procedure_code": ("procedure_code",),
+    "elective_emergency": ("elective_emergency",),
+    "ordering_department": ("ordering_department",),
+    "test_code": ("test_code",),
+    "priority": ("priority",),
+    "result_status": ("result_status", "status"),
+    "medication_code": ("medication_code",),
+    "service_category": ("service_category",),
+    "invoice_status": ("invoice_status",),
+    "payment_status": ("payment_status",),
+    "denial_reason": ("denial_reason",),
+    "claim_type": ("claim_type",),
+    "role": ("role",),
+    "shift_type": ("shift_type",),
+    "employment_type": ("employment_type",),
+    "category": ("category",),
+    "item_id": ("item_id",),
+    "supplier_id": ("supplier_id",),
+    "movement_type": ("movement_type",),
+    "feedback_type": ("feedback_type",),
+    "rating": ("rating",),
+    "sentiment": ("sentiment_label",),
+    "severity": ("severity",),
+    "resolution_status": ("resolution_status",),
+}
+
+NUMERIC_FILTER_TYPES = ("INTEGER", "BIGINT", "DOUBLE", "FLOAT", "DECIMAL", "HUGEINT", "REAL")
+
 
 @dataclass
 class Filters:
@@ -57,6 +102,10 @@ class Filters:
     sort_by: str | None = None
     sort_dir: str = "asc"
     previous: bool = False
+    page_filters: dict[str, str] = field(default_factory=dict)
+    numeric_column: str | None = None
+    numeric_min: str | None = None
+    numeric_max: str | None = None
 
     def applied(self) -> dict[str, Any]:
         return {
@@ -68,6 +117,10 @@ class Filters:
             "payer_id": self.payer_id,
             "encounter_type": self.encounter_type,
             "patient_type": self.patient_type,
+            "page_filters": self.page_filters,
+            "numeric_column": self.numeric_column,
+            "numeric_min": self.numeric_min,
+            "numeric_max": self.numeric_max,
             "search": self.search,
         }
 
@@ -102,6 +155,12 @@ def parse_filters(request: Request) -> Filters:
         sort_by=q.get("sort_by") or None,
         sort_dir=sort_dir,
         previous=(q.get("previous") or "").lower() in {"1", "true", "yes"},
+        page_filters={
+            name: value for name in PAGE_FILTER_COLUMNS if (value := q.get(name))
+        },
+        numeric_column=q.get("numeric_column") or None,
+        numeric_min=q.get("numeric_min") or None,
+        numeric_max=q.get("numeric_max") or None,
     )
 
 
@@ -134,6 +193,7 @@ def build_where(
     date_col: str = "month",
     hospital_col: str = "hospital_id",
     use_previous: bool = False,
+    date_col_sql: str | None = None,
 ) -> tuple[str, dict[str, Any]]:
     """Build an allowlisted, parameterised WHERE clause.
 
@@ -146,8 +206,9 @@ def build_where(
 
     if date_col in available_columns and date_col in ALLOWED_FILTER_COLUMNS["date_from_date"]:
         date_from, date_to = shift_period(f) if use_previous else (f.date_from, f.date_to)
-        clauses.append(f"CAST({date_col} AS DATE) >= CAST($date_from AS DATE)")
-        clauses.append(f"CAST({date_col} AS DATE) <= CAST($date_to AS DATE)")
+        sql_col = date_col_sql or date_col
+        clauses.append(f"CAST({sql_col} AS DATE) >= CAST($date_from AS DATE)")
+        clauses.append(f"CAST({sql_col} AS DATE) <= CAST($date_to AS DATE)")
         params["date_from"] = date_from
         params["date_to"] = date_to
 
@@ -174,6 +235,14 @@ def build_where(
             col = min(candidates)
             clauses.append(f"{col} = ${name}")
             params[name] = value
+
+    for name, value in f.page_filters.items():
+        candidates = [c for c in PAGE_FILTER_COLUMNS.get(name, ()) if c in available_columns]
+        if not candidates:
+            continue
+        key = f"pf_{name}"
+        clauses.append(f"{candidates[0]} = ${key}")
+        params[key] = value
 
     where = " WHERE " + " AND ".join(clauses) if clauses else ""
     return where, params

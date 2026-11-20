@@ -124,6 +124,16 @@ export interface TableColumn {
 
 export type TableRow = Record<string, unknown>;
 
+export interface PageFilterDef {
+  /** API query parameter name, also used as the shareable URL key. */
+  name: string;
+  label: string;
+  /** Key in /filters/options when the options are data-driven. */
+  optionsKey?: string;
+  kind?: 'select' | 'text';
+  placeholder?: string;
+}
+
 export interface PageConfig {
   slug: string;
   path: string;
@@ -136,6 +146,7 @@ export interface PageConfig {
   tableEndpoint?: string;
   tableColumns: TableColumn[];
   filters: FilterKey[];
+  pageFilters?: PageFilterDef[];
   profileEndpoint?: string;
   special?: boolean;
 }

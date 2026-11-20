@@ -17,7 +17,9 @@ with 21 connected web pages, a documented KPI contract and a reproducible ETL pi
 
 ## 1. Project overview
 
-Hospital leadership routinely asks questions that span several source systems: which
+The fictional network is **NovaCare Health Network**, operating ten hospitals as specified
+in the blueprint. Hospital leadership routinely asks questions that span several source
+systems: which
 hospitals are performing best, why waiting times are rising, where bed capacity is tight,
 where revenue is leaking, which claims are denied, which departments are understaffed and
 which medicines are running out. HOSPITAL 360 brings those questions into one place.

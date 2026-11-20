@@ -63,6 +63,23 @@ the quality-domain `readmission_rate` now uses the canonical readmissions/discha
 - `patient_satisfaction = average_satisfaction / 5 * 100`; both values come from the same `silver_feedback.rating` field.
 - `average_investigation_time` excludes NULL durations from numerator and denominator.
 
+Reproduced against the regenerated DuckDB (`RUN_20261120_010`):
+
+| Measure | Value |
+|---|---:|
+| Distinct encounter patients | 15,119 |
+| Gross revenue | 127,704,922.53 |
+| Discounts (gross - net) | 9,561,719.77 |
+| Net revenue | 118,143,202.76 |
+| Invoice paid amount | 76,092,132.66 |
+| Invoice outstanding balance | 42,051,070.10 |
+| Cleared collections net of refunds | 65,336,298.37 |
+| Aggregate collection rate | 55.3026% (uncapped) |
+| Department-month rows >100% | 279 (flagged, not clipped) |
+| Hospital-month rows >100% | 0 |
+| Gold satisfaction score / percentage | 3.836235 / 76.720902 |
+| Null-excluded investigation mean (days) | 7.062766 |
+
 ## 6. Files changed
 
 - `analytics/kpi_definitions/kpis.json`

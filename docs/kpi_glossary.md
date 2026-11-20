@@ -101,6 +101,36 @@ API, with a comparison period, sparkline, unit and definition.
 - **Caveat:** Gross revenue is not cash collected; do not confuse with `net_collections`.
 - **Validation:** revenue reconciles between network-daily, hospital-monthly and finance gold tables.
 
+### `revenue`
+- **Name:** Revenue (net)
+- **Business definition:** Net invoice revenue after discounts. This is the only meaning of the response key `revenue` across API endpoints.
+- **Formula:** `SUM(net_amount)` of invoices
+- **Numerator:** Invoice `net_amount`
+- **Denominator:** n/a
+- **Grain:** Hospital x month / department x month
+- **Date field:** `invoice_date`
+- **Exclusions:** negative/invalid amounts quarantined in silver; cancelled invoices
+- **Source:** `gold_network_daily.revenue`, `gold_department_monthly.revenue`, `gold_hospital_monthly.net_revenue`
+- **Dimensions:** Hospital, department, payer, service category, month
+- **Target:** n/a
+- **Caveat:** `total_revenue` is gross and must not be used interchangeably. `revenue` is no longer emitted as an alias of `total_revenue`.
+- **Validation:** `gross_revenue = net_revenue + discounts + adjustments`; daily, hospital and department totals reconcile.
+
+### `average_satisfaction`
+- **Name:** Average Satisfaction Score
+- **Business definition:** Mean survey rating on the documented 1-5 scale.
+- **Formula:** `AVG(rating)`
+- **Numerator:** Sum of ratings
+- **Denominator:** Count of feedback submissions
+- **Grain:** Hospital x month / department x month
+- **Date field:** `visit_date`
+- **Exclusions:** feedback with invalid patient/hospital references
+- **Source:** `gold_patient_experience.avg_rating` <- `silver_feedback.rating`
+- **Dimensions:** Hospital, department, category, month
+- **Target:** 4.2 (illustrative)
+- **Caveat:** Unit is `score`, never `percent`. `average_satisfaction_score` is a documented alias; `patient_satisfaction` is the percentage conversion.
+- **Validation:** rating in 1..5; empty denominator -> `NULL`.
+
 ### `net_collections`
 - **Name:** Net collections
 - **Business definition:** Cash actually collected in the period.
@@ -147,19 +177,19 @@ API, with a comparison period, sparkline, unit and definition.
 - **Validation:** open admissions do not affect the denominator; `los_days = discharge - admission`.
 
 ### `patient_satisfaction`
-- **Name:** Patient satisfaction
-- **Business definition:** Mean survey rating on a 1-5 scale.
-- **Formula:** `AVG(rating)` (and `satisfaction_pct = share of ratings >= 4 * 100` in `gold_patient_experience`)
-- **Numerator:** Sum of ratings; count of ratings >= 4
-- **Denominator:** Count of feedback submissions
+- **Name:** Patient satisfaction (percentage)
+- **Business definition:** Mean 1-5 rating converted to a 0-100 scale. The raw 1-5 score is the separate `average_satisfaction` KPI.
+- **Formula:** `AVG(rating) / 5 * 100`
+- **Numerator:** Feedback-weighted mean of `satisfaction_pct`
+- **Denominator:** Constant `5` (maximum rating), then feedback count for weighting
 - **Grain:** Hospital x month / department x month
-- **Date field:** `visit_date`
+- **Date field:** `visit_date` at source; API filters the gold `month` column derived from it
 - **Exclusions:** feedback with invalid patient/hospital references
-- **Source:** `gold_hospital_monthly.avg_satisfaction`, `gold_patient_experience.avg_rating` <- `silver_feedback`
+- **Source:** `gold_patient_experience.satisfaction_pct` <- `silver_feedback.rating`
 - **Dimensions:** Hospital, department, category, month
-- **Target:** n/a
-- **Caveat:** Sentiment labels are synthetic, not AI analysis of real feedback. Response bias is not modelled.
-- **Validation:** rating in 1..5; empty denominator -> `NULL`.
+- **Target:** 80 percent (illustrative)
+- **Caveat:** `average_satisfaction` is never an alias for this percentage. Sentiment labels are synthetic; response bias is not modelled.
+- **Validation:** rating in 1..5; `satisfaction_pct = avg_rating / 5 * 100`; empty denominator -> `NULL`.
 
 ### `no_show_rate`
 - **Name:** Appointment no-show rate
@@ -203,8 +233,8 @@ API, with a comparison period, sparkline, unit and definition.
 - **Source:** `gold_hospital_monthly.collection_rate`, `gold_financial_performance.collection_rate` <- `silver_payments`, `silver_invoices`
 - **Dimensions:** Hospital, payer, department, month
 - **Target:** illustrative >= 95% (not a measured result)
-- **Caveat:** Cash and invoice dates differ; the rate is a period indicator, not a cohort collection curve. Values above 100% are possible if prior-period balances are collected and must be flagged, not clipped.
-- **Validation:** recomputes from collections and net revenue; empty denominator -> `NULL`; refunds reduce the numerator.
+- **Caveat:** Cash and invoice dates differ; the rate is a period indicator, not a cohort collection curve. Values above 100% are valid when prior-period balances are collected and are flagged, never capped. Gold tables, KPI specs and charts are all uncapped.
+- **Validation:** recomputes from collections and net revenue; empty denominator -> `NULL`; refunds reduce the numerator; API value equals the unrounded gold expression at the same grain.
 
 ### `readmission_rate`
 - **Name:** 30-day readmission rate
@@ -315,20 +345,39 @@ target, caveat and validation test) for every row live in the JSON registry.
 | Inventory | `purchase_orders`, `procurement_value` | PO count / value | hospital x supplier x month | n/a | reconciles with PO lines |
 | Inventory | `supplier_delivery_performance` | on-time receipts / receipts x100 | hospital x supplier x month | no receipts -> NULL | 0..100 or NULL |
 | Experience | `total_feedback` | `COUNT(*)` | hospital x dept x month, `visit_date` | invalid refs excluded | matches gold count |
-| Experience | `average_satisfaction_score` | `AVG(rating)` | hospital x dept x month | rating 1..5 | range 1..5 or NULL |
-| Experience | `satisfaction_percentage` | share rating >= 4 x100 | hospital x month | n/a | 0..100 or NULL |
+| Experience | `average_satisfaction` / `average_satisfaction_score` | `AVG(rating)` | hospital x dept x month | rating 1..5 | range 1..5 or NULL |
+| Experience | `patient_satisfaction` / `satisfaction_percentage` | `AVG(rating)/5*100` | hospital x month | n/a | 0..100 or NULL |
 | Experience | `net_promoter_score` | promoters% - detractors% | hospital x month | no feedback -> NULL | -100..100 or NULL |
 | Experience | `positive_feedback_percentage`, `negative_feedback_percentage` | sentiment shares | hospital x month | synthetic labels | 0..100 or NULL |
 | Experience | `complaints` | `COUNT(complaint_flag)` | hospital x month | n/a | complaint text synthetic |
 | Experience | `complaint_resolution_time` | `AVG(resolution_days)` | hospital x month | open complaints excluded | non-negative |
-| Experience | `response_rate` | feedback / encounters x100 | hospital x month | encounters = 0 -> NULL | 0..100 or NULL |
+| Experience | `response_rate` | resolved feedback / feedback x100 | hospital x month | no feedback -> NULL | 0..100 or NULL |
 | Quality | `total_incidents` | `COUNT(*)` | hospital x dept x month, `incident_date` | n/a | severity allowlist |
 | Quality | `incident_rate` | incidents / encounters x100 | hospital x month | encounters = 0 -> NULL | 0..100 or NULL |
 | Quality | `falls_reported`, `medication_incidents`, `infection_incidents` | category counts | hospital x dept x month | n/a | category allowlist |
 | Quality | `incident_severity_distribution` | counts by severity | hospital x month | n/a | severity allowlist |
 | Quality | `investigation_completion_rate` | completed / incidents x100 | hospital x month | open incidents in denominator | 0..100 or NULL |
-| Quality | `average_investigation_time` | `AVG(investigation_days)` | hospital x month | incomplete excluded | non-negative |
+| Quality | `average_investigation_time` / `avg_investigation_time` | incident-weighted `AVG(investigation_days)` | hospital x dept x month | incomplete excluded from numerator and denominator | non-negative |
 | Quality | `compliance_indicator` | documented composite | hospital x month | no clinical use | documented formula |
+
+## Revenue reconciliation (Phase 2)
+
+Invoices are the accrual source. The following identities are tested against
+`silver_invoices` and the gold models; none of them forces gross to equal net:
+
+- `gross_revenue = net_revenue + discounts + adjustments`
+- `discounts = SUM(gross_amount - net_amount)`; generated data has no separate
+  post-discount adjustment column, so `adjustments = 0` and is documented rather
+  than invented.
+- `net_revenue = invoice_paid_amount + invoice_balance_amount`
+- `payments_collected = cleared positive payments - cleared refunds`; this is a
+  cash-basis measure and is deliberately not equal to `invoice_paid_amount` when
+  payment dates differ from invoice dates.
+- `outstanding_balance = SUM(balance_amount)` from invoices; it is not
+  `net_revenue - payments_collected` across different date windows.
+- `collection_rate = payments_collected / net_revenue * 100`, uncapped. A value
+  above 100% means prior-period balances were collected in the period and is
+  flagged for review, not clipped.
 
 ## Interpretation rules
 

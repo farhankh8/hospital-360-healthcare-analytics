@@ -71,7 +71,7 @@ same_day_pct DOUBLE, reschedule_rate DOUBLE`
 ### 3.5 `gold_bed_utilization`
 `hospital_id, ward, month, total_beds INT, occupied_bed_days DOUBLE,
 available_bed_days DOUBLE, blocked_bed_days DOUBLE, occupancy_rate DOUBLE,
-avg_los_days DOUBLE, bed_turnover DOUBLE, avg_boarding_hours DOUBLE`
+avg_los_days DOUBLE, discharges INT, bed_turnover DOUBLE, avg_boarding_hours DOUBLE`
 
 ### 3.6 `gold_financial_performance`
 `hospital_id, department_id, month, gross_revenue DOUBLE, net_revenue DOUBLE,
@@ -158,6 +158,13 @@ KPI ids (use exactly these keys): `total_patients, total_encounters, total_admis
 total_revenue, net_collections, average_occupancy, average_los, patient_satisfaction,
 no_show_rate, claim_denial_rate, collection_rate, ...` (module-specific ids in
 `analytics/kpi_definitions/kpis.json`).
+
+Canonical semantics (Phase 2): `total_revenue` is gross, `revenue` is net and is
+never an alias of `total_revenue`; `patient_satisfaction` is a 0-100 percentage and
+`average_satisfaction` is the 1-5 score; `average_investigation_time` is canonical
+with `avg_investigation_time` as a documented alias; `collection_rate` is uncapped
+and values above 100% are flagged, not clipped. The KPI JSON file is the single
+definition contract; every API spec and frontend id is validated against it.
 
 ## 5. Frontend pages (21)
 

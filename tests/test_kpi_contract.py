@@ -55,6 +55,19 @@ def _frontend_ids() -> set[str]:
     return result
 
 
+def _frontend_endpoint_map() -> dict[str, list[str]]:
+    """Map each page KPI endpoint to the IDs that page asks the API for."""
+    text = PAGES_PATH.read_text(encoding="utf-8")
+    result: dict[str, list[str]] = {}
+    for match in re.finditer(r"kpiEndpoint:\s*'([^']+)'", text):
+        endpoint = match.group(1)
+        tail = text[match.end():match.end() + 3000]
+        block = re.search(r"kpiIds:\s*\[(.*?)\]", tail, re.DOTALL)
+        if block:
+            result[endpoint] = re.findall(r"'([a-z0-9_]+)'", block.group(1))
+    return result
+
+
 @pytest.fixture
 def client():
     module = pytest.importorskip("api.main")
@@ -238,3 +251,51 @@ def test_api_gross_net_and_collection_values_reconcile(client, duckdb_conn, duck
     assert finance["revenue"]["value"] == pytest.approx(round(net, 2), abs=0.01)
     assert finance["net_revenue"]["value"] == pytest.approx(round(net, 2), abs=0.01)
     assert finance["collection_rate"]["value"] == pytest.approx(round(expected_rate, 2), abs=0.01)
+
+
+def test_every_frontend_kpi_id_is_present_in_its_api_response(client, duckdb_path) -> None:
+    for endpoint, ids in _frontend_endpoint_map().items():
+        response = client.get("/api/v1" + endpoint)
+        assert response.status_code == 200, endpoint
+        data = response.json()["data"]
+        missing = [key for key in ids if key not in data]
+        assert not missing, f"{endpoint} missing frontend KPI keys: {missing}"
+
+
+def test_department_filter_changes_chart_aggregation(client, duckdb_path) -> None:
+    all_rows = client.get("/api/v1/charts/experience/department").json()["data"]
+    one_department = client.get(
+        "/api/v1/charts/experience/department?department_id=D001"
+    ).json()["data"]
+    assert len(one_department) == 1
+    assert len(one_department) < len(all_rows)
+    assert "Cardiology" in one_department[0]["label"]
+
+
+def test_boundary_and_empty_date_ranges_are_controlled(client, duckdb_path) -> None:
+    full = client.get("/api/v1/overview/kpis").json()["data"]
+    first_day = client.get(
+        "/api/v1/overview/kpis?date_from=2025-01-01&date_to=2025-01-01"
+    ).json()["data"]
+    empty = client.get(
+        "/api/v1/overview/kpis?date_from=2030-01-01&date_to=2030-01-31"
+    ).json()["data"]
+    assert 0 < first_day["total_patients"]["value"] < full["total_patients"]["value"]
+    assert first_day["total_revenue"]["value"] < full["total_revenue"]["value"]
+    assert empty["total_patients"]["value"] == 0
+    assert empty["total_revenue"]["value"] is None
+
+    empty_finance = client.get(
+        "/api/v1/finance/kpis?date_from=2030-01-01&date_to=2030-01-31"
+    ).json()["data"]
+    assert empty_finance["collection_rate"]["value"] is None
+
+
+def test_glossary_endpoint_returns_canonical_contract_fields(client, duckdb_path) -> None:
+    rows = client.get("/api/v1/kpis/glossary").json()["data"]
+    assert len(rows) == 190
+    assert all(row["contract_version"] == "phase2-kpi-integrity-v1" for row in rows)
+    by_id = {row["id"]: row for row in rows}
+    assert by_id["patient_satisfaction"]["units"] == "percent"
+    assert by_id["average_satisfaction"]["units"] == "score"
+    assert "avg_investigation_time" in by_id["average_investigation_time"]["aliases"]

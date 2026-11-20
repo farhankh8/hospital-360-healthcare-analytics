@@ -13,6 +13,8 @@ Canonical contract: `analytics/kpi_definitions/kpis.json` (`phase2-kpi-integrity
 - Recorded audit findings: **154** across the 190 definitions.
 - Formula strings containing division without an explicit `NULLIF`: **39** (all executable API specs use `NULLIF`).
 - No KPI definition was deleted. One definition (`revenue_per_hospital_department`) is retained as a documented, unconsumed definition.
+- Resolution counts: 190 canonicalised, 7 named conflicts resolved, 19 glossary pseudo-SQL formulas corrected, 3 date-field references disabled, 29 aliases documented, 1 unused definition retained, 0 deletions, 0 blocking decisions.
+- Deprecated/deduplicated response keys are retained as documented aliases, including `avg_investigation_time` and `average_satisfaction_score`.
 - No Phase 3, deployment, advanced analytics or machine-learning work was started.
 
 ## 2. Scope and method
@@ -21,6 +23,9 @@ Read-only source inspection plus read-only DuckDB reproduction against `data/hos
 Every layer was traced: `kpis.json`, all 12 gold SQL models, `analytics/kpis.py`,
 `api/services/kpi_specs.py`, `api/services/metrics.py`, API routes, `web/lib/page-configs.ts`,
 `web/lib/format.ts`, KPI cards, glossary pages and existing tests. The frontend performs no business calculation.
+There is no Pydantic KPI response model: `api/core/responses.py` returns a generic envelope and
+`web/lib/types.ts` types KPI values loosely. This was traced but not changed because strict response
+schemas belong to the Phase 3 API contract work.
 
 ## 3. Requested-item coverage
 
@@ -80,6 +85,16 @@ Reproduced against the regenerated DuckDB (`RUN_20261120_010`):
 | Gold satisfaction score / percentage | 3.836235 / 76.720902 |
 | Null-excluded investigation mean (days) | 7.062766 |
 
+Before/after reconciliation examples:
+
+| KPI | Before | After |
+|---|---|---|
+| `total_patients` | Monthly gold values summed to 80,877, double-counting return patients | `COUNT(DISTINCT patient_id)` = 15,119 |
+| `revenue` / `total_revenue` | `revenue` emitted gross 127,704,922.53 as an alias | `total_revenue` = gross 127,704,922.53; `revenue` = net 118,143,202.76 |
+| `collection_rate` | Capped at 100; 279 department-month values hidden; capped monthly mean 55.4734 | Uncapped aggregate 55.3026; 279 values above 100 flagged, not clipped |
+| `average_satisfaction` | Percent (77.169231) and score (3.858462) shared one name | `average_satisfaction` = score 3.836235; `patient_satisfaction` = percent 76.720902 |
+| Investigation time | API returned 6.419165 days by counting NULL-duration incidents in the weight | Canonical long-form ID returns 7.062766 days; short ID is an alias |
+
 ## 6. Files changed
 
 - `analytics/kpi_definitions/kpis.json`
@@ -106,19 +121,22 @@ Reproduced against the regenerated DuckDB (`RUN_20261120_010`):
 ## 7. Reconciliation tests
 
 `tests/test_kpi_contract.py` asserts: contract completeness and uniqueness; alias collisions;
-API/frontend/contract coverage; gross vs net KPI identity; distinct-patient count; satisfaction scale;
-collection-rate cap removal and NULL denominator; investigation ID/weighted-null correctness;
-date-filter column validity; revenue reconciliation from silver invoices; and API-vs-gold value equality.
+API/frontend/contract coverage; every configured frontend KPI key exists in its page API response;
+gross vs net KPI identity; distinct-patient count; satisfaction scale; collection-rate cap removal
+and NULL denominator; investigation ID/weighted-null correctness; hospital/date/department filters;
+boundary and empty date ranges; glossary contract fields; date-filter column validity; revenue
+reconciliation from silver invoices; and API-vs-gold value equality.
 `tests/test_gold.py` no longer treats `collection_rate` as bounded by 100 and instead checks non-negative plus NULL denominator behavior.
 
 ## 8. Gate evidence
 
 - `ruff check .`: PASS (0 errors).
-- `python -m pytest -q`: PASS (104 passed, 2 non-failing deprecation warnings).
+- `python -m pytest -q`: PASS (108 passed, 2 non-failing deprecation warnings).
 - `python scripts/verify_project.py`: PASS (bronze, manifest, DuckDB and all API endpoints).
 - Pipeline `RUN_20261120_010`: SUCCESS; 1,588,637 source rows; 1,585,818 valid rows; 2,819 quarantined rows; 304/304 DQ rules pass; 12 gold models materialised.
 - `npm run lint`, `npm run typecheck`, `npm run build`: PASS.
 - Playwright (`npx playwright test --config=e2e/playwright.config.ts`): PASS (18 passed, chromium + mobile).
+- Frontend contract resolution: all 15 configured page KPI endpoints return every configured frontend KPI key.
 
 ## 9. Full 190-KPI inventory
 
@@ -314,4 +332,15 @@ date-filter column validity; revenue reconciliation from silver invoices; and AP
 | `sla_compliance` | SLA Compliance Rate | percent | `results_within_sla / timed_results * 100` | silver_lab_results, dim_lab_test | result_at | sla_compliance_rate | api_only | Duplicate display name; disambiguated by canonical ID and unit.; Formula text lacks an explicit NULLIF; executable sp... |
 | `stockouts` | Stockout Items | count | `COUNT(DISTINCT item_id) FILTER (cum_qty<=0)` | silver_inventory_movements | movement_date | stockout_items | api_only | Duplicate display name; disambiguated by canonical ID and unit.; Backend producer has no explicit frontend card (char... |
 | `supplier_delivery` | Supplier Delivery Performance | percent | `SUM(supplier_on_time_rate * inventory_value) / NULLIF(SUM(inventory_value), 0)` | silver_purchase_orders | received_date | supplier_delivery_performance | api_only | Duplicate display name; disambiguated by canonical ID and unit.; Glossary pseudo-SQL was corrected to executable form... |
+
+## 10. Remaining issues and Phase 3 recommendation
+
+Remaining issues, all non-blocking for Phase 2:
+
+1. `revenue_per_hospital_department` is retained as an unused definition because the Phase 2 rule forbids deletion without a decision; it is documented in the inventory.
+2. 39 glossary formula strings still contain `/` without the literal token `NULLIF`. Every executable API spec uses `NULLIF`, so there is no runtime zero-denominator risk; normalising the remaining prose is a documentation-only cleanup.
+3. There is no Pydantic KPI response model. The generic envelope and loose TypeScript types were traced and deliberately left for the Phase 3 API contract work.
+4. No public deployment URL exists; that belongs to Phase 5.
+
+Exact Phase 3 recommendation: begin `feature/phase3-api-contract` from commit `49cd05d`, preserve every Phase 2 commit, and limit work to pagination, error envelopes, export limits, filtering contract and Docker configuration. Do not change a KPI definition without reopening this canonical contract and adding a reconciliation test.
 

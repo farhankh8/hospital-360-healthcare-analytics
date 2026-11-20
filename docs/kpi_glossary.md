@@ -362,8 +362,17 @@ target, caveat and validation test) for every row live in the JSON registry.
 
 ## Revenue reconciliation (Phase 2)
 
-Invoices are the accrual source. The following identities are tested against
-`silver_invoices` and the gold models; none of them forces gross to equal net:
+Invoices are the accrual source. The following definitions and identities are
+tested against `silver_invoices` and the gold models; none of them forces gross
+to equal net:
+
+- **Gross revenue** — `SUM(gross_amount)`, the full charged amount before discounts.
+- **Discounts** — `SUM(gross_amount - net_amount)`, contractual/payer reductions applied on the invoice.
+- **Adjustments** — post-discount changes to the invoice amount. The generated data has no separate adjustment column, so this is defined as 0 rather than invented.
+- **Refunds** — negative cash payments returned to a payer/patient. They reduce `payments_collected`; they are not invoice discounts.
+- **Net revenue** — `SUM(net_amount)`, gross revenue less discounts and adjustments.
+- **Payments collected** — cleared positive payments minus cleared refunds, on the payment date; a cash-basis measure.
+- **Outstanding balance** — `SUM(balance_amount)` from invoices at the invoice grain.
 
 - `gross_revenue = net_revenue + discounts + adjustments`
 - `discounts = SUM(gross_amount - net_amount)`; generated data has no separate

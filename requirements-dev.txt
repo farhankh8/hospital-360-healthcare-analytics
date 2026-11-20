@@ -1,0 +1,8 @@
+# HOSPITAL 360 - development / test dependencies
+-r requirements.txt
+pytest==9.1.1
+pytest-cov==7.1.0
+pytest-asyncio==1.4.0
+ruff==0.16.8
+playwright==1.55.0
+black==25.1.0

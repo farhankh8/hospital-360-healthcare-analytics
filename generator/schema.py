@@ -22,6 +22,30 @@ TABLES: dict[str, list[tuple[str, str, str]]] = {
         ("latitude", "float64", "Synthetic latitude"),
         ("longitude", "float64", "Synthetic longitude"),
     ],
+    "dim_patient": [
+        ("patient_id", "string", "PAT000001.. (conformed patient key)"),
+        ("first_name", "string", "Synthetic first name"),
+        ("last_name", "string", "Synthetic last name"),
+        ("birth_date", "date", "Date of birth (historical attribute, may precede reporting window)"),
+        ("gender", "string", "Male / Female / Other"),
+        ("city", "string", "City"),
+        ("state", "string", "State / region"),
+        ("registration_date", "date", "Registration date (historical attribute, may precede reporting window)"),
+        ("blood_type", "string", "ABO group"),
+        ("patient_type", "string", "New / Returning"),
+        ("age_group", "string", "Derived age band at reporting-window end"),
+    ],
+    "dim_location": [
+        ("location_id", "string", "LOC-H01..LOC-H10"),
+        ("hospital_id", "string", "FK dim_hospital"),
+        ("location_name", "string", "Synthetic facility location name"),
+        ("location_type", "string", "Hospital campus / Satellite site"),
+        ("address_line", "string", "Synthetic street address"),
+        ("city", "string", "City / district"),
+        ("state", "string", "State / region"),
+        ("latitude", "float64", "Synthetic latitude"),
+        ("longitude", "float64", "Synthetic longitude"),
+    ],
     "dim_specialty": [
         ("specialty_id", "string", "S01.."),
         ("specialty_name", "string", "Specialty name"),
@@ -135,6 +159,7 @@ TABLES: dict[str, list[tuple[str, str, str]]] = {
         ("registration_date", "date", "Registration date"),
         ("blood_type", "string", "ABO group"),
         ("patient_type", "string", "New / Returning"),
+        ("age_group", "string", "Derived age band at reporting-window end"),
     ],
     "appointments": [
         ("appointment_id", "string", "APT0000001.."),
@@ -410,9 +435,10 @@ BRONZE_TABLES = list(TABLES.keys())
 
 # Reference/dimension tables that are generated once and reused.
 DIMENSION_TABLES = [
-    "dim_hospital", "dim_specialty", "dim_department", "dim_doctor", "dim_staff",
-    "dim_payer", "dim_diagnosis", "dim_procedure", "dim_medication", "dim_lab_test",
-    "dim_service", "dim_supplier", "dim_inventory_item", "dim_bed", "dim_date", "dim_time",
+    "dim_hospital", "dim_patient", "dim_location", "dim_specialty", "dim_department",
+    "dim_doctor", "dim_staff", "dim_payer", "dim_diagnosis", "dim_procedure",
+    "dim_medication", "dim_lab_test", "dim_service", "dim_supplier",
+    "dim_inventory_item", "dim_bed", "dim_date", "dim_time",
 ]
 
 # Transactional fact-like tables.

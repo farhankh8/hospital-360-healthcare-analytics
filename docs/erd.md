@@ -1,6 +1,6 @@
 # HOSPITAL 360 - Entity Relationship Diagram
 
-> Generated from `generator/schema.py`. All 39 tables (16 dimensions + 23
+> Generated from `generator/schema.py`. All 41 tables (18 dimensions + 23
 > transactional / fact-like tables) are shown with their columns. Fact grains
 > follow blueprint section 9 and are repeated below for quick reference.
 
@@ -16,6 +16,30 @@ erDiagram
         string hospital_type
         int beds
         string status
+        float latitude
+        float longitude
+    }
+    dim_patient {
+        string patient_id PK "PAT000001.."
+        string first_name
+        string last_name
+        date birth_date "Historical attribute"
+        string gender
+        string city
+        string state
+        date registration_date "Historical attribute"
+        string blood_type
+        string patient_type
+        string age_group
+    }
+    dim_location {
+        string location_id PK "LOC-H01.."
+        string hospital_id FK "Parent hospital"
+        string location_name
+        string location_type
+        string address_line
+        string city
+        string state
         float latitude
         float longitude
     }
@@ -424,7 +448,9 @@ erDiagram
     dim_hospital ||--o{ dim_bed : "hospital_id"
     dim_hospital ||--o{ dim_department : "hospital_id"
     dim_hospital ||--o{ dim_doctor : "hospital_id"
+    dim_hospital ||--o{ dim_location : "hospital_id"
     dim_hospital ||--o{ dim_staff : "hospital_id"
+    dim_patient ||--o{ patients : "patient_id"
     dim_hospital ||--o{ dispensing : "hospital_id"
     dim_hospital ||--o{ encounters : "hospital_id"
     dim_hospital ||--o{ feedback : "hospital_id"

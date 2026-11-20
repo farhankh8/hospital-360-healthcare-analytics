@@ -42,12 +42,14 @@ RULES: dict[str, dict[str, str]] = {
     "NEGATIVE_DURATION": {"severity": "error", "description": "A duration/hour measure is negative."},
     "NUMERIC_OUT_OF_RANGE": {"severity": "error", "description": "A numeric value falls outside its documented range (rating 1-5, NPS 0-10, reliability 0-1)."},
     "FK_ORPHAN": {"severity": "error", "description": "Foreign key references a parent record that does not exist in silver."},
+    "FK_NULL": {"severity": "error", "description": "A required foreign key is null and the record is quarantined."},
     "STATUS_INVALID": {"severity": "warning", "description": "Status value was not in the canonical vocabulary; Title Case normalisation applied."},
     "NULL_FK": {"severity": "warning", "description": "Business-nullable foreign key (e.g. payer_id) is missing; record retained."},
 }
 
 PRIMARY_KEYS: dict[str, str] = {
-    "dim_hospital": "hospital_id", "dim_specialty": "specialty_id",
+    "dim_hospital": "hospital_id", "dim_patient": "patient_id",
+    "dim_location": "location_id", "dim_specialty": "specialty_id",
     "dim_department": "department_id", "dim_doctor": "doctor_id",
     "dim_staff": "staff_id", "dim_payer": "payer_id",
     "dim_diagnosis": "diagnosis_code", "dim_procedure": "procedure_code",
@@ -71,7 +73,7 @@ PRIMARY_KEYS: dict[str, str] = {
 
 # Dimensions before facts; patients before all clinical facts.
 PROCESS_ORDER: list[str] = [
-    "dim_hospital", "dim_specialty", "dim_payer", "dim_supplier",
+    "dim_hospital", "dim_patient", "dim_location", "dim_specialty", "dim_payer", "dim_supplier",
     "dim_diagnosis", "dim_lab_test", "dim_service", "dim_medication",
     "dim_department", "dim_doctor", "dim_staff", "dim_bed",
     "dim_procedure", "dim_inventory_item", "dim_date", "dim_time",
@@ -83,6 +85,7 @@ PROCESS_ORDER: list[str] = [
 ]
 
 FOREIGN_KEYS: dict[str, list[tuple[str, str]]] = {
+    "dim_location": [("hospital_id", "dim_hospital")],
     "dim_department": [("hospital_id", "dim_hospital"), ("specialty_id", "dim_specialty")],
     "dim_doctor": [("hospital_id", "dim_hospital"), ("department_id", "dim_department"), ("specialty_id", "dim_specialty")],
     "dim_staff": [("hospital_id", "dim_hospital"), ("department_id", "dim_department")],
@@ -116,9 +119,7 @@ FOREIGN_KEYS: dict[str, list[tuple[str, str]]] = {
 # FKs whose absence is an intentional, documented DQ-injection ("missing_payer")
 # or is explicitly nullable in schema.py.  Kept as null with a warning.
 NULLABLE_FKS: set[tuple[str, str]] = {
-    ("encounters", "appointment_id"),
     ("invoices", "payer_id"),
-    ("claims", "payer_id"),
     ("invoices", "encounter_id"),
 }
 
@@ -366,11 +367,9 @@ def clean_table(
             df[col] = _as_date(df[col])
 
     # --- standardisation --------------------------------------------------
-    status_invalid_count = 0
     for col in columns:
         if col == "status" or col.endswith("_status"):
-            df[col], n = _normalise_status(df[col])
-            status_invalid_count += n
+            df[col], _ = _normalise_status(df[col])
     if "hospital_id" in df.columns:
         df["hospital_id"] = _normalise_hospital(df["hospital_id"])
 
@@ -385,6 +384,19 @@ def clean_table(
         for idx in df.index[mask.fillna(False)]:
             failures.setdefault(idx, []).append((rule_id, reason_fn(idx)))
         rule_failures[rule_id] = rule_failures.get(rule_id, 0) + int(mask.sum())
+
+    # --- canonical appointment status (invalid injected values quarantined) -
+    # Only appointments.status has a single documented vocabulary. Other tables use
+    # domain-specific status labels (Paid, Active, Final, ...) and must not be checked here.
+    if table == "appointments" and "status" in df.columns:
+        bad = df["status"].notna() & ~df["status"].isin(CANONICAL_STATUSES)
+        fail(bad, "STATUS_INVALID",
+             lambda i: f"status={df.at[i, 'status']!r} is not a canonical appointment status")
+
+    # --- required claim payer ---------------------------------------------
+    if table == "claims" and "payer_id" in df.columns:
+        fail(df["payer_id"].isna(), "FK_NULL",
+             lambda i: "claims.payer_id is required for financial reporting")
 
     # --- primary key ------------------------------------------------------
     pk = PRIMARY_KEYS.get(table)
@@ -477,10 +489,6 @@ def clean_table(
         bad = c.notna() & p.notna() & (c < p)
         fail(bad, "DATE_ORDER_INVALID", lambda i, msg=reason: msg)
 
-    # --- status warnings (kept, normalised) -------------------------------
-    if status_invalid_count:
-        rule_failures["STATUS_INVALID"] = rule_failures.get("STATUS_INVALID", 0) + status_invalid_count
-
     # --- remove failed rows and emit quarantine records -------------------
     failed_idx = list(failures.keys())
     clean = df.drop(index=failed_idx).copy() if failed_idx else df.copy()
@@ -506,6 +514,7 @@ def clean_table(
             severity = RULES.get(rule_id, {}).get("severity", "error")
             quarantine.append({
                 "quarantine_id": f"Q_{run_id}_{table}_{idx}_{rule_id}",
+                "source_row_key": f"{table}:{idx}",
                 "rule_id": rule_id,
                 "failure_reason": reason,
                 "severity": severity,
@@ -563,13 +572,23 @@ def write_quarantine(
     frame.to_parquet(parquet_path, index=False)
     return {
         "records": len(records),
-        "rows": len({r["quarantine_id"].rsplit("_", 1)[0] for r in records}) if records else 0,
+        "rows": len({r["source_row_key"] for r in records}) if records else 0,
+        "rule_failure_records": len(records),
+        "multi_rule_rows": sum(
+            1 for key in {r["source_row_key"] for r in records}
+            if sum(1 for r in records if r["source_row_key"] == key) > 1
+        ) if records else 0,
         "parquet": str(parquet_path),
         "jsonl": str(jsonl_path),
         "by_rule": {r: sum(1 for x in records if x["rule_id"] == r)
                     for r in sorted({x["rule_id"] for x in records})},
         "by_table": {t: sum(1 for x in records if x["table"] == t)
                      for t in sorted({x["table"] for x in records})},
+        "by_table_rows": {
+            t: len({x["source_row_key"] for x in records if x["table"] == t})
+            for t in sorted({x["table"] for x in records})
+        },
+        "counting_method": "rows=distinct source_row_key; records=one per row-and-rule violation",
     }
 
 

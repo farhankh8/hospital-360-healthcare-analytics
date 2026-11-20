@@ -52,4 +52,10 @@ def generate_patients(seed: int, n: int = 15_200) -> pd.DataFrame:
         "blood_type": blood,
         "patient_type": rng.choice(["New", "Returning"], size=n, p=[0.32, 0.68]),
     })
+    age_years = (pd.Timestamp(config.END_DATE) - pd.to_datetime(df["birth_date"])).dt.days / 365.25
+    df["age_group"] = pd.cut(
+        age_years,
+        bins=[-float("inf"), 17, 34, 49, 64, float("inf")],
+        labels=["0-17", "18-34", "35-49", "50-64", "65+"],
+    ).astype("string")
     return df[schema.columns("patients")]

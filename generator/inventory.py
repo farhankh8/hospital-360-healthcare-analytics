@@ -31,7 +31,9 @@ def generate_inventory(seed: int, refs: ReferenceData,
         positive, rng.integers(1, 120, size=n_movements),
         -rng.integers(1, 60, size=n_movements),
     )
-    expiry_day = movement_date_day + rng.integers(30, 540, size=n_movements)
+    expiry_day = np.minimum(
+        movement_date_day + rng.integers(30, 540, size=n_movements), MAX_DAY
+    )
     expiry = days_to_date(expiry_day).where(movement_type == "Receipt", pd.NaT)
 
     movements = pd.DataFrame({
@@ -56,7 +58,7 @@ def generate_inventory(seed: int, refs: ReferenceData,
     lead_days = np.array([lead[s] for s in po_supplier], dtype=np.int64)
     rel = np.array([reliability[s] for s in po_supplier], dtype=float)
     order_day = sample_event_days(rng, n_orders)
-    expected_day = np.minimum(order_day + lead_days, MAX_DAY + 60)
+    expected_day = np.minimum(order_day + lead_days, MAX_DAY)
 
     on_time = rng.random(n_orders) < rel
     late = (~on_time) & (rng.random(n_orders) < 0.60)
@@ -68,6 +70,7 @@ def generate_inventory(seed: int, refs: ReferenceData,
         np.where(late, expected_day + rng.integers(1, 16, size=n_orders), -1),
     )
     received_day = np.where(cancelled | pending, -1, received_day)
+    received_day = np.where(received_day >= 0, np.minimum(received_day, MAX_DAY), received_day)
     status = np.where(cancelled, "Cancelled",
                       np.where(pending, "Pending",
                                np.where(late, "Delayed", "Received")))

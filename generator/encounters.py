@@ -8,6 +8,7 @@ from . import config, schema
 from .profiles import (
     ReferenceData,
     choose_weighted,
+    clip_to_window,
     days_to_date,
     days_to_datetime,
     make_ids,
@@ -60,9 +61,15 @@ def generate_encounters(seed: int, refs: ReferenceData, patients: pd.DataFrame,
         apt["patient_id"].to_numpy(),
         rng.choice(patient_ids, size=unlinked_n),
     ])
-    appointment_id = np.concatenate([
-        apt["appointment_id"].to_numpy(), np.full(unlinked_n, None, dtype=object)
-    ])
+    # Walk-in / ED encounters receive a same-day appointment record so every
+    # encounter has a resolvable appointment foreign key.
+    existing_apt_numbers = (
+        appointments["appointment_id"].astype(str).str.extract(r"(\d+)$")[0].astype(int)
+    )
+    walkin_apt_ids = make_ids(
+        "APT", unlinked_n, width=7, start=int(existing_apt_numbers.max()) + 1
+    )
+    appointment_id = np.concatenate([apt["appointment_id"].to_numpy(), walkin_apt_ids])
 
     encounter_type = np.empty(n, dtype=object)
     encounter_type[:linked_n] = rng.choice(
@@ -91,10 +98,14 @@ def generate_encounters(seed: int, refs: ReferenceData, patients: pd.DataFrame,
     treat_delta = np.round(rng.gamma(2.5, treated_mean / 2.5, size=n), 0).astype(np.int64)
     treat_delta = np.clip(treat_delta, 10, 420)
 
-    arrival_dt = days_to_datetime(day, arrive_min)
-    triage_dt = arrival_dt + pd.to_timedelta(triage_delta, unit="m")
-    provider_dt = triage_dt + pd.to_timedelta(wait_delta, unit="m")
-    disposition_dt = provider_dt + pd.to_timedelta(treat_delta, unit="m")
+    arrival_dt = clip_to_window(days_to_datetime(day, arrive_min))
+    triage_dt = np.maximum(clip_to_window(arrival_dt + pd.to_timedelta(triage_delta, unit="m")), arrival_dt)
+    provider_dt = np.maximum(clip_to_window(triage_dt + pd.to_timedelta(wait_delta, unit="m")), triage_dt)
+    disposition_dt = np.maximum(
+        clip_to_window(provider_dt + pd.to_timedelta(treat_delta, unit="m")), provider_dt
+    )
+    waiting_minutes = ((provider_dt - arrival_dt) / np.timedelta64(1, "m")).astype(np.float64)
+    treatment_minutes = ((disposition_dt - provider_dt) / np.timedelta64(1, "m")).astype(np.float64)
 
     triage_category = np.empty(n, dtype=object)
     triage_category[is_ed] = rng.choice(
@@ -129,6 +140,32 @@ def generate_encounters(seed: int, refs: ReferenceData, patients: pd.DataFrame,
         ["Walk-in", "Ambulance", "Referral"], size=int((~is_ed).sum()), p=[0.55, 0.08, 0.37]
     )
 
+    # Same-day walk-in appointment records for the unlinked encounter segment.
+    walkin_doctor_ids = np.array([
+        refs.doctors_by_hospital[hid][rng.integers(len(refs.doctors_by_hospital[hid]))]
+        for hid in hosp_unlinked
+    ], dtype=object)
+    walkin_day = days_to_date(day_unlinked)
+    walkin_appointments = pd.DataFrame({
+        "appointment_id": walkin_apt_ids,
+        "patient_id": patient_id[linked_n:],
+        "hospital_id": hosp_unlinked,
+        "department_id": department[linked_n:],
+        "doctor_id": walkin_doctor_ids,
+        "booking_date": walkin_day,
+        "appointment_date": walkin_day,
+        "appointment_type": np.where(encounter_type[linked_n:] == "Emergency", "Urgent", "Routine"),
+        "status": "Completed",
+        "checkin_datetime": arrival_dt[linked_n:],
+        "waiting_minutes": waiting_minutes[linked_n:],
+        "cancellation_reason": np.array([None] * unlinked_n, dtype=object),
+        "booking_channel": "Walk-in",
+        "lead_days": np.zeros(unlinked_n, dtype=np.int64),
+        "rescheduled_flag": np.zeros(unlinked_n, dtype=bool),
+    })
+    all_appointments = pd.concat([appointments, walkin_appointments], ignore_index=True)
+    out["appointments"] = all_appointments[schema.columns("appointments")]
+
     encounters = pd.DataFrame({
         "encounter_id": make_ids("ENC", n, width=7),
         "patient_id": patient_id,
@@ -141,8 +178,8 @@ def generate_encounters(seed: int, refs: ReferenceData, patients: pd.DataFrame,
         "triage_datetime": triage_dt,
         "provider_datetime": provider_dt,
         "disposition_datetime": disposition_dt,
-        "waiting_minutes": (triage_delta + wait_delta).astype(np.float64),
-        "treatment_minutes": treat_delta.astype(np.float64),
+        "waiting_minutes": waiting_minutes,
+        "treatment_minutes": treatment_minutes,
         "disposition": disposition,
         "arrival_mode": arrival_mode,
         "critical_flag": triage_category == "Critical",
@@ -168,11 +205,21 @@ def generate_encounters(seed: int, refs: ReferenceData, patients: pd.DataFrame,
     discharged = rng.random(na) < 0.90
     discharge_dt = admit_dt + pd.to_timedelta(np.round(los * 1440).astype(np.int64), unit="m")
     discharge_dt = discharge_dt.where(discharged, pd.NaT)
-    los_final = np.where(discharged, los, np.nan)
+    admit_dt = np.maximum(clip_to_window(admit_dt), np.datetime64(config.START_DATE, "ns"))
+    discharge_dt = clip_to_window(discharge_dt)
+    reported = ~np.isnat(discharge_dt)
+    discharge_dt = np.where(reported, np.maximum(discharge_dt, admit_dt), discharge_dt)
+    los_final = np.where(
+        reported,
+        np.round((discharge_dt - admit_dt) / np.timedelta64(1, "D"), 2),
+        np.nan,
+    )
 
     bed_ids = sample_by_group(rng, a_hosp, refs.beds_by_hospital)
     wards = np.array([refs.bed_ward[b] for b in bed_ids], dtype=object)
-    boarding = np.round((admit_dt - a_arrival).total_seconds() / 3600.0, 2)
+    boarding = np.round(
+        (admit_dt - np.asarray(a_arrival, dtype="datetime64[ns]")) / np.timedelta64(1, "h"), 2
+    )
 
     adm_type = np.empty(na, dtype=object)
     for hid in refs.hospital_ids:
@@ -207,12 +254,17 @@ def generate_encounters(seed: int, refs: ReferenceData, patients: pd.DataFrame,
     # ------------------------------------------------------------------
     nt = min(3_600, na)
     sel = rng.choice(na, size=nt, replace=False)
-    lo = admit_dt[sel] + pd.to_timedelta(30, unit="m")
-    fallback = admit_dt[sel] + pd.to_timedelta(72 * 60, unit="m")
-    hi = discharge_dt[sel].where(pd.notna(discharge_dt[sel]), fallback)
-    span = ((hi - lo).total_seconds() / 60.0).astype(np.int64)
-    span = np.maximum(span, 60)
-    transfer_dt = lo + pd.to_timedelta((rng.random(nt) * span).astype(np.int64), unit="m")
+    lo = admit_dt[sel] + np.timedelta64(30, "m")
+    fallback = admit_dt[sel] + np.timedelta64(72 * 60, "m")
+    dis = discharge_dt[sel]
+    hi = np.where(np.isnat(dis), fallback, dis)
+    span = np.maximum((hi - lo) / np.timedelta64(1, "m"), 60).astype(np.int64)
+    transfer_dt = clip_to_window(
+        lo + pd.to_timedelta((rng.random(nt) * span).astype(np.int64), unit="m")
+    )
+    transfer_dt = np.maximum(transfer_dt, admit_dt[sel])
+    has_discharge = ~np.isnat(discharge_dt[sel])
+    transfer_dt = np.where(has_discharge, np.minimum(transfer_dt, discharge_dt[sel]), transfer_dt)
 
     to_ward = np.empty(nt, dtype=object)
     wards_by_hospital = {
@@ -281,19 +333,32 @@ def generate_encounters(seed: int, refs: ReferenceData, patients: pd.DataFrame,
     p_dept = department[proc_enc]
     p_patient = patient_id[proc_enc]
     p_arrival = arrival_dt[proc_enc]
-    sched_start = p_arrival + pd.to_timedelta(rng.integers(60, 5760, size=np_), unit="m")
+    sched_start = clip_to_window(
+        p_arrival + pd.to_timedelta(rng.integers(60, 5760, size=np_), unit="m")
+    )
     proc_status = rng.choice(["Completed", "Delayed", "Cancelled"], size=np_, p=[0.87, 0.08, 0.05])
     delay = np.where(
         proc_status == "Delayed", rng.integers(10, 91, size=np_),
         np.where(rng.random(np_) < 0.22, rng.integers(1, 31, size=np_), 0),
     ).astype(np.int64)
     duration = np.clip(np.round(rng.gamma(3.0, 28.0, size=np_)), 15, 300).astype(np.int64)
-    actual_start = sched_start + pd.to_timedelta(delay, unit="m")
-    actual_end = actual_start + pd.to_timedelta(duration, unit="m")
+    actual_start = np.maximum(
+        clip_to_window(sched_start + pd.to_timedelta(delay, unit="m")), sched_start
+    )
+    actual_end = np.maximum(
+        clip_to_window(actual_start + pd.to_timedelta(duration, unit="m")), actual_start
+    )
     is_cancelled = proc_status == "Cancelled"
-    actual_start = actual_start.where(~is_cancelled, pd.NaT)
-    actual_end = actual_end.where(~is_cancelled, pd.NaT)
-    duration_final = np.where(is_cancelled, np.nan, duration)
+    actual_start = np.where(is_cancelled, np.datetime64("NaT", "ns"), actual_start)
+    actual_end = np.where(is_cancelled, np.datetime64("NaT", "ns"), actual_end)
+    duration_final = np.where(
+        is_cancelled, np.nan,
+        (actual_end - actual_start) / np.timedelta64(1, "m"),
+    )
+    delay_minutes = np.where(
+        is_cancelled, np.nan,
+        (actual_start - sched_start) / np.timedelta64(1, "m"),
+    )
 
     proc_code = sample_by_group(
         rng, p_dept,
@@ -318,7 +383,7 @@ def generate_encounters(seed: int, refs: ReferenceData, patients: pd.DataFrame,
         "actual_start": actual_start,
         "actual_end": actual_end,
         "duration_minutes": duration_final.astype(np.float64),
-        "delay_minutes": np.where(is_cancelled, np.nan, delay).astype(np.float64),
+        "delay_minutes": delay_minutes.astype(np.float64),
         "status": proc_status,
         "cancellation_reason": np.where(is_cancelled, rng.choice(
             ["Patient request", "Surgeon unavailable", "Emergency case", "Equipment issue"], size=np_), None),
@@ -336,8 +401,13 @@ def generate_encounters(seed: int, refs: ReferenceData, patients: pd.DataFrame,
     lab_enc = rng.integers(0, n, size=no)
     test_codes = refs.lab_tests["test_code"].to_numpy()
     sla_map = dict(zip(refs.lab_tests["test_code"], refs.lab_tests["sla_minutes"]))
-    ordered = arrival_dt[lab_enc] + pd.to_timedelta(rng.integers(0, 181, size=no), unit="m")
-    collection = ordered + pd.to_timedelta(rng.integers(2, 31, size=no), unit="m")
+    ordered = clip_to_window(
+        arrival_dt[lab_enc] + pd.to_timedelta(rng.integers(0, 181, size=no), unit="m")
+    )
+    collection = np.maximum(
+        clip_to_window(ordered + pd.to_timedelta(rng.integers(2, 31, size=no), unit="m")),
+        ordered,
+    )
     lab_status = rng.choice(["Completed", "Pending", "Cancelled"], size=no, p=[0.86, 0.11, 0.03])
     lab_orders = pd.DataFrame({
         "lab_order_id": make_ids("LBO", no, width=7),
@@ -367,11 +437,20 @@ def generate_encounters(seed: int, refs: ReferenceData, patients: pd.DataFrame,
     first = np.concatenate([[True], order_idx[1:] != order_idx[:-1]])
     tat = tat + np.where(first, 0, rng.integers(20, 91, size=nr))
     tat = np.round(tat, 1)
-    result_dt = lab_orders["collection_at"].to_numpy()[order_idx] + pd.to_timedelta(
-        np.round(tat).astype(np.int64), unit="m"
+    collection_for_result = lab_orders["collection_at"].to_numpy()[order_idx]
+    result_dt = np.maximum(
+        clip_to_window(
+            collection_for_result + pd.to_timedelta(np.round(tat).astype(np.int64), unit="m")
+        ),
+        collection_for_result,
     )
     result_status = np.where(rng.random(nr) < 0.99, "Final", "Pending")
-    result_dt = result_dt.where(result_status == "Final", pd.NaT)
+    result_dt = np.where(result_status == "Final", result_dt, np.datetime64("NaT", "ns"))
+    tat = np.where(
+        result_status == "Final",
+        (result_dt - collection_for_result) / np.timedelta64(1, "m"),
+        tat,
+    )
     lab_results = pd.DataFrame({
         "result_id": make_ids("LBR", nr, width=7),
         "lab_order_id": lab_orders["lab_order_id"].to_numpy()[order_idx],

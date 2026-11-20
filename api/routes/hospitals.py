@@ -66,7 +66,7 @@ def hospital_trends(hospital_id: str, request: Request):
         rows = query_rows(
             conn,
             "SELECT CAST(month AS DATE) AS period, SUM(encounters) AS encounters, "
-            "SUM(admissions) AS admissions, SUM(gross_revenue) AS revenue, "
+            "SUM(admissions) AS admissions, SUM(net_revenue) AS revenue, "
             "SUM(occupied_bed_days) * 100.0 / NULLIF(SUM(available_bed_days), 0) AS occupancy "
             f"FROM gold_hospital_monthly{where} GROUP BY 1 ORDER BY 1",
             params,
@@ -94,7 +94,7 @@ def hospital_profile(hospital_id: str, request: Request):
         summary = query_rows(
             conn,
             "SELECT SUM(encounters) AS encounters, SUM(admissions) AS admissions, "
-            "SUM(gross_revenue) AS revenue, SUM(occupied_bed_days) * 100.0 / "
+            "SUM(net_revenue) AS revenue, SUM(occupied_bed_days) * 100.0 / "
             "NULLIF(SUM(available_bed_days), 0) AS occupancy, "
             "SUM(avg_los_days * discharges) / NULLIF(SUM(discharges), 0) AS average_los "
             f"FROM gold_hospital_monthly{where}",

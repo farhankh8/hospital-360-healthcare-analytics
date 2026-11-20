@@ -14,7 +14,7 @@ router = APIRouter(prefix="/overview", tags=["overview"])
 router.add_api_route("/kpis", make_kpis_route("overview"), methods=["GET"])
 
 RANK_METRICS = {
-    "revenue": "SUM(m.gross_revenue)",
+    "revenue": "SUM(m.net_revenue)",
     "patient_volume": "SUM(m.encounters)",
     "occupancy": "SUM(m.occupied_bed_days) * 100.0 / NULLIF(SUM(m.available_bed_days), 0)",
     "satisfaction": "SUM(m.avg_satisfaction * m.feedback_count) / NULLIF(SUM(m.feedback_count), 0)",
@@ -45,7 +45,7 @@ def trends(request: Request):
                 conn,
                 "SELECT CAST(month AS DATE) AS period, SUM(encounters) AS encounters, "
                 "SUM(admissions) AS admissions, SUM(appointments) AS appointments, "
-                "SUM(gross_revenue) AS revenue, SUM(collections) AS collections, "
+                "SUM(net_revenue) AS revenue, SUM(collections) AS collections, "
                 "SUM(outstanding_balance) AS outstanding "
                 f"FROM gold_hospital_monthly{where} GROUP BY 1 ORDER BY 1",
                 params,

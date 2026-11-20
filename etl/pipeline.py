@@ -61,7 +61,8 @@ GOLD_LINEAGE: dict[str, dict[str, Any]] = {
     "gold_financial_performance": {
         "sources": ["dim_department", "dim_month", "silver_invoices", "silver_payments", "silver_encounters"],
         "transformations": "collections = cleared payments net of refunds; writeoffs proxied by overdue balances; "
-                           "collection_rate = collections / net_revenue; month-over-month LAG growth.",
+                           "collection_rate = collections / net_revenue (uncapped; >100% flagged); "
+                           "month-over-month LAG growth.",
     },
     "gold_claim_performance": {
         "sources": ["dim_hospital", "dim_payer", "dim_month", "silver_claims", "silver_claim_events"],

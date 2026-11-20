@@ -336,18 +336,23 @@ def run_gold(gold_tables: dict[str, pd.DataFrame], run_id: str) -> list[dict[str
         rates = [c for c in RATE_COLUMNS.get(table, []) if c in df.columns]
         if rates:
             arr = df[rates].apply(pd.to_numeric, errors="coerce").to_numpy(dtype="float64", na_value=np.nan)
-            # nps and revenue_growth_pct are documented signed/growth exceptions.
-            exceptions = {"nps", "revenue_growth_pct"}
+            # nps/revenue_growth_pct are signed exceptions; collection_rate is
+            # uncapped because cash can settle prior-period invoices but must
+            # never be negative.
+            exceptions = {"nps", "revenue_growth_pct", "collection_rate"}
             check_cols = [c for c in rates if c not in exceptions]
             bad_rates = 0
             if check_cols:
                 sub = df[check_cols].apply(pd.to_numeric, errors="coerce").to_numpy(dtype="float64", na_value=np.nan)
                 bad_rates = int(((sub < -1e-9) | (sub > 100 + 1e-9)).sum())
+            if "collection_rate" in rates:
+                cash = pd.to_numeric(df["collection_rate"], errors="coerce").to_numpy(dtype="float64", na_value=np.nan)
+                bad_rates += int((cash < -1e-9).sum())
             results.append(_result(
                 f"GOLD_RATE_BOUNDS_{table.upper()}", f"Rate bounds 0..100: {table}",
                 "Consistency", table, "error",
-                "All percentage rates are within 0..100 "
-                "(nps and revenue_growth_pct are documented signed exceptions).",
+                "All percentage rates are within 0..100 except documented signed/growth "
+                "exceptions; collection_rate is uncapped above 100 but non-negative.",
                 bad_rates, max(1, int(np.isfinite(arr).sum())), run_id,
             ))
 

@@ -160,12 +160,11 @@ SELECT g.hospital_id, g.hospital_name, g.month,
        COALESCE(f.net_revenue, 0.0) AS net_revenue,
        COALESCE(c.collections, 0.0) AS collections,
        COALESCE(f.outstanding_balance, 0.0) AS outstanding_balance,
-       -- Collections may settle invoices issued in earlier months; cap the
-       -- period rate at 100%. CASE preserves NULL when the denominator is 0
-       -- (DuckDB LEAST/GREATEST would otherwise turn NULL into 100).
+       -- Collections may settle prior-period invoices, so >100% is a valid
+       -- period indicator and is flagged by consumers, never silently capped.
+       -- NULL/zero denominator stays NULL; refunds already reduce collections.
        CASE WHEN f.net_revenue IS NULL OR f.net_revenue = 0 THEN NULL
-            ELSE ROUND(GREATEST(0.0, LEAST(100.0,
-                   100.0 * COALESCE(c.collections, 0) / f.net_revenue)), 2)
+            ELSE ROUND(100.0 * COALESCE(c.collections, 0) / f.net_revenue, 2)
        END AS collection_rate,
        CAST(COALESCE(l.lab_orders, 0) AS INTEGER) AS lab_orders,
        CAST(COALESCE(l.completed_lab_tests, 0) AS INTEGER) AS completed_lab_tests,

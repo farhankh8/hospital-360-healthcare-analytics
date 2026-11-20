@@ -161,9 +161,9 @@ export const pages: Record<PageSlug, PageConfig> = {
       'hospitals_selected',
       'total_beds',
       'patient_volume',
-      'revenue',
+      'total_revenue',
       'average_occupancy',
-      'average_satisfaction'
+      'patient_satisfaction'
     ],
     charts: [
       chart('Revenue ranking', '/charts/hospital-rankings', 'horizontal-bar', 'rankings', { xKey: 'label', valueKey: 'revenue', span: 1 }),
@@ -191,7 +191,7 @@ export const pages: Record<PageSlug, PageConfig> = {
       'patients',
       'encounters',
       'admissions',
-      'revenue',
+      'total_revenue',
       'occupancy',
       'los',
       'patient_satisfaction',

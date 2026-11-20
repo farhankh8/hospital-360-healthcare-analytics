@@ -37,7 +37,19 @@ const PREFERRED_ORDER = [
   'target',
   'caveat',
   'validation',
+  'aliases',
+  'expected_range',
+  'null_handling',
 ];
+
+// Phase 2 adds machine-readable contract fields to the glossary JSON. Keep
+// those in search, but do not change the card design by printing raw metadata.
+const HIDDEN_CONTRACT_FIELDS = new Set([
+  'contract_version', 'display_name', 'formula_sql', 'date_column', 'source_columns',
+  'aggregation_method', 'filter_behavior', 'units', 'decimal_precision', 'additivity',
+  'business_interpretation', 'consumer_status', 'audit_findings', 'last_reviewed',
+  'alias_of', 'same_definition_as', 'api_endpoints', 'frontend_consumers',
+]);
 
 export function KpiGlossaryPage() {
   const [search, setSearch] = useState('');
@@ -75,7 +87,12 @@ export function KpiGlossaryPage() {
           const fields = PREFERRED_ORDER.filter((key) => row[key] !== undefined && row[key] !== null && row[key] !== '')
             .map((key) => [key, row[key]] as [string, unknown]);
           Object.entries(row).forEach(([key, value]) => {
-            if (!PREFERRED_ORDER.includes(key) && !['kpi_name', 'name', 'kpi_id', 'id'].includes(key) && value !== null && value !== undefined && value !== '') {
+            if (
+              !PREFERRED_ORDER.includes(key)
+              && !HIDDEN_CONTRACT_FIELDS.has(key)
+              && !['kpi_name', 'name', 'kpi_id', 'id'].includes(key)
+              && value !== null && value !== undefined && value !== ''
+            ) {
               fields.push([key, value]);
             }
           });

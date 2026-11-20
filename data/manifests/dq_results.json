@@ -1,6 +1,6 @@
 {
-  "run_id": "RUN_20261120_006",
-  "generated_at": "2026-11-20T16:01:05Z",
+  "run_id": "RUN_20261120_010",
+  "generated_at": "2026-11-20T17:01:55Z",
   "framework": "HOSPITAL 360 documented DQ rule set",
   "rules": [
     {
@@ -13,8 +13,8 @@
       "checked_count": 9,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -27,8 +27,8 @@
       "checked_count": 10,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -41,8 +41,8 @@
       "checked_count": 10,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -55,8 +55,8 @@
       "checked_count": 10,
       "severity": "error",
       "description": "hospital_id is one of H01..H10.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -69,8 +69,8 @@
       "checked_count": 11,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -83,8 +83,8 @@
       "checked_count": 15200,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -97,8 +97,8 @@
       "checked_count": 15200,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -111,8 +111,8 @@
       "checked_count": 1,
       "severity": "warning",
       "description": "Latest date does not exceed the configured reporting window end.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "2026-12-27 00:00:00"
       ]
@@ -127,8 +127,8 @@
       "checked_count": 9,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -141,8 +141,8 @@
       "checked_count": 10,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -155,8 +155,8 @@
       "checked_count": 10,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -169,8 +169,8 @@
       "checked_count": 10,
       "severity": "error",
       "description": "hospital_id is one of H01..H10.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -183,8 +183,8 @@
       "checked_count": 10,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -197,8 +197,8 @@
       "checked_count": 2,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -211,8 +211,8 @@
       "checked_count": 18,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -225,8 +225,8 @@
       "checked_count": 18,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -239,8 +239,8 @@
       "checked_count": 3,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -253,8 +253,8 @@
       "checked_count": 6,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -267,8 +267,8 @@
       "checked_count": 6,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -281,8 +281,8 @@
       "checked_count": 4,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -295,8 +295,8 @@
       "checked_count": 20,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -309,8 +309,8 @@
       "checked_count": 20,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -323,8 +323,8 @@
       "checked_count": 3,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -337,8 +337,8 @@
       "checked_count": 45,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -351,8 +351,8 @@
       "checked_count": 45,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -365,8 +365,8 @@
       "checked_count": 4,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -379,8 +379,8 @@
       "checked_count": 38,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -393,8 +393,8 @@
       "checked_count": 38,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -407,8 +407,8 @@
       "checked_count": 4,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -421,8 +421,8 @@
       "checked_count": 38,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -435,8 +435,8 @@
       "checked_count": 38,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -449,8 +449,8 @@
       "checked_count": 4,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -463,8 +463,8 @@
       "checked_count": 52,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -477,8 +477,8 @@
       "checked_count": 52,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -491,8 +491,8 @@
       "checked_count": 4,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -505,8 +505,8 @@
       "checked_count": 120,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -519,8 +519,8 @@
       "checked_count": 120,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -533,8 +533,8 @@
       "checked_count": 120,
       "severity": "error",
       "description": "hospital_id is one of H01..H10.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -547,8 +547,8 @@
       "checked_count": 120,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -561,8 +561,8 @@
       "checked_count": 120,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -575,8 +575,8 @@
       "checked_count": 6,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -589,8 +589,8 @@
       "checked_count": 690,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -603,8 +603,8 @@
       "checked_count": 690,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -617,8 +617,8 @@
       "checked_count": 690,
       "severity": "error",
       "description": "hospital_id is one of H01..H10.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -631,8 +631,8 @@
       "checked_count": 690,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -645,8 +645,8 @@
       "checked_count": 690,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -659,8 +659,8 @@
       "checked_count": 690,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -673,8 +673,8 @@
       "checked_count": 8,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -687,8 +687,8 @@
       "checked_count": 2980,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -701,8 +701,8 @@
       "checked_count": 2980,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -715,8 +715,8 @@
       "checked_count": 2980,
       "severity": "error",
       "description": "hospital_id is one of H01..H10.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -729,8 +729,8 @@
       "checked_count": 2980,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -743,8 +743,8 @@
       "checked_count": 2980,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -757,8 +757,8 @@
       "checked_count": 4,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -771,8 +771,8 @@
       "checked_count": 3450,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -785,8 +785,8 @@
       "checked_count": 3450,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -799,8 +799,8 @@
       "checked_count": 3450,
       "severity": "error",
       "description": "hospital_id is one of H01..H10.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -813,8 +813,8 @@
       "checked_count": 3450,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -827,8 +827,8 @@
       "checked_count": 4,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -841,8 +841,8 @@
       "checked_count": 44,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -855,8 +855,8 @@
       "checked_count": 44,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -869,8 +869,8 @@
       "checked_count": 44,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -883,8 +883,8 @@
       "checked_count": 6,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -897,8 +897,8 @@
       "checked_count": 122,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -911,8 +911,8 @@
       "checked_count": 122,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -925,8 +925,8 @@
       "checked_count": 122,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -939,8 +939,8 @@
       "checked_count": 10,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -953,8 +953,8 @@
       "checked_count": 730,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -967,8 +967,8 @@
       "checked_count": 730,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -981,8 +981,8 @@
       "checked_count": 1,
       "severity": "warning",
       "description": "Latest date does not exceed the configured reporting window end.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "2026-12-31 00:00:00"
       ]
@@ -997,8 +997,8 @@
       "checked_count": 4,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1011,8 +1011,8 @@
       "checked_count": 1440,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1025,8 +1025,8 @@
       "checked_count": 1440,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1039,8 +1039,8 @@
       "checked_count": 11,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1053,8 +1053,8 @@
       "checked_count": 15200,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1067,8 +1067,8 @@
       "checked_count": 15200,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1081,8 +1081,8 @@
       "checked_count": 1,
       "severity": "warning",
       "description": "Latest date does not exceed the configured reporting window end.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "2026-12-27 00:00:00"
       ]
@@ -1097,8 +1097,8 @@
       "checked_count": 15,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:32Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1111,8 +1111,8 @@
       "checked_count": 136690,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:33Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1125,8 +1125,8 @@
       "checked_count": 136690,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:33Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1139,8 +1139,8 @@
       "checked_count": 136690,
       "severity": "error",
       "description": "hospital_id is one of H01..H10.",
-      "checked_at": "2026-11-20T16:00:33Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1153,8 +1153,8 @@
       "checked_count": 136690,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:33Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1167,8 +1167,8 @@
       "checked_count": 136690,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:33Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1181,8 +1181,8 @@
       "checked_count": 136690,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:33Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1195,8 +1195,8 @@
       "checked_count": 136690,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:33Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1209,8 +1209,8 @@
       "checked_count": 136690,
       "severity": "error",
       "description": "Business rule: appointment_date before booking_date.",
-      "checked_at": "2026-11-20T16:00:33Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1223,8 +1223,8 @@
       "checked_count": 136690,
       "severity": "warning",
       "description": "Status is one of Completed / Cancelled / No-show / Scheduled.",
-      "checked_at": "2026-11-20T16:00:33Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:29Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1237,8 +1237,8 @@
       "checked_count": 1,
       "severity": "warning",
       "description": "Latest date does not exceed the configured reporting window end.",
-      "checked_at": "2026-11-20T16:00:33Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:30Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "2026-12-31 16:15:00"
       ]
@@ -1253,8 +1253,8 @@
       "checked_count": 16,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:33Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:30Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1267,8 +1267,8 @@
       "checked_count": 81894,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:33Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:30Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1281,8 +1281,8 @@
       "checked_count": 81894,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:33Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:30Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1295,8 +1295,8 @@
       "checked_count": 81894,
       "severity": "error",
       "description": "hospital_id is one of H01..H10.",
-      "checked_at": "2026-11-20T16:00:33Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:30Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1309,8 +1309,8 @@
       "checked_count": 81894,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:33Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:30Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1323,8 +1323,8 @@
       "checked_count": 81894,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:35Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:31Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1337,8 +1337,8 @@
       "checked_count": 81894,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:36Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:31Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1351,8 +1351,8 @@
       "checked_count": 81894,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:36Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:31Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1365,8 +1365,8 @@
       "checked_count": 81894,
       "severity": "error",
       "description": "Business rule: triage_datetime before arrival_datetime.",
-      "checked_at": "2026-11-20T16:00:36Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:31Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1379,8 +1379,8 @@
       "checked_count": 81894,
       "severity": "error",
       "description": "Business rule: provider_datetime before triage_datetime.",
-      "checked_at": "2026-11-20T16:00:36Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:31Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1393,8 +1393,8 @@
       "checked_count": 81894,
       "severity": "error",
       "description": "Business rule: disposition_datetime before provider_datetime.",
-      "checked_at": "2026-11-20T16:00:36Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:31Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1407,8 +1407,8 @@
       "checked_count": 1,
       "severity": "warning",
       "description": "Latest date does not exceed the configured reporting window end.",
-      "checked_at": "2026-11-20T16:00:36Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:31Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "2026-12-31 23:59:59"
       ]
@@ -1423,8 +1423,8 @@
       "checked_count": 14,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:36Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:31Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1437,8 +1437,8 @@
       "checked_count": 24771,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:36Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:31Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1451,8 +1451,8 @@
       "checked_count": 24771,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:36Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:31Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1465,8 +1465,8 @@
       "checked_count": 24771,
       "severity": "error",
       "description": "hospital_id is one of H01..H10.",
-      "checked_at": "2026-11-20T16:00:36Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:31Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1479,8 +1479,8 @@
       "checked_count": 24771,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:37Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:32Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1493,8 +1493,8 @@
       "checked_count": 24771,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:37Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1507,8 +1507,8 @@
       "checked_count": 24771,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:37Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1521,8 +1521,8 @@
       "checked_count": 24771,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:37Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1535,8 +1535,8 @@
       "checked_count": 24771,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:37Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1549,8 +1549,8 @@
       "checked_count": 22335,
       "severity": "error",
       "description": "Business rule: discharge_datetime before admission_datetime.",
-      "checked_at": "2026-11-20T16:00:37Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1563,8 +1563,8 @@
       "checked_count": 24771,
       "severity": "error",
       "description": "los_days is never negative.",
-      "checked_at": "2026-11-20T16:00:37Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1577,8 +1577,8 @@
       "checked_count": 1,
       "severity": "warning",
       "description": "Latest date does not exceed the configured reporting window end.",
-      "checked_at": "2026-11-20T16:00:37Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "2026-12-31 23:59:59"
       ]
@@ -1593,8 +1593,8 @@
       "checked_count": 8,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:37Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1607,8 +1607,8 @@
       "checked_count": 3595,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:37Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1621,8 +1621,8 @@
       "checked_count": 3595,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:37Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1635,8 +1635,8 @@
       "checked_count": 3595,
       "severity": "error",
       "description": "hospital_id is one of H01..H10.",
-      "checked_at": "2026-11-20T16:00:37Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1649,8 +1649,8 @@
       "checked_count": 3595,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:37Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1663,8 +1663,8 @@
       "checked_count": 3595,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:38Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1677,8 +1677,8 @@
       "checked_count": 3595,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:38Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1691,8 +1691,8 @@
       "checked_count": 1,
       "severity": "warning",
       "description": "Latest date does not exceed the configured reporting window end.",
-      "checked_at": "2026-11-20T16:00:38Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "2026-12-31 23:59:59"
       ]
@@ -1707,8 +1707,8 @@
       "checked_count": 9,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:38Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1721,8 +1721,8 @@
       "checked_count": 102000,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:38Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1735,8 +1735,8 @@
       "checked_count": 102000,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:38Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1749,8 +1749,8 @@
       "checked_count": 102000,
       "severity": "error",
       "description": "hospital_id is one of H01..H10.",
-      "checked_at": "2026-11-20T16:00:38Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1763,8 +1763,8 @@
       "checked_count": 102000,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:38Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1777,8 +1777,8 @@
       "checked_count": 102000,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:38Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1791,8 +1791,8 @@
       "checked_count": 1,
       "severity": "warning",
       "description": "Latest date does not exceed the configured reporting window end.",
-      "checked_at": "2026-11-20T16:00:38Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "2026-12-29 19:59:00"
       ]
@@ -1807,8 +1807,8 @@
       "checked_count": 17,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:38Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1821,8 +1821,8 @@
       "checked_count": 30957,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:38Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1835,8 +1835,8 @@
       "checked_count": 30957,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:38Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1849,8 +1849,8 @@
       "checked_count": 30957,
       "severity": "error",
       "description": "hospital_id is one of H01..H10.",
-      "checked_at": "2026-11-20T16:00:38Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:33Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1863,8 +1863,8 @@
       "checked_count": 30957,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:38Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:34Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1877,8 +1877,8 @@
       "checked_count": 30957,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:39Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:34Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1891,8 +1891,8 @@
       "checked_count": 30957,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:39Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:35Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1905,8 +1905,8 @@
       "checked_count": 30957,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:39Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:35Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1919,8 +1919,8 @@
       "checked_count": 30957,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:39Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:35Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1933,8 +1933,8 @@
       "checked_count": 30957,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:39Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:35Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1947,8 +1947,8 @@
       "checked_count": 29364,
       "severity": "error",
       "description": "Business rule: actual_end before actual_start.",
-      "checked_at": "2026-11-20T16:00:39Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:35Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1961,8 +1961,8 @@
       "checked_count": 1,
       "severity": "warning",
       "description": "Latest date does not exceed the configured reporting window end.",
-      "checked_at": "2026-11-20T16:00:39Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:35Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "2026-12-31 23:59:59"
       ]
@@ -1977,8 +1977,8 @@
       "checked_count": 10,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:39Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:35Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -1991,8 +1991,8 @@
       "checked_count": 105829,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:39Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:35Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2005,8 +2005,8 @@
       "checked_count": 105829,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:39Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:35Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2019,8 +2019,8 @@
       "checked_count": 105829,
       "severity": "error",
       "description": "hospital_id is one of H01..H10.",
-      "checked_at": "2026-11-20T16:00:39Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:35Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2033,8 +2033,8 @@
       "checked_count": 105829,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:40Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:35Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2047,8 +2047,8 @@
       "checked_count": 105829,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:41Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:36Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2061,8 +2061,8 @@
       "checked_count": 105829,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:41Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:36Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2075,8 +2075,8 @@
       "checked_count": 105829,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:41Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:36Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2089,8 +2089,8 @@
       "checked_count": 105829,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:41Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:36Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2103,8 +2103,8 @@
       "checked_count": 1,
       "severity": "warning",
       "description": "Latest date does not exceed the configured reporting window end.",
-      "checked_at": "2026-11-20T16:00:41Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:36Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "2026-12-31 23:59:59"
       ]
@@ -2119,8 +2119,8 @@
       "checked_count": 10,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:41Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:36Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2133,8 +2133,8 @@
       "checked_count": 156078,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:41Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:36Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2147,8 +2147,8 @@
       "checked_count": 156078,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:41Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:36Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2161,8 +2161,8 @@
       "checked_count": 156078,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:43Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:37Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2175,8 +2175,8 @@
       "checked_count": 156078,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:43Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:37Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2189,8 +2189,8 @@
       "checked_count": 156078,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:43Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:37Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2203,8 +2203,8 @@
       "checked_count": 1,
       "severity": "warning",
       "description": "Latest date does not exceed the configured reporting window end.",
-      "checked_at": "2026-11-20T16:00:43Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:37Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "2026-12-31 23:59:59"
       ]
@@ -2219,8 +2219,8 @@
       "checked_count": 9,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:43Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:37Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2233,8 +2233,8 @@
       "checked_count": 52890,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:43Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:37Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2247,8 +2247,8 @@
       "checked_count": 52890,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:43Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:37Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2261,8 +2261,8 @@
       "checked_count": 52890,
       "severity": "error",
       "description": "hospital_id is one of H01..H10.",
-      "checked_at": "2026-11-20T16:00:43Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:37Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2275,8 +2275,8 @@
       "checked_count": 52890,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:43Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:38Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2289,8 +2289,8 @@
       "checked_count": 52890,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:45Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:39Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2303,8 +2303,8 @@
       "checked_count": 52890,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:45Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:39Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2317,8 +2317,8 @@
       "checked_count": 52890,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:45Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:39Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2331,8 +2331,8 @@
       "checked_count": 1,
       "severity": "warning",
       "description": "Latest date does not exceed the configured reporting window end.",
-      "checked_at": "2026-11-20T16:00:45Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:39Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "2026-12-29 00:00:00"
       ]
@@ -2347,8 +2347,8 @@
       "checked_count": 7,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:45Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:39Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2361,8 +2361,8 @@
       "checked_count": 52890,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:45Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:39Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2375,8 +2375,8 @@
       "checked_count": 52890,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:45Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:39Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2389,8 +2389,8 @@
       "checked_count": 52890,
       "severity": "error",
       "description": "hospital_id is one of H01..H10.",
-      "checked_at": "2026-11-20T16:00:45Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:39Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2403,8 +2403,8 @@
       "checked_count": 52890,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:46Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:39Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2417,8 +2417,8 @@
       "checked_count": 52890,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:46Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:39Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2431,8 +2431,8 @@
       "checked_count": 1,
       "severity": "warning",
       "description": "Latest date does not exceed the configured reporting window end.",
-      "checked_at": "2026-11-20T16:00:46Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:39Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "2026-12-29 00:00:00"
       ]
@@ -2447,8 +2447,8 @@
       "checked_count": 13,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:46Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:39Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2461,8 +2461,8 @@
       "checked_count": 65913,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:46Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:39Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2475,8 +2475,8 @@
       "checked_count": 65913,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:46Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:39Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2489,8 +2489,8 @@
       "checked_count": 65913,
       "severity": "error",
       "description": "hospital_id is one of H01..H10.",
-      "checked_at": "2026-11-20T16:00:46Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:39Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2503,8 +2503,8 @@
       "checked_count": 65913,
       "severity": "warning",
       "description": "Every non-null foreign key resolves to a silver parent record. (column is business-nullable; nulls are retained with a warning.)",
-      "checked_at": "2026-11-20T16:00:47Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:40Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2517,8 +2517,8 @@
       "checked_count": 65913,
       "severity": "warning",
       "description": "Business-nullable FK null count (retained, not quarantined).",
-      "checked_at": "2026-11-20T16:00:47Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:40Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2531,8 +2531,8 @@
       "checked_count": 65913,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:47Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:41Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2545,8 +2545,8 @@
       "checked_count": 65913,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:47Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:41Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2559,8 +2559,8 @@
       "checked_count": 65913,
       "severity": "warning",
       "description": "Every non-null foreign key resolves to a silver parent record. (column is business-nullable; nulls are retained with a warning.)",
-      "checked_at": "2026-11-20T16:00:47Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:41Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2573,8 +2573,8 @@
       "checked_count": 65913,
       "severity": "warning",
       "description": "Business-nullable FK null count (retained, not quarantined).",
-      "checked_at": "2026-11-20T16:00:47Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:41Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2587,8 +2587,8 @@
       "checked_count": 65913,
       "severity": "warning",
       "description": "net_amount = gross_amount - discount_amount (tolerance 1.0).",
-      "checked_at": "2026-11-20T16:00:47Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:41Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2601,8 +2601,8 @@
       "checked_count": 1,
       "severity": "warning",
       "description": "Latest date does not exceed the configured reporting window end.",
-      "checked_at": "2026-11-20T16:00:47Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:41Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "2026-12-29 00:00:00"
       ]
@@ -2617,8 +2617,8 @@
       "checked_count": 8,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:47Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:41Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2631,8 +2631,8 @@
       "checked_count": 138545,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:47Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:41Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2645,8 +2645,8 @@
       "checked_count": 138545,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:47Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:41Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2659,8 +2659,8 @@
       "checked_count": 138545,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:48Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:41Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2673,8 +2673,8 @@
       "checked_count": 138545,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:48Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:41Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2687,8 +2687,8 @@
       "checked_count": 8,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:48Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:41Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2701,8 +2701,8 @@
       "checked_count": 78746,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:48Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:41Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2715,8 +2715,8 @@
       "checked_count": 78746,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:48Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:41Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2729,8 +2729,8 @@
       "checked_count": 78746,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:49Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:42Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2743,8 +2743,8 @@
       "checked_count": 78746,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:49Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:43Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2757,8 +2757,8 @@
       "checked_count": 1,
       "severity": "warning",
       "description": "Latest date does not exceed the configured reporting window end.",
-      "checked_at": "2026-11-20T16:00:49Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:43Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "2026-12-29 00:00:00"
       ]
@@ -2773,8 +2773,8 @@
       "checked_count": 13,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:49Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:43Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2787,8 +2787,8 @@
       "checked_count": 51777,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:49Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:43Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2801,8 +2801,8 @@
       "checked_count": 51777,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:49Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:43Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2815,8 +2815,8 @@
       "checked_count": 51777,
       "severity": "error",
       "description": "hospital_id is one of H01..H10.",
-      "checked_at": "2026-11-20T16:00:49Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:43Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2829,8 +2829,8 @@
       "checked_count": 51777,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:51Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:43Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2843,8 +2843,8 @@
       "checked_count": 51777,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:51Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:44Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2857,8 +2857,8 @@
       "checked_count": 51777,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:51Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:44Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2871,8 +2871,8 @@
       "checked_count": 51777,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:51Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:44Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2885,8 +2885,8 @@
       "checked_count": 1,
       "severity": "warning",
       "description": "Latest date does not exceed the configured reporting window end.",
-      "checked_at": "2026-11-20T16:00:51Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:44Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "2026-12-29 00:00:00"
       ]
@@ -2901,8 +2901,8 @@
       "checked_count": 5,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:51Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:44Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2915,8 +2915,8 @@
       "checked_count": 103566,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:51Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:44Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2929,8 +2929,8 @@
       "checked_count": 103566,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:51Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:44Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2943,8 +2943,8 @@
       "checked_count": 103566,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:52Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:44Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2957,8 +2957,8 @@
       "checked_count": 5,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:52Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:44Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2971,8 +2971,8 @@
       "checked_count": 178490,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:52Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:44Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2985,8 +2985,8 @@
       "checked_count": 178490,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:52Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:44Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -2999,8 +2999,8 @@
       "checked_count": 178490,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:53Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:45Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3013,8 +3013,8 @@
       "checked_count": 1,
       "severity": "warning",
       "description": "Latest date does not exceed the configured reporting window end.",
-      "checked_at": "2026-11-20T16:00:53Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:45Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "2026-12-29 00:00:00"
       ]
@@ -3029,8 +3029,8 @@
       "checked_count": 9,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:53Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:45Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3043,8 +3043,8 @@
       "checked_count": 52000,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:53Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:45Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3057,8 +3057,8 @@
       "checked_count": 52000,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:53Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:45Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3071,8 +3071,8 @@
       "checked_count": 52000,
       "severity": "error",
       "description": "hospital_id is one of H01..H10.",
-      "checked_at": "2026-11-20T16:00:53Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:45Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3085,8 +3085,8 @@
       "checked_count": 52000,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:53Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:45Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3099,8 +3099,8 @@
       "checked_count": 52000,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:53Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:45Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3113,8 +3113,8 @@
       "checked_count": 52000,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:53Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:45Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3127,8 +3127,8 @@
       "checked_count": 1,
       "severity": "warning",
       "description": "Latest date does not exceed the configured reporting window end.",
-      "checked_at": "2026-11-20T16:00:53Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:45Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "2026-12-31 00:00:00"
       ]
@@ -3143,8 +3143,8 @@
       "checked_count": 6,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:53Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:45Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3157,8 +3157,8 @@
       "checked_count": 52000,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:53Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:45Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3171,8 +3171,8 @@
       "checked_count": 52000,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:53Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:45Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3185,8 +3185,8 @@
       "checked_count": 52000,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3199,8 +3199,8 @@
       "checked_count": 52000,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3213,8 +3213,8 @@
       "checked_count": 1,
       "severity": "warning",
       "description": "Latest date does not exceed the configured reporting window end.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "2026-12-31 00:00:00"
       ]
@@ -3229,8 +3229,8 @@
       "checked_count": 9,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3243,8 +3243,8 @@
       "checked_count": 52000,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3257,8 +3257,8 @@
       "checked_count": 52000,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3271,8 +3271,8 @@
       "checked_count": 52000,
       "severity": "error",
       "description": "hospital_id is one of H01..H10.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3285,8 +3285,8 @@
       "checked_count": 52000,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3299,8 +3299,8 @@
       "checked_count": 52000,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3313,8 +3313,8 @@
       "checked_count": 52000,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3327,8 +3327,8 @@
       "checked_count": 1,
       "severity": "warning",
       "description": "Latest date does not exceed the configured reporting window end.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "2026-12-31 00:00:00"
       ]
@@ -3343,8 +3343,8 @@
       "checked_count": 8,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3357,8 +3357,8 @@
       "checked_count": 5182,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3371,8 +3371,8 @@
       "checked_count": 5182,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3385,8 +3385,8 @@
       "checked_count": 5182,
       "severity": "error",
       "description": "hospital_id is one of H01..H10.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3399,8 +3399,8 @@
       "checked_count": 5182,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3413,8 +3413,8 @@
       "checked_count": 5182,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3427,8 +3427,8 @@
       "checked_count": 4818,
       "severity": "error",
       "description": "Business rule: received_date before order_date.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3441,8 +3441,8 @@
       "checked_count": 1,
       "severity": "warning",
       "description": "Latest date does not exceed the configured reporting window end.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "2026-12-29 00:00:00"
       ]
@@ -3457,8 +3457,8 @@
       "checked_count": 14,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3471,8 +3471,8 @@
       "checked_count": 15600,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3485,8 +3485,8 @@
       "checked_count": 15600,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3499,8 +3499,8 @@
       "checked_count": 15600,
       "severity": "error",
       "description": "hospital_id is one of H01..H10.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3513,8 +3513,8 @@
       "checked_count": 15600,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3527,8 +3527,8 @@
       "checked_count": 15600,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3541,8 +3541,8 @@
       "checked_count": 15600,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3555,8 +3555,8 @@
       "checked_count": 1,
       "severity": "warning",
       "description": "Latest date does not exceed the configured reporting window end.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "2026-12-29 00:00:00"
       ]
@@ -3571,8 +3571,8 @@
       "checked_count": 10,
       "severity": "error",
       "description": "All canonical columns exist with the documented pandas dtype family.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3585,8 +3585,8 @@
       "checked_count": 4192,
       "severity": "error",
       "description": "No duplicate primary key values in silver.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3599,8 +3599,8 @@
       "checked_count": 4192,
       "severity": "error",
       "description": "Primary key is never null.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3613,8 +3613,8 @@
       "checked_count": 4192,
       "severity": "error",
       "description": "hospital_id is one of H01..H10.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3627,8 +3627,8 @@
       "checked_count": 4192,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3641,8 +3641,8 @@
       "checked_count": 4192,
       "severity": "error",
       "description": "Every non-null foreign key resolves to a silver parent record.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3655,8 +3655,8 @@
       "checked_count": 3048,
       "severity": "error",
       "description": "Business rule: resolution_date before incident_date.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3669,8 +3669,8 @@
       "checked_count": 1,
       "severity": "warning",
       "description": "Latest date does not exceed the configured reporting window end.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "2026-12-31 00:00:00"
       ]
@@ -3685,8 +3685,8 @@
       "checked_count": 78746,
       "severity": "error",
       "description": "Business rule: payment_date before invoice_date.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3699,8 +3699,8 @@
       "checked_count": 154567,
       "severity": "error",
       "description": "Business rule: result_at before ordered_at.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3713,8 +3713,8 @@
       "checked_count": 3595,
       "severity": "error",
       "description": "Business rule: transfer_datetime before admission_datetime.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3727,8 +3727,8 @@
       "checked_count": 46596,
       "severity": "error",
       "description": "Business rule: dispensed_date before prescribed_date.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3741,8 +3741,8 @@
       "checked_count": 51777,
       "severity": "error",
       "description": "Business rule: claim_date before invoice_date.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3755,8 +3755,8 @@
       "checked_count": 178490,
       "severity": "error",
       "description": "Business rule: event_date before claim_date.",
-      "checked_at": "2026-11-20T16:00:54Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:46Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3769,8 +3769,8 @@
       "checked_count": 11,
       "severity": "error",
       "description": "Gold table exposes exactly the CONTRACT.md section 3 columns.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3783,8 +3783,8 @@
       "checked_count": 7300,
       "severity": "error",
       "description": "No numeric gold value is infinite; NULL (NaN in pandas) is allowed for zero denominators.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3797,8 +3797,8 @@
       "checked_count": 40,
       "severity": "error",
       "description": "Gold table exposes exactly the CONTRACT.md section 3 columns.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3811,8 +3811,8 @@
       "checked_count": 8880,
       "severity": "error",
       "description": "No numeric gold value is infinite; NULL (NaN in pandas) is allowed for zero denominators.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3824,9 +3824,9 @@
       "failed_count": 0,
       "checked_count": 1440,
       "severity": "error",
-      "description": "All percentage rates are within 0..100 (nps and revenue_growth_pct are documented signed exceptions).",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "description": "All percentage rates are within 0..100 except documented signed/growth exceptions; collection_rate is uncapped above 100 but non-negative.",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3839,8 +3839,8 @@
       "checked_count": 20,
       "severity": "error",
       "description": "Gold table exposes exactly the CONTRACT.md section 3 columns.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3853,8 +3853,8 @@
       "checked_count": 40320,
       "severity": "error",
       "description": "No numeric gold value is infinite; NULL (NaN in pandas) is allowed for zero denominators.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3866,9 +3866,9 @@
       "failed_count": 0,
       "checked_count": 8636,
       "severity": "error",
-      "description": "All percentage rates are within 0..100 (nps and revenue_growth_pct are documented signed exceptions).",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "description": "All percentage rates are within 0..100 except documented signed/growth exceptions; collection_rate is uncapped above 100 but non-negative.",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3881,8 +3881,8 @@
       "checked_count": 12,
       "severity": "error",
       "description": "Gold table exposes exactly the CONTRACT.md section 3 columns.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3895,8 +3895,8 @@
       "checked_count": 25920,
       "severity": "error",
       "description": "No numeric gold value is infinite; NULL (NaN in pandas) is allowed for zero denominators.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3908,9 +3908,9 @@
       "failed_count": 0,
       "checked_count": 8640,
       "severity": "error",
-      "description": "All percentage rates are within 0..100 (nps and revenue_growth_pct are documented signed exceptions).",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "description": "All percentage rates are within 0..100 except documented signed/growth exceptions; collection_rate is uncapped above 100 but non-negative.",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3920,11 +3920,11 @@
       "table": "gold_bed_utilization",
       "passed": true,
       "failed_count": 0,
-      "checked_count": 11,
+      "checked_count": 12,
       "severity": "error",
       "description": "Gold table exposes exactly the CONTRACT.md section 3 columns.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3934,11 +3934,11 @@
       "table": "gold_bed_utilization",
       "passed": true,
       "failed_count": 0,
-      "checked_count": 7680,
+      "checked_count": 8640,
       "severity": "error",
       "description": "No numeric gold value is infinite; NULL (NaN in pandas) is allowed for zero denominators.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3950,9 +3950,9 @@
       "failed_count": 0,
       "checked_count": 960,
       "severity": "error",
-      "description": "All percentage rates are within 0..100 (nps and revenue_growth_pct are documented signed exceptions).",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "description": "All percentage rates are within 0..100 except documented signed/growth exceptions; collection_rate is uncapped above 100 but non-negative.",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3965,8 +3965,8 @@
       "checked_count": 12,
       "severity": "error",
       "description": "Gold table exposes exactly the CONTRACT.md section 3 columns.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3979,8 +3979,8 @@
       "checked_count": 25920,
       "severity": "error",
       "description": "No numeric gold value is infinite; NULL (NaN in pandas) is allowed for zero denominators.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -3992,9 +3992,9 @@
       "failed_count": 0,
       "checked_count": 5640,
       "severity": "error",
-      "description": "All percentage rates are within 0..100 (nps and revenue_growth_pct are documented signed exceptions).",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "description": "All percentage rates are within 0..100 except documented signed/growth exceptions; collection_rate is uncapped above 100 but non-negative.",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -4007,8 +4007,8 @@
       "checked_count": 14,
       "severity": "error",
       "description": "Gold table exposes exactly the CONTRACT.md section 3 columns.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -4021,8 +4021,8 @@
       "checked_count": 14400,
       "severity": "error",
       "description": "No numeric gold value is infinite; NULL (NaN in pandas) is allowed for zero denominators.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -4034,9 +4034,9 @@
       "failed_count": 0,
       "checked_count": 2297,
       "severity": "error",
-      "description": "All percentage rates are within 0..100 (nps and revenue_growth_pct are documented signed exceptions).",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "description": "All percentage rates are within 0..100 except documented signed/growth exceptions; collection_rate is uncapped above 100 but non-negative.",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -4049,8 +4049,8 @@
       "checked_count": 13,
       "severity": "error",
       "description": "Gold table exposes exactly the CONTRACT.md section 3 columns.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -4063,8 +4063,8 @@
       "checked_count": 82080,
       "severity": "error",
       "description": "No numeric gold value is infinite; NULL (NaN in pandas) is allowed for zero denominators.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -4076,9 +4076,9 @@
       "failed_count": 0,
       "checked_count": 9116,
       "severity": "error",
-      "description": "All percentage rates are within 0..100 (nps and revenue_growth_pct are documented signed exceptions).",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "description": "All percentage rates are within 0..100 except documented signed/growth exceptions; collection_rate is uncapped above 100 but non-negative.",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -4091,8 +4091,8 @@
       "checked_count": 10,
       "severity": "error",
       "description": "Gold table exposes exactly the CONTRACT.md section 3 columns.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -4105,8 +4105,8 @@
       "checked_count": 20160,
       "severity": "error",
       "description": "No numeric gold value is infinite; NULL (NaN in pandas) is allowed for zero denominators.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -4118,9 +4118,9 @@
       "failed_count": 0,
       "checked_count": 5756,
       "severity": "error",
-      "description": "All percentage rates are within 0..100 (nps and revenue_growth_pct are documented signed exceptions).",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "description": "All percentage rates are within 0..100 except documented signed/growth exceptions; collection_rate is uncapped above 100 but non-negative.",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -4133,8 +4133,8 @@
       "checked_count": 12,
       "severity": "error",
       "description": "Gold table exposes exactly the CONTRACT.md section 3 columns.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -4147,8 +4147,8 @@
       "checked_count": 8640,
       "severity": "error",
       "description": "No numeric gold value is infinite; NULL (NaN in pandas) is allowed for zero denominators.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -4160,9 +4160,9 @@
       "failed_count": 0,
       "checked_count": 960,
       "severity": "error",
-      "description": "All percentage rates are within 0..100 (nps and revenue_growth_pct are documented signed exceptions).",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "description": "All percentage rates are within 0..100 except documented signed/growth exceptions; collection_rate is uncapped above 100 but non-negative.",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -4175,8 +4175,8 @@
       "checked_count": 11,
       "severity": "error",
       "description": "Gold table exposes exactly the CONTRACT.md section 3 columns.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -4189,8 +4189,8 @@
       "checked_count": 23040,
       "severity": "error",
       "description": "No numeric gold value is infinite; NULL (NaN in pandas) is allowed for zero denominators.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -4202,9 +4202,9 @@
       "failed_count": 0,
       "checked_count": 5498,
       "severity": "error",
-      "description": "All percentage rates are within 0..100 (nps and revenue_growth_pct are documented signed exceptions).",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "description": "All percentage rates are within 0..100 except documented signed/growth exceptions; collection_rate is uncapped above 100 but non-negative.",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -4217,8 +4217,8 @@
       "checked_count": 12,
       "severity": "error",
       "description": "Gold table exposes exactly the CONTRACT.md section 3 columns.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -4231,8 +4231,8 @@
       "checked_count": 25920,
       "severity": "error",
       "description": "No numeric gold value is infinite; NULL (NaN in pandas) is allowed for zero denominators.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -4244,9 +4244,9 @@
       "failed_count": 0,
       "checked_count": 7209,
       "severity": "error",
-      "description": "All percentage rates are within 0..100 (nps and revenue_growth_pct are documented signed exceptions).",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "description": "All percentage rates are within 0..100 except documented signed/growth exceptions; collection_rate is uncapped above 100 but non-negative.",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -4259,8 +4259,8 @@
       "checked_count": 240,
       "severity": "error",
       "description": "Exactly one row per (hospital_id, month).",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -4273,8 +4273,8 @@
       "checked_count": 240,
       "severity": "error",
       "description": "All 240 hospital-month combinations are present for continuous charts.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": []
     },
     {
@@ -4287,8 +4287,8 @@
       "checked_count": 81894,
       "severity": "error",
       "description": "SUM(encounters) in daily and hospital-monthly models agree.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "daily=81894",
         "monthly=81894"
@@ -4304,8 +4304,8 @@
       "checked_count": 105829,
       "severity": "warning",
       "description": "Total lab orders agree across gold models.",
-      "checked_at": "2026-11-20T16:01:05Z",
-      "pipeline_run_id": "RUN_20261120_006",
+      "checked_at": "2026-11-20T17:01:55Z",
+      "pipeline_run_id": "RUN_20261120_010",
       "sample_failures": [
         "monthly=105829",
         "lab=105829"

@@ -4,10 +4,32 @@ import { useMemo } from 'react';
 import { ShieldCheck } from 'lucide-react';
 import { useApiQuery } from '@/lib/api';
 import { useFilters } from '@/lib/filters';
-import { NO_FILTERS, type TableRow } from '@/lib/types';
+import { NO_FILTERS, type ChartConfig, type TableRow } from '@/lib/types';
 import { displayValue } from '@/lib/utils';
+import { ChartContainer } from './ChartContainer';
 import { DataTable } from './DataTable';
 import { Badge, Card, EmptyState, ErrorState, PageHeading, Skeleton } from './ui';
+
+const DQ_CHARTS: ChartConfig[] = [
+  { title: 'Completeness by dataset', endpoint: '/charts/dq/completeness', type: 'horizontal-bar', dataKey: 'completeness', xKey: 'label', valueKey: 'completeness', span: 1 },
+  { title: 'Uniqueness violations', endpoint: '/charts/dq/uniqueness', type: 'bar', dataKey: 'violations', xKey: 'label', valueKey: 'violations', span: 1 },
+  { title: 'Validity rule failures', endpoint: '/charts/dq/validity', type: 'bar', dataKey: 'failures', xKey: 'label', valueKey: 'failures', span: 1 },
+  { title: 'Consistency checks', endpoint: '/charts/dq/consistency', type: 'bar', dataKey: 'pass_rate', xKey: 'label', valueKey: 'pass_rate', span: 1 },
+  { title: 'Missing values by rule', endpoint: '/charts/dq/missing-by-column', type: 'horizontal-bar', dataKey: 'missing', xKey: 'label', valueKey: 'missing', span: 1 },
+  { title: 'Duplicate detection', endpoint: '/charts/dq/duplicates', type: 'bar', dataKey: 'duplicates', xKey: 'label', valueKey: 'duplicates', span: 1 },
+  { title: 'Rule pass rate', endpoint: '/charts/dq/rule-pass-rate', type: 'bar', dataKey: 'pass_rate', xKey: 'label', valueKey: 'pass_rate', span: 1 },
+  { title: 'Validation trend over time', endpoint: '/charts/dq/validation-trend', type: 'line', dataKey: 'validation', xKey: 'period', span: 1 },
+  { title: 'Quarantine trend', endpoint: '/charts/dq/quarantine-trend', type: 'line', dataKey: 'quarantine', xKey: 'period', span: 2 },
+];
+
+function DqChart({ config }: { config: ChartConfig }) {
+  const query = useApiQuery<unknown>(`dq-chart-${config.endpoint}`, config.endpoint, NO_FILTERS);
+  return (
+    <div className={config.span === 2 ? 'xl:col-span-2' : undefined}>
+      <ChartContainer config={config} data={query.data?.data} loading={query.isLoading} error={query.error} onRetry={() => query.refetch()} />
+    </div>
+  );
+}
 
 function summaryFields(data: unknown): Array<[string, unknown]> {
   if (Array.isArray(data)) {
@@ -37,6 +59,10 @@ export function DataQualityPage() {
             <p className="mt-2 truncate text-xl font-semibold text-navy">{displayValue(value)}</p>
           </Card>
         ))}
+      </div>
+
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-2">
+        {DQ_CHARTS.map((config) => <DqChart key={config.endpoint} config={config} />)}
       </div>
 
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">

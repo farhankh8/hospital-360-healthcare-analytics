@@ -56,19 +56,22 @@ def _empty(data: Any, request: Request, **extra: Any) -> dict[str, Any]:
 @router.get("/data-quality/summary")
 def dq_summary(request: Request):
     with get_conn() as conn:
-        if not table_exists("dq_results"):
+        if not table_exists("dq_rules"):
             return _empty({"overall_score": None, "categories": [], "rules_total": 0,
                            "rules_passed": 0, "total_failures": 0}, request,
                           status="not_available")
-        rows = query_rows(conn, "SELECT * FROM dq_results")
+        rows = query_rows(conn, "SELECT * FROM dq_rules")
     categories: dict[str, dict[str, Any]] = {}
     for r in rows:
         cat = r.get("category") or "Other"
         bucket = categories.setdefault(cat, {"category": cat, "rules": 0, "passed": 0, "failures": 0, "score": 0.0})
         bucket["rules"] += 1
         bucket["passed"] += 1 if r.get("passed") else 0
-        bucket["failures"] += int(r.get("failed_count") or 0)
-        bucket["score"] += float(r.get("score") or (100 if r.get("passed") else 0))
+        checked = int(r.get("checked_count") or 0)
+        failed = int(r.get("failed_count") or 0)
+        score = 100.0 * (1 - failed / checked) if checked else (100.0 if r.get("passed") else 0.0)
+        bucket["failures"] += failed
+        bucket["score"] += score
     for bucket in categories.values():
         bucket["score"] = round(bucket["score"] / bucket["rules"], 2) if bucket["rules"] else None
     overall = round(sum(b["score"] or 0 for b in categories.values()) / len(categories), 2) if categories else None
@@ -84,7 +87,10 @@ def dq_summary(request: Request):
 @router.get("/data-quality/rules")
 def dq_rules(request: Request):
     with get_conn() as conn:
-        rows = query_rows(conn, "SELECT * FROM dq_results ORDER BY category, rule_id") if table_exists("dq_results") else []
+        rows = query_rows(conn, "SELECT rule_id, rule_name, table_name AS dataset, category, severity, "
+                          "description, passed, failed_count, checked_count, checked_at, "
+                          "CASE WHEN passed THEN 'Pass' ELSE 'Fail' END AS status "
+                          "FROM dq_rules ORDER BY category, rule_id") if table_exists("dq_rules") else []
     return _empty(rows, request)
 
 
@@ -96,7 +102,10 @@ def dq_failures(request: Request):
             return table_envelope([], 0, f.page, f.page_size, f.applied())
         total = int(query_rows(conn, "SELECT COUNT(*) AS n FROM dq_failures")[0]["n"])
         rows = query_rows(
-            conn, "SELECT * FROM dq_failures ORDER BY detected_at DESC LIMIT $limit OFFSET $offset",
+            conn,
+            "SELECT failure_id AS validation_id, table_name AS dataset, record_id, rule_id, "
+            "failure_reason, severity, detected_at, pipeline_run_id AS run_id, 'Open' AS resolution_status "
+            "FROM dq_failures ORDER BY detected_at DESC LIMIT $limit OFFSET $offset",
             {"limit": f.page_size, "offset": (f.page - 1) * f.page_size},
         )
     return table_envelope(rows, total, f.page, f.page_size, f.applied())
@@ -105,12 +114,16 @@ def dq_failures(request: Request):
 @router.get("/data-quality/datasets")
 def dq_datasets(request: Request):
     with get_conn() as conn:
-        if not table_exists("dq_results"):
+        if not table_exists("dq_rules"):
             return _empty([], request)
         rows = query_rows(
             conn,
-            "SELECT table_name, COUNT(*) AS rules, SUM(CASE WHEN passed THEN 1 ELSE 0 END) AS passed, "
-            "SUM(failed_count) AS failures FROM dq_results GROUP BY table_name ORDER BY table_name",
+            "SELECT table_name AS dataset, SUM(checked_count) AS records, "
+            "SUM(checked_count - failed_count) AS valid_records, SUM(failed_count) AS invalid_records, "
+            "ROUND(AVG(CASE WHEN checked_count > 0 THEN 100.0 * (1 - failed_count * 1.0 / checked_count) "
+            "ELSE CASE WHEN passed THEN 100.0 ELSE 0.0 END END), 2) AS quality_score, "
+            "CASE WHEN SUM(failed_count) > 0 THEN 'Issues found' ELSE 'Pass' END AS status "
+            "FROM dq_rules GROUP BY table_name ORDER BY table_name",
         )
     return _empty(rows, request)
 

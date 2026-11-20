@@ -151,7 +151,7 @@ after a real run; no score is claimed in this document before measurement.
   rates (blueprint section 22).
 - `tests/test_api.py` - health envelope, KPI shape, filter validation, pagination, 404s and
   rejection of arbitrary SQL.
-- `tests/e2e/analytics.spec.ts` - browser journey: overview -> filter H03 -> change dates ->
+- `web/e2e/analytics.spec.ts` - browser journey: overview -> filter H03 -> change dates ->
   KPI change -> no-show drill-down -> export, plus mobile and refresh cases.
 
 ## 6. Known limitations

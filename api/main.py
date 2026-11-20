@@ -14,7 +14,7 @@ from fastapi.responses import JSONResponse
 from api.core.config import API_PREFIX, API_VERSION, APP_ENV, CORS_ORIGINS, LOG_LEVEL
 from api.core.db import DatabaseNotReadyError, database_exists
 from api.core.responses import error_response, utc_now
-from api.routes import domains, hospitals, overview, system
+from api.routes import charts, domains, hospitals, overview, system
 
 logging.basicConfig(level=LOG_LEVEL)
 logger = logging.getLogger("hospital360.api")
@@ -39,6 +39,7 @@ app.add_middleware(
 app.include_router(overview.router, prefix=API_PREFIX)
 app.include_router(hospitals.router, prefix=API_PREFIX)
 app.include_router(domains.router, prefix=API_PREFIX)
+app.include_router(charts.router, prefix=API_PREFIX)
 app.include_router(system.router, prefix=API_PREFIX)
 
 

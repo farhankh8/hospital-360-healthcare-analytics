@@ -5,8 +5,8 @@
  *   npm run dev            # in web/       -> http://localhost:3000
  *   uvicorn api.main:app   # in hospital360 -> http://localhost:8000
  *
- * Run from the hospital360/ directory:
- *   npx playwright test --config=tests/e2e/playwright.config.ts
+ * Run from the web/ directory:
+ *   npx playwright test --config=e2e/playwright.config.ts
  *
  * The TypeScript test runner comes from the npm package @playwright/test
  * (`npm i -D @playwright/test` in web/, or let npx fetch it). The Python

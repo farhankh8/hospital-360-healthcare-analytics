@@ -97,7 +97,7 @@ Generator tests, data quality tests, KPI tests, API tests, frontend tests, integ
 tests, end-to-end tests.
 Deliverable: validated application.
 Status: this layer adds `tests/conftest.py`, `test_generator.py`, `test_silver.py`,
-`test_gold.py`, `test_kpis.py`, `test_api.py`, `tests/e2e/analytics.spec.ts`,
+`test_gold.py`, `test_kpis.py`, `test_api.py`, `web/e2e/analytics.spec.ts`,
 `pytest.ini` and the Playwright config. Data-dependent suites skip until the pipeline has
 run. Full integration results must be filled in after execution.
 

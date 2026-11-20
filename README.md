@@ -216,13 +216,14 @@ A three-minute story (blueprint section 35):
 3. **Show the engineering.** Visit `/data-quality` and `/pipeline`, then open `/kpi-glossary`
    and `/methodology` to show definitions, the manifest and the synthetic-data disclaimer.
 
-The automated equivalent of step 2 lives in `tests/e2e/analytics.spec.ts`. To run it:
+The automated equivalent of step 2 lives in `web/e2e/analytics.spec.ts`. To run it:
 
 ```bash
 python -m pip install -r requirements-dev.txt
 python -m playwright install chromium
+cd web && npm ci
 # With the API and frontend running:
-npx playwright test --config=tests/e2e/playwright.config.ts
+npx playwright test --config=e2e/playwright.config.ts
 ```
 
 ## 14. Testing
@@ -258,10 +259,11 @@ Measured from a local end-to-end run of `python -m generator.generate`,
 - Coverage window achieved: **2025-01-01 → 2026-12-31 (24 months)**
 - Gold tables loaded in DuckDB: **12** (72 tables total; `gold_hospital_monthly` = 240 rows)
 - Automated data-quality score: **96.32 / 100** (297 rules, 1,212 failures, 1,172 quarantined records)
-- API: **83 / 83 GET endpoints returned HTTP 200**; verifier PASS for bronze, manifest, DuckDB and API
+- API: **206 / 206 GET endpoints registered**; all **118 chart-data endpoints** returned HTTP 200 with non-empty data; verifier PASS for bronze, manifest, DuckDB and API
 - pytest result (passed / skipped / failed): **82 / 0 / 0**
-- Frontend: `npm run build` succeeded (21 routes); `tsc --noEmit` and `npm run lint` clean
-- Playwright e2e result: **not run** (requires browsers + running API/web servers; see `tests/e2e/`)
+- Frontend: `npm run build` succeeded (21 routes + hospital profile); `tsc --noEmit` and `npm run lint` clean
+- Playwright e2e result: **8 passed / 0 failed** (run from `web/` with `npx playwright test --config=e2e/playwright.config.ts`)
+- Blueprint chart coverage: every layout page now renders its full §14 chart list, including 9 data-quality charts and 8 hospital-profile charts
 - Live deployment URL: **not deployed** (local stack via `docker-compose.yml`)
 
 See [docs/project_roadmap.md](docs/project_roadmap.md) for the 16-phase status overview and

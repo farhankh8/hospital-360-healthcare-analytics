@@ -45,19 +45,23 @@ function HospitalMultiSelect() {
         type="button"
         onClick={() => setOpen((value) => !value)}
         className="flex h-9 min-w-[150px] items-center justify-between gap-2 rounded-md border border-line bg-white px-2.5 text-xs text-ink transition hover:border-teal"
+        aria-label="Hospital filter"
+        data-testid="filter-hospital"
         aria-expanded={open}
       >
         <span className="truncate">{label}</span>
         <ChevronDown className="h-3.5 w-3.5 shrink-0 text-slate-400" />
       </button>
       {open && (
-        <div className="absolute left-0 top-10 z-40 max-h-64 w-64 overflow-auto rounded-lg border border-line bg-white p-2 shadow-lg">
+        <div role="listbox" aria-label="Hospitals" className="absolute left-0 top-10 z-40 max-h-64 w-64 overflow-auto rounded-lg border border-line bg-white p-2 shadow-lg">
           {optionsLoading && <p className="px-2 py-3 text-xs text-slate-400">Loading hospitals…</p>}
           {!optionsLoading && hospitals.length === 0 && <p className="px-2 py-3 text-xs text-slate-400">No hospitals returned by the API.</p>}
           {hospitals.map((hospital) => (
             <button
               key={hospital.value}
               type="button"
+              role="option"
+              aria-selected={selected.includes(hospital.value)}
               onClick={() => toggle(hospital.value)}
               className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs text-ink hover:bg-canvas"
             >

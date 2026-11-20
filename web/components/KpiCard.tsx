@@ -79,6 +79,7 @@ export function KpiCard({ kpiId, item, loading, error, definition, route, onRetr
 
   return (
     <Card
+      data-testid={`kpi-${kpiId}`}
       className={cn('group relative flex min-h-[148px] flex-col justify-between p-4 transition', route && 'cursor-pointer hover:border-teal hover:shadow-md')}
       onClick={route ? () => router.push(routeWithFilters(route, filters)) : undefined}
       role={route ? 'link' : undefined}
@@ -100,7 +101,7 @@ export function KpiCard({ kpiId, item, loading, error, definition, route, onRetr
 
       <div className="mt-3 flex items-end gap-3">
         <div className="min-w-0">
-          <p className="truncate text-2xl font-semibold tracking-tight text-navy">{formatValue(item.value, unit)}</p>
+          <p data-testid="metric-value" className="truncate text-2xl font-semibold tracking-tight text-navy">{formatValue(item.value, unit)}</p>
           <div className="mt-1 flex items-center gap-1.5 text-[11px]">
             <span className={cn('inline-flex items-center gap-0.5 font-semibold', tone === 'positive' ? 'text-success' : tone === 'negative' ? 'text-critical' : 'text-slate-400')}>
               <ChangeIcon className="h-3.5 w-3.5" />

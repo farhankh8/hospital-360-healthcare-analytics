@@ -5,6 +5,18 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useApiQuery } from './api';
 import { DEFAULT_FILTERS, NO_FILTERS, type FilterKey, type FilterState, type SelectOption, type TableRow } from './types';
 
+/** Blueprint §24 shareable-URL names. API request names are mapped separately in lib/api.ts. */
+const URL_KEYS: Record<FilterKey, string> = {
+  date_from: 'from',
+  date_to: 'to',
+  hospital_ids: 'hospital',
+  department_id: 'department',
+  specialty_id: 'specialty',
+  payer_id: 'payer',
+  encounter_type: 'encounter',
+  patient_type: 'patient_type',
+};
+
 interface FilterContextValue {
   filters: FilterState;
   setFilter: (key: FilterKey, value: string | string[]) => void;
@@ -78,13 +90,19 @@ export function FilterProvider({ children }: { children: ReactNode }) {
 
   const filters = useMemo<FilterState>(
     () => ({
-      date_from: searchParams.get('date_from') ?? DEFAULT_FILTERS.date_from,
-      date_to: searchParams.get('date_to') ?? DEFAULT_FILTERS.date_to,
-      hospital_ids: searchParams.getAll('hospital_id'),
-      department_id: searchParams.get('department_id') ?? '',
-      specialty_id: searchParams.get('specialty_id') ?? '',
-      payer_id: searchParams.get('payer_id') ?? '',
-      encounter_type: searchParams.get('encounter_type') ?? '',
+      date_from: searchParams.get('from') ?? searchParams.get('date_from') ?? DEFAULT_FILTERS.date_from,
+      date_to: searchParams.get('to') ?? searchParams.get('date_to') ?? DEFAULT_FILTERS.date_to,
+      hospital_ids: Array.from(
+        new Set([
+          ...searchParams.getAll('hospital'),
+          ...searchParams.getAll('hospital_id'),
+          ...searchParams.getAll('hospital_ids'),
+        ])
+      ),
+      department_id: searchParams.get('department') ?? searchParams.get('department_id') ?? '',
+      specialty_id: searchParams.get('specialty') ?? searchParams.get('specialty_id') ?? '',
+      payer_id: searchParams.get('payer') ?? searchParams.get('payer_id') ?? '',
+      encounter_type: searchParams.get('encounter') ?? searchParams.get('encounter_type') ?? '',
       patient_type: searchParams.get('patient_type') ?? '',
     }),
     [searchParams],
@@ -105,18 +123,23 @@ export function FilterProvider({ children }: { children: ReactNode }) {
   const setFilter = useCallback(
     (key: FilterKey, value: string | string[]) => {
       commit((params) => {
+        const urlKey = URL_KEYS[key];
+        // Remove both the canonical and legacy names so stale filters cannot survive.
+        params.delete(urlKey);
+        params.delete(key);
         if (Array.isArray(value)) {
-          params.delete(key);
-          value.filter(Boolean).forEach((item) => params.append(key, item));
+          value.filter(Boolean).forEach((item) => params.append(urlKey, item));
           if (key === 'hospital_ids') {
+            params.delete('department');
             params.delete('department_id');
+            params.delete('specialty');
             params.delete('specialty_id');
           }
         } else if (value) {
-          params.set(key, value);
-        } else {
-          params.delete(key);
-          if (key === 'department_id') params.delete('specialty_id');
+          params.set(urlKey, value);
+        } else if (key === 'department_id') {
+          params.delete('specialty');
+          params.delete('specialty_id');
         }
       });
     },

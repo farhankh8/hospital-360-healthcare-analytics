@@ -15,14 +15,12 @@ async function pick(page: Page, testId: string, label: RegExp): Promise<Locator>
   return page.getByLabel(label).first();
 }
 
-async function kpiCard(page: Page, name: RegExp): Promise<Locator> {
-  const byTestId = page.locator('[data-testid^="kpi-"]').filter({ hasText: name }).first();
-  if (await byTestId.count()) return byTestId;
-  return page.getByText(name, { exact: false }).first().locator('xpath=ancestor::*[self::div or self::article][1]');
+function kpiCard(page: Page, name: RegExp): Locator {
+  return page.locator('[data-testid^="kpi-"]').filter({ hasText: name }).first();
 }
 
 async function readKpiValue(card: Locator): Promise<string> {
-  const value = card.locator('[data-testid="kpi-value"]').first();
+  const value = card.locator('[data-testid="metric-value"]').first();
   if (await value.count()) return (await value.innerText()).trim();
   return (await card.innerText()).trim();
 }
@@ -90,7 +88,8 @@ test('mobile viewport renders one to two KPI cards per row', async ({ page }) =>
   if (await cards.count()) {
     const first = await cards.nth(0).boundingBox();
     const second = await cards.nth(1).boundingBox();
-    if (first && second) expect(second.y).toBeLessThan(first.y + first.height + 4);
+    // 1 or 2 cards per row is acceptable; allow the normal 16px grid gap.
+    if (first && second) expect(second.y).toBeLessThan(first.y + first.height + 24);
   }
   const filterButton = page.getByRole('button', { name: /filter/i }).first();
   if (await filterButton.count()) await expect(filterButton).toBeVisible();

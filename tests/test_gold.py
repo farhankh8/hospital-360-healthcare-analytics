@@ -37,7 +37,6 @@ BOUNDED_RATE_COLUMNS = {
     "no_show_rate": "gold_hospital_monthly",
     "occupancy_rate": "gold_hospital_monthly",
     "readmission_rate": "gold_hospital_monthly",
-    "collection_rate": "gold_hospital_monthly",  # can exceed 100 with prior-period cash
     "denial_rate": "gold_hospital_monthly",
     "lab_sla_rate": "gold_hospital_monthly",
     "same_day_pct": "gold_patient_access",
@@ -111,6 +110,25 @@ def test_bounded_rates_are_within_range_or_null(duckdb_conn) -> None:
             f"WHERE {column} IS NOT NULL AND ({column} < 0 OR {column} > 100)"
         )
         assert bad.iloc[0, 0] == 0, f"{column} outside 0..100"
+
+
+def test_collection_rate_is_uncapped_non_negative_and_null_on_zero_denominator(duckdb_conn) -> None:
+    bad = duckdb_conn.query(
+        "SELECT COUNT(*) AS n FROM gold_hospital_monthly "
+        "WHERE collection_rate IS NOT NULL AND collection_rate < 0"
+    )
+    assert bad.iloc[0, 0] == 0, "collection rate must never be negative"
+    bad = duckdb_conn.query(
+        "SELECT COUNT(*) AS n FROM gold_hospital_monthly "
+        "WHERE COALESCE(net_revenue, 0) = 0 AND collection_rate IS NOT NULL"
+    )
+    assert bad.iloc[0, 0] == 0, "zero net revenue must produce a NULL collection rate"
+    expected = duckdb_conn.query(
+        "SELECT COUNT(*) AS n FROM gold_hospital_monthly "
+        "WHERE collection_rate IS NOT NULL AND net_revenue > 0 "
+        "AND ABS(collection_rate - ROUND(100.0 * collections / net_revenue, 2)) > 0.01"
+    )
+    assert expected.iloc[0, 0] == 0, "stored collection rate must equal the uncapped formula"
 
 
 def test_no_show_rate_null_when_denominator_zero(duckdb_conn) -> None:

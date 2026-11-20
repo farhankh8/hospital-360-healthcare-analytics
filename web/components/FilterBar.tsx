@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Check, ChevronDown, Download, GitCompareArrows, RotateCcw, SlidersHorizontal, X } from 'lucide-react';
 import { useFilters } from '@/lib/filters';
+import { usePageFilters } from '@/lib/page-filters';
 import { getPageConfigByPath } from '@/lib/page-configs';
 import type { FilterKey } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -18,6 +19,20 @@ const PATIENT_TYPES = [
   { value: 'New', label: 'New' },
   { value: 'Returning', label: 'Returning' },
 ];
+const STATIC_PAGE_OPTIONS: Record<string, Array<{ value: string; label: string }>> = {
+  elective_emergency: [
+    { value: 'Elective', label: 'Elective' },
+    { value: 'Emergency', label: 'Emergency' },
+  ],
+  rating: [
+    { value: '1', label: '1 star' }, { value: '2', label: '2 stars' },
+    { value: '3', label: '3 stars' }, { value: '4', label: '4 stars' },
+    { value: '5', label: '5 stars' },
+  ],
+  run_status: [
+    { value: 'success', label: 'Success' }, { value: 'failed', label: 'Failed' },
+  ],
+};
 
 function HospitalMultiSelect() {
   const { hospitals, filters, setHospitals, optionsLoading } = useFilters();
@@ -85,6 +100,7 @@ function HospitalMultiSelect() {
 export function FilterBar({ inDrawer = false }: { inDrawer?: boolean }) {
   const pathname = usePathname();
   const { filters, setFilter, reset, compare, toggleCompare, departments, specialties, setDrawerOpen } = useFilters();
+  const { params: pageParams, setPageParam, options: pageOptions, optionsLoading: pageOptionsLoading } = usePageFilters();
   const config = getPageConfigByPath(pathname);
   const enabled = new Set(config?.filters ?? []);
 

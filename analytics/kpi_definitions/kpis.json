@@ -3896,5 +3896,658 @@
     "target": null,
     "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
     "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "avg_checkin_wait",
+    "name": "Average Check-in Waiting Time",
+    "category": "Access",
+    "business_definition": "Mean minutes patients wait after check-in.",
+    "formula": "AVG(waiting_minutes)",
+    "numerator": "SUM(waiting_minutes)",
+    "denominator": "Appointments with waiting time",
+    "grain": "hospital x department x month",
+    "date_field": "appointments.appointment_date",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_appointments"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "minutes",
+    "target": 20,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "avg_investigation_time",
+    "name": "Average Investigation Time",
+    "category": "Quality",
+    "business_definition": "Mean days to complete an incident investigation.",
+    "formula": "AVG(investigation_days)",
+    "numerator": "SUM(investigation_days)",
+    "denominator": "Investigated incidents",
+    "grain": "hospital x department x month",
+    "date_field": "incidents.incident_date",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_incidents"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "days",
+    "target": null,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "avg_invoice_value",
+    "name": "Average Invoice Value",
+    "category": "Finance",
+    "business_definition": "Mean net invoice amount.",
+    "formula": "AVG(net_amount)",
+    "numerator": "SUM(net_amount)",
+    "denominator": "Invoices",
+    "grain": "hospital x month",
+    "date_field": "invoices.invoice_date",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_invoices"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "currency",
+    "target": null,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "avg_prescription_value",
+    "name": "Average Prescription Value",
+    "category": "Pharmacy",
+    "business_definition": "Mean value of a prescription.",
+    "formula": "AVG(amount)",
+    "numerator": "SUM(amount)",
+    "denominator": "Prescriptions",
+    "grain": "hospital x month",
+    "date_field": "prescriptions.prescribed_date",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_prescriptions"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "currency",
+    "target": null,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "avg_procedure_duration",
+    "name": "Average Procedure Duration",
+    "category": "Procedures",
+    "business_definition": "Mean actual procedure duration.",
+    "formula": "AVG(duration_minutes)",
+    "numerator": "SUM(duration_minutes)",
+    "denominator": "Procedures with duration",
+    "grain": "hospital x month",
+    "date_field": "procedures.actual_start",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_procedures"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "minutes",
+    "target": null,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "avg_processing_time",
+    "name": "Average Processing Time",
+    "category": "Claims",
+    "business_definition": "Mean days from submission to adjudication.",
+    "formula": "AVG(processing_days)",
+    "numerator": "SUM(processing_days)",
+    "denominator": "Adjudicated claims",
+    "grain": "hospital x payer x month",
+    "date_field": "claims.claim_date",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_claims"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "days",
+    "target": null,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "avg_tat",
+    "name": "Average Turnaround Time",
+    "category": "Diagnostics",
+    "business_definition": "Mean lab result turnaround time.",
+    "formula": "AVG(tat_minutes)",
+    "numerator": "SUM(tat_minutes)",
+    "denominator": "Results with TAT",
+    "grain": "hospital x test x month",
+    "date_field": "lab_results.result_at",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_lab_results"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "minutes",
+    "target": null,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "avg_treatment_time",
+    "name": "Average Treatment Time",
+    "category": "Emergency",
+    "business_definition": "Mean minutes from provider to disposition.",
+    "formula": "AVG(treatment_minutes)",
+    "numerator": "SUM(treatment_minutes)",
+    "denominator": "Encounters with treatment time",
+    "grain": "hospital x month",
+    "date_field": "encounters.arrival_datetime",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_encounters"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "minutes",
+    "target": null,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "avg_triage_time",
+    "name": "Average Triage Time",
+    "category": "Emergency",
+    "business_definition": "Mean minutes from arrival to triage.",
+    "formula": "AVG(triage_datetime - arrival_datetime)/60 min",
+    "numerator": "Sum of arrival-to-triage minutes",
+    "denominator": "Encounters with triage",
+    "grain": "hospital x month",
+    "date_field": "encounters.arrival_datetime",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_encounters"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "minutes",
+    "target": null,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "avg_wait_appointment",
+    "name": "Average Wait for Appointment",
+    "category": "Access",
+    "business_definition": "Mean calendar days between booking and appointment.",
+    "formula": "AVG(lead_days)",
+    "numerator": "SUM(lead_days)",
+    "denominator": "Appointments with lead_days",
+    "grain": "hospital x department x month",
+    "date_field": "appointments.appointment_date",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_appointments"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "days",
+    "target": null,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "avg_waiting_time",
+    "name": "Average Waiting Time",
+    "category": "Emergency",
+    "business_definition": "Mean minutes from arrival to provider.",
+    "formula": "AVG(waiting_minutes)",
+    "numerator": "SUM(waiting_minutes)",
+    "denominator": "Encounters with waiting time",
+    "grain": "hospital x month",
+    "date_field": "encounters.arrival_datetime",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_encounters"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "minutes",
+    "target": null,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "bed_turnover",
+    "name": "Bed Turnover",
+    "category": "Inpatient",
+    "business_definition": "Discharges per available bed in the period.",
+    "formula": "discharges / total_beds",
+    "numerator": "Discharges",
+    "denominator": "Total beds",
+    "grain": "hospital x ward x month",
+    "date_field": "admissions.discharge_datetime",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_admissions",
+      "silver_bed_snapshots"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "ratio",
+    "target": null,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "boarding_hours",
+    "name": "Average Boarding Time",
+    "category": "Inpatient",
+    "business_definition": "Mean hours an admitted patient waited for a bed.",
+    "formula": "AVG(boarding_hours)",
+    "numerator": "SUM(boarding_hours)",
+    "denominator": "Admissions with boarding hours",
+    "grain": "hospital x ward x month",
+    "date_field": "admissions.admission_datetime",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_admissions"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "hours",
+    "target": null,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "dispensing_completion",
+    "name": "Dispensing Completion Rate",
+    "category": "Pharmacy",
+    "business_definition": "Dispensed items over prescribed items.",
+    "formula": "items_dispensed / items_prescribed * 100",
+    "numerator": "Dispensed quantity",
+    "denominator": "Prescribed quantity",
+    "grain": "hospital x month",
+    "date_field": "dispensing.dispensed_date",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_dispensing",
+      "silver_prescriptions"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "percent",
+    "target": null,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "encounters",
+    "name": "Encounters",
+    "category": "Utilization",
+    "business_definition": "All outpatient, emergency and inpatient encounters.",
+    "formula": "COUNT(encounter_id)",
+    "numerator": "Encounter rows",
+    "denominator": null,
+    "grain": "network x month",
+    "date_field": "encounters.arrival_datetime",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_encounters"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "count",
+    "target": null,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "falls",
+    "name": "Falls Reported",
+    "category": "Quality",
+    "business_definition": "Incidents in the Fall category.",
+    "formula": "COUNT(*) FILTER (category='Fall')",
+    "numerator": "Fall incidents",
+    "denominator": null,
+    "grain": "hospital x department x month",
+    "date_field": "incidents.incident_date",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_incidents"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "count",
+    "target": null,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "investigation_completion",
+    "name": "Investigation Completion Rate",
+    "category": "Quality",
+    "business_definition": "Incidents with a completed investigation.",
+    "formula": "COUNT(investigation_complete_flag) / incidents * 100",
+    "numerator": "Completed investigations",
+    "denominator": "Incidents",
+    "grain": "hospital x department x month",
+    "date_field": "incidents.incident_date",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_incidents"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "percent",
+    "target": null,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "left_without_seen",
+    "name": "Left Without Being Seen",
+    "category": "Emergency",
+    "business_definition": "Emergency encounters disposed as LWBS.",
+    "formula": "COUNT(*) FILTER (disposition='LWBS')",
+    "numerator": "LWBS encounters",
+    "denominator": null,
+    "grain": "hospital x month",
+    "date_field": "encounters.arrival_datetime",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_encounters"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "count",
+    "target": null,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "low_stock",
+    "name": "Low-Stock Items",
+    "category": "Inventory",
+    "business_definition": "Items with closing stock at or below reorder level.",
+    "formula": "COUNT(DISTINCT item_id) FILTER (cum_qty<=reorder_level)",
+    "numerator": "Low-stock items",
+    "denominator": null,
+    "grain": "hospital x category x month",
+    "date_field": "inventory_movements.movement_date",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_inventory_movements",
+      "dim_inventory_item"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "count",
+    "target": null,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "median_tat",
+    "name": "Median Turnaround Time",
+    "category": "Diagnostics",
+    "business_definition": "Median lab result turnaround time.",
+    "formula": "MEDIAN(tat_minutes)",
+    "numerator": "Median TAT",
+    "denominator": null,
+    "grain": "hospital x test x month",
+    "date_field": "lab_results.result_at",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_lab_results"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "minutes",
+    "target": null,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "nps",
+    "name": "Net Promoter Score",
+    "category": "Experience",
+    "business_definition": "Promoters minus detractors as a share of respondents.",
+    "formula": "(promoters - detractors) / total * 100",
+    "numerator": "Promoters(nps>=9) - Detractors(nps<=6)",
+    "denominator": "Feedback with NPS",
+    "grain": "hospital x department x month",
+    "date_field": "feedback.visit_date",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_feedback"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "score",
+    "target": null,
+    "caveat": "Range -100..100, not a 0-100 percentage; synthetic NPS scores.",
+    "validation_test": "All promoters -> 100; all detractors -> -100; empty denominator -> NULL."
+  },
+  {
+    "id": "positive_feedback",
+    "name": "Positive Feedback Percentage",
+    "category": "Experience",
+    "business_definition": "Share of feedback with Positive synthetic sentiment label.",
+    "formula": "COUNT(sentiment_label='Positive') / feedback * 100",
+    "numerator": "Positive labels",
+    "denominator": "Feedback count",
+    "grain": "hospital x department x month",
+    "date_field": "feedback.visit_date",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_feedback"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "percent",
+    "target": null,
+    "caveat": "Sentiment labels are synthetic and are not AI-derived from real text.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "revenue_per_hospital",
+    "name": "Revenue per Hospital",
+    "category": "Finance",
+    "business_definition": "Net revenue attributed to each hospital department.",
+    "formula": "SUM(net_amount) by hospital, department",
+    "numerator": "Net revenue",
+    "denominator": null,
+    "grain": "hospital x department x month",
+    "date_field": "invoices.invoice_date",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_invoices",
+      "silver_encounters"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "currency",
+    "target": null,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "same_day_pct",
+    "name": "Same-Day Appointments",
+    "category": "Access",
+    "business_definition": "Appointments booked on the day of the visit.",
+    "formula": "COUNT(lead_days=0) / scheduled * 100",
+    "numerator": "Same-day appointments",
+    "denominator": "Scheduled appointments",
+    "grain": "hospital x department x month",
+    "date_field": "appointments.appointment_date",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_appointments"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "percent",
+    "target": null,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "sla_compliance",
+    "name": "SLA Compliance Rate",
+    "category": "Diagnostics",
+    "business_definition": "Share of timed results meeting the test SLA.",
+    "formula": "results_within_sla / timed_results * 100",
+    "numerator": "Results with TAT <= SLA",
+    "denominator": "Results with known TAT and SLA",
+    "grain": "hospital x test x month",
+    "date_field": "lab_results.result_at",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_lab_results",
+      "dim_lab_test"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "percent",
+    "target": 95,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "stockouts",
+    "name": "Stockout Items",
+    "category": "Inventory",
+    "business_definition": "Items with closing stock at or below zero.",
+    "formula": "COUNT(DISTINCT item_id) FILTER (cum_qty<=0)",
+    "numerator": "Stockout items",
+    "denominator": null,
+    "grain": "hospital x category x month",
+    "date_field": "inventory_movements.movement_date",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_inventory_movements"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "count",
+    "target": null,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
+  },
+  {
+    "id": "supplier_delivery",
+    "name": "Supplier Delivery Performance",
+    "category": "Inventory",
+    "business_definition": "Received orders delivered on or before expected date.",
+    "formula": "on_time_receipts / received_orders * 100",
+    "numerator": "On-time receipts",
+    "denominator": "Received orders",
+    "grain": "hospital x month",
+    "date_field": "purchase_orders.received_date",
+    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "source_tables": [
+      "silver_purchase_orders"
+    ],
+    "dimensions": [
+      "hospital_id",
+      "department_id",
+      "month"
+    ],
+    "unit": "percent",
+    "target": null,
+    "caveat": "Computed from synthetic data; percentages are on a 0-100 scale and NULL when the denominator is zero.",
+    "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
   }
 ]

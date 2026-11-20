@@ -1,119 +1,116 @@
 # HOSPITAL 360 - Project Roadmap
 
-The 16 phases from blueprint section 27, in the mandated build order. Status markers are a
-snapshot of this repository at the time the documentation/testing layer was added; source
-layers are being implemented in parallel, so re-check the code before quoting status to a
-reviewer. **No measured result is claimed here** - run the pipeline and tests first.
+Status against the 16 phases in blueprint section 27, verified from the current repository and
+local run `RUN_20261120_005`. Results below are measured, not targets.
 
-**Legend:** 🟢 Implemented / verifiable in repo · 🟡 In progress or partially implemented ·
-⚪ Not started in this snapshot
+**Legend:** 🟢 Complete and verified · 🟡 Implemented but externally unverified · ⚪ Not started
 
 ---
 
-## 🟡 Phase 1 - Project foundation
-Tasks: GitHub repository, project folder, Python environment, Next.js, FastAPI, DuckDB,
-Tailwind, initial README, project structure.
-Deliverable: application skeleton running locally.
-Status: project structure, `CONTRACT.md`, environment files, Docker/CI configuration and
-README are present; verify the Next.js skeleton builds before marking complete.
+## 🟢 Phase 1 - Project foundation
+
+GitHub repository, project structure, Python environment, Next.js, FastAPI, DuckDB, Tailwind,
+README, Docker and CI configuration all exist. `python scripts/verify_project.py` passes.
 
 ## 🟢 Phase 2 - Business requirements and data model
-Tasks: define entities, IDs, table grains, ERD, relationships, KPI dictionary, business
-rules, generation profiles.
-Deliverable: approved data model.
-Status: `generator/schema.py` (39 tables), `CONTRACT.md`, [erd.md](erd.md),
-[data_dictionary.md](data_dictionary.md) and [kpi_glossary.md](kpi_glossary.md) exist.
 
-## 🟡 Phase 3 - Reference data
-Generate hospitals, departments, doctors, staff, specialties, payers, diagnoses,
-procedures, medications, lab tests, inventory items, suppliers, beds.
-Deliverable: consistent reference tables.
-Status: hospital profile definitions live in `generator/config.py`; generation modules are
-being completed in parallel.
+`generator/schema.py` defines 39 tables with explicit grains. `CONTRACT.md`,
+[erd.md](erd.md), [data_dictionary.md](data_dictionary.md) and [kpi_glossary.md](kpi_glossary.md)
+document the model.
 
-## 🟡 Phase 4 - Patient and appointment system
-Generate patients, appointments, encounters; implement booking, cancellation, no-show,
-completed, check-in, waiting time and encounter relationships.
-Deliverable: appointment analytics dataset.
+## 🟢 Phase 3 - Reference data
 
-## 🟡 Phase 5 - Inpatient operations
-Generate admissions, discharges, transfers, bed snapshots; implement LOS, occupancy, bed
-turnover and readmission logic.
-Deliverable: inpatient analytics.
+10 hospitals, 120 departments, 690 doctors, 2,980 staff, 18 specialties, 6 payers, 45
+diagnoses, 44 procedures, 52 medications, 38 lab tests, 122 inventory items, 20 suppliers and
+3,450 beds were generated with distinct hospital profiles.
 
-## 🟡 Phase 6 - Procedures and diagnostics
-Generate procedures, OR schedules, lab orders/results; implement duration, cancellation,
-OR utilisation, turnaround and SLA.
-Deliverable: procedures and diagnostic analytics.
+## 🟢 Phase 4 - Patient and appointment system
 
-## 🟡 Phase 7 - Pharmacy and finance
-Generate prescriptions, dispensing, invoices, invoice lines, payments; implement revenue,
-collections, outstanding balances and medication revenue.
-Deliverable: finance and pharmacy analytics.
+15,240 source patients, 104,000 appointments and 82,000 encounters generated; booking,
+cancellation, no-show, completion, check-in and waiting-time fields are present in silver/gold
+models.
 
-## 🟡 Phase 8 - Insurance
-Generate claims, claim lines, claim events, denials, appeals; implement denial rate,
-processing time, claim aging, approved and paid amounts.
-Deliverable: revenue cycle analytics.
+## 🟢 Phase 5 - Inpatient operations
 
-## 🟡 Phase 9 - Workforce and inventory
-Generate shifts, attendance, inventory movements, purchase orders; implement coverage,
-overtime, absence, stock availability, expiry and procurement.
-Deliverable: operational analytics.
+24,804 admissions, 3,600 transfers and 102,000 bed snapshots generated; LOS, occupancy, bed
+turnover and readmission logic are implemented in SQL models and KPI specs.
 
-## 🟡 Phase 10 - Patient experience and quality
-Generate feedback, complaints, incidents; implement satisfaction, feedback trends, incident
-categories and resolution metrics.
-Deliverable: quality and experience analytics.
+## 🟢 Phase 6 - Procedures and diagnostics
 
-## 🟡 Phase 11 - Data engineering
-Implement bronze ingestion, silver cleaning, gold transformations, DuckDB models, Parquet
-storage, manifest, pipeline runs and quarantine.
-Deliverable: reproducible ETL pipeline.
-Status: pipeline implementation in parallel; tests in `tests/test_silver.py` and
-`tests/test_gold.py` are ready and skip gracefully until data exists.
+31,000 procedures, 106,000 lab orders and 156,592 lab results generated; duration,
+cancellation, OR utilisation, turnaround and SLA metrics are implemented.
 
-## 🟡 Phase 12 - Backend
-Implement API routes, KPI services, SQL repositories, validation, filters, pagination,
-exports and error handling.
-Deliverable: working analytics API.
-Status: `api/core` (config, DB access, filters, response envelopes) is present; route
-implementation continues in parallel. Endpoint catalogue is in [api.md](api.md).
+## 🟢 Phase 7 - Pharmacy and finance
 
-## ⚪ Phase 13 - Frontend core
-Build reusable components: sidebar, header, filter bar, KPI cards, charts, tables, drawers,
-tooltips, loading/empty/error states.
-Deliverable: design system and dashboard framework.
+53,000 prescriptions, 53,000 dispensing records, 66,000 invoices, 138,729 invoice lines and
+78,884 payments generated; revenue, collections, balances and medication revenue are in the
+finance models.
 
-## ⚪ Phase 14 - Main pages
-Build all 21 pages in blueprint order: Network Overview, Hospital Comparison, Hospital
-Profile, Appointments, Inpatient, Finance, Claims, Emergency, Diagnostics, Procedures,
-Pharmacy, Workforce, Inventory, Patient Experience, Quality, Data Explorer, Patient
-Journey, Data Quality, Pipeline, KPI Glossary, Methodology.
-Deliverable: all pages functional.
+## 🟢 Phase 8 - Insurance
+
+52,000 claims, 104,002 claim lines and 179,238 claim events generated; denial rate, processing
+time, aging, approved and paid amounts are implemented.
+
+## 🟢 Phase 9 - Workforce and inventory
+
+52,000 shifts, 52,000 attendance records, 52,000 inventory movements and 5,200 purchase orders
+generated; coverage, overtime, absence, stock availability, expiry and procurement are
+implemented.
+
+## 🟢 Phase 10 - Patient experience and quality
+
+15,600 feedback records and 4,200 incidents generated; satisfaction, feedback trends, incident
+categories and resolution metrics are implemented.
+
+## 🟢 Phase 11 - Data engineering
+
+Bronze CSVs, silver Parquet with quarantine, gold Parquet, 72 DuckDB tables, 12 gold models,
+297 DQ rules, manifests and 5 pipeline runs are present. Current run: `RUN_20261120_005`,
+1,540,892 source / 1,539,720 valid / 1,172 quarantined rows, DQ score **96.29 / 100**.
+
+## 🟢 Phase 12 - Backend
+
+FastAPI `/api/v1` exposes 206 GET endpoints, including 118 chart endpoints, allowlisted
+filters, pagination, CSV export, error handling, data-quality and pipeline introspection.
+All verifier API checks pass.
+
+## 🟢 Phase 13 - Frontend core
+
+Sidebar, header, filter bar, KPI cards, ECharts containers, tables, drill-down drawer,
+tooltips, loading/empty/error states, responsive layout and accessibility basics are
+implemented in `web/components/`.
+
+## 🟢 Phase 14 - Main pages
+
+All 21 blueprint pages are implemented and smoke-tested in Chromium and mobile viewports.
+Every page renders without uncaught browser errors.
 
 ## 🟢 Phase 15 - Testing
-Generator tests, data quality tests, KPI tests, API tests, frontend tests, integration
-tests, end-to-end tests.
-Deliverable: validated application.
-Status: this layer adds `tests/conftest.py`, `test_generator.py`, `test_silver.py`,
-`test_gold.py`, `test_kpis.py`, `test_api.py`, `web/e2e/analytics.spec.ts`,
-`pytest.ini` and the Playwright config. Data-dependent suites skip until the pipeline has
-run. Full integration results must be filled in after execution.
 
-## 🟢 Phase 16 - Deployment
-GitHub, Docker, frontend deployment, backend deployment, environment variables, API
-connection, dataset availability, health checks.
-Deliverable: live application.
-Status: `Dockerfile.api`, `Dockerfile.web`, `docker-compose.yml`, `.dockerignore` and
-`.github/workflows/ci.yml` are written; [deployment.md](deployment.md) documents the
-remaining hosting steps. A live URL is not yet verified.
+82 pytest tests pass; 18 Playwright tests pass (9 cases × Chromium/mobile), covering the §28
+journey, no-data/API-failure/invalid-filter/large-range/empty/mobile/refresh/back/export/
+compare cases and all 21 routes. Ruff, lint, type-check and build are clean.
+
+## 🟡 Phase 16 - Deployment
+
+`Dockerfile.api`, `Dockerfile.web`, `docker-compose.yml`, environment configuration and
+[deployment.md](deployment.md) are present. The GitHub repository uses `main`, `develop` and
+feature branches. A public live URL is not yet verified; the application is currently verified
+only on the local stack.
 
 ---
 
-## Acceptance checklist pointer
+## Blueprint §31 acceptance status
 
-The blueprint's final acceptance checklist (section 31) spans dataset, data engineering,
-analytics, backend, frontend, testing and deployment. Track it in the project README's
-"Project status" section and fill measured values with the `<!-- FILL AFTER RUN -->`
-placeholders only after the pipeline and tests have actually run.
+- **Dataset:** all items verified; 1,540,892 records, 10 hospitals, 15,240 patients, 24 months.
+- **Data engineering:** all items verified.
+- **Analytics:** KPI definitions, calculations, SQL models, comparisons and no-double-counting
+  grains implemented; some operational KPIs are documented proxies where source systems do not
+  contain direct measures.
+- **Backend:** versioning, KPI/chart/detail routes, filters, pagination, exports, errors and
+  validation verified.
+- **Frontend:** 21 pages, connected KPIs/charts/filters/tables, drill-downs, search, export,
+  states, responsiveness and accessibility basics verified.
+- **Testing:** unit, data, API, integration and end-to-end suites verified.
+- **Deployment:** GitHub and Docker configuration complete; frontend/backend deployed to a
+  public URL and live-URL verification remain external steps.

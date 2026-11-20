@@ -67,7 +67,12 @@ export function DrilldownDrawer() {
   const { filters } = useFilters();
   const config = getPageConfigByPath(pathname);
   const routeId = params?.id ? (Array.isArray(params.id) ? params.id[0] : params.id) : '';
-  const endpoint = useMemo(() => resolveEndpoint(config?.tableEndpoint, { id: routeId }), [config?.tableEndpoint, routeId]);
+  // Chart clicks carry the endpoint of the records behind the metric (§15).
+  const recordEndpoint = typeof record?.endpoint === 'string' ? record.endpoint : '';
+  const endpoint = useMemo(
+    () => resolveEndpoint(recordEndpoint || config?.tableEndpoint, { id: routeId }),
+    [recordEndpoint, config?.tableEndpoint, routeId],
+  );
   const recordId = findRecordId(record);
 
   const relatedQuery = useApiQuery<TableRow[]>(

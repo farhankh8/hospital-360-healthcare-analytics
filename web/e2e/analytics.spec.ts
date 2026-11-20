@@ -102,3 +102,40 @@ test('invalid filter and empty result show a controlled state', async ({ page })
   const card = kpiCard(page, /total encounters/i);
   await expect(empty.or(card)).toBeVisible();
 });
+
+test('compare periods requests the previous-period KPI values', async ({ page }) => {
+  await page.goto('/overview?hospital=H03&from=2026-01-01&to=2026-06-30');
+  await expect(kpiCard(page, /total encounters/i)).toBeVisible();
+  const previousRequest = page.waitForRequest(
+    (request) => request.url().includes('/overview/kpis?') && request.url().includes('previous=true'),
+  );
+  await page.getByRole('button', { name: /compare/i }).first().click();
+  await previousRequest;
+  await expect(page).toHaveURL(/compare=1/);
+});
+
+test('back navigation restores the previous filter state', async ({ page }) => {
+  await page.goto('/overview');
+  await expect(kpiCard(page, /total encounters/i)).toBeVisible();
+  const hospital = await pick(page, 'filter-hospital', /hospital/i);
+  await hospital.click();
+  await page.getByRole('option', { name: /H03|Cardiac/i }).first().click();
+  await expect(page).toHaveURL(/hospital=H03/);
+  await page.goBack();
+  await expect(page).not.toHaveURL(/hospital=H03/);
+});
+
+test('very large date range still returns API-driven KPIs', async ({ page }) => {
+  await page.goto('/overview?from=2025-01-01&to=2026-12-31');
+  const card = kpiCard(page, /total encounters/i);
+  await expect(card).toBeVisible();
+  expect((await readKpiValue(card)).length).toBeGreaterThan(0);
+});
+
+test('API failure shows a controlled error state', async ({ page }) => {
+  await page.route('**/api/v1/overview/kpis*', (route) =>
+    route.fulfill({ status: 500, contentType: 'application/json', body: JSON.stringify({ detail: 'API failure test' }) }),
+  );
+  await page.goto('/overview');
+  await expect(page.getByText(/API failure test|KPIs could not be loaded/i).first()).toBeVisible();
+});

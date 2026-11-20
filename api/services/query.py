@@ -5,12 +5,40 @@ from typing import Any
 
 import duckdb
 
-from api.core.filters import Filters, build_where
+from api.core.filters import NUMERIC_FILTER_TYPES, Filters, build_where
+
+
+def column_types(conn: duckdb.DuckDBPyConnection, table: str) -> dict[str, str]:
+    rows = conn.execute(f"DESCRIBE {table}").fetchall()
+    return {str(r[0]): str(r[1]).upper() for r in rows}
 
 
 def columns(conn: duckdb.DuckDBPyConnection, table: str) -> set[str]:
-    rows = conn.execute(f"DESCRIBE {table}").fetchall()
-    return {r[0] for r in rows}
+    return set(column_types(conn, table))
+
+
+def numeric_where(f: Filters, types: dict[str, str]) -> tuple[str, dict[str, Any]]:
+    """Optional range filter used by the data explorer (allowlisted column)."""
+    col = f.numeric_column
+    if not col or col not in types:
+        return "", {}
+    if not any(token in types[col] for token in NUMERIC_FILTER_TYPES):
+        return "", {}
+    clauses: list[str] = []
+    params: dict[str, Any] = {}
+    if f.numeric_min not in (None, ""):
+        try:
+            params["numeric_min"] = float(f.numeric_min)
+            clauses.append(f"CAST({col} AS DOUBLE) >= $numeric_min")
+        except (TypeError, ValueError):
+            pass
+    if f.numeric_max not in (None, ""):
+        try:
+            params["numeric_max"] = float(f.numeric_max)
+            clauses.append(f"CAST({col} AS DOUBLE) <= $numeric_max")
+        except (TypeError, ValueError):
+            pass
+    return " AND ".join(clauses), params
 
 
 def query_rows(
@@ -61,15 +89,24 @@ def paginated_rows(
     force_params: dict[str, Any] | None = None,
 ) -> tuple[list[dict[str, Any]], int]:
     """Return (rows, total_records) with safe sorting, search and pagination."""
-    cols = columns(conn, table)
+    types = column_types(conn, table)
+    cols = set(types)
     where, params = build_where(f, cols, date_col=date_col)
+    num_clause, num_params = numeric_where(f, types)
+    if num_clause:
+        where = (where + f" AND {num_clause}") if where else f" WHERE {num_clause}"
+        params.update(num_params)
     if force_filters:
         where = (where + f" AND {force_filters}") if where else f" WHERE {force_filters}"
     params.update(force_params or {})
 
-    # Search across allowlisted string columns only.
+    # Search across all text-like columns, including IDs (patient/encounter
+    # lookup is a blueprint requirement). Numeric columns are never searched.
     if f.search:
-        text_cols = [c for c in cols if c in (allowlist or cols) and not c.lower().endswith(("_id", "_date", "_at"))]
+        text_cols = [
+            c for c in cols
+            if any(token in types[c] for token in ("VARCHAR", "CHAR", "TEXT", "DATE", "TIMESTAMP"))
+        ]
         if text_cols:
             parts = []
             for i, c in enumerate(text_cols):

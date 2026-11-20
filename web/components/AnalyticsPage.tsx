@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { useApiQuery, useKpis } from '@/lib/api';
 import { useFilters } from '@/lib/filters';
+import { usePageFilters } from '@/lib/page-filters';
 import { kpiRoute } from '@/lib/page-configs';
 import type { ChartConfig, FilterState, KpiMap, PageConfig, TableRow } from '@/lib/types';
 import { cn, displayValue } from '@/lib/utils';
@@ -38,18 +39,20 @@ function glossaryDefinitions(data: unknown): Record<string, string> {
   return result;
 }
 
-function ChartPanel({ config, filters }: { config: ChartConfig; filters: FilterState }) {
-  const query = useApiQuery<unknown>(`chart-${config.endpoint}`, config.endpoint, filters);
+function ChartPanel({ config, tableEndpoint, filters, params }: { config: ChartConfig; tableEndpoint?: string; filters: FilterState; params: Record<string, string> }) {
+  const query = useApiQuery<unknown>(`chart-${config.endpoint}`, config.endpoint, filters, params);
+  // §15: every chart click drills into the records behind that page.
+  const drillable = tableEndpoint ? { ...config, drilldownEndpoint: config.drilldownEndpoint ?? tableEndpoint } : config;
   return (
     <div className={cn(config.span === 2 && 'xl:col-span-2')}>
-      <ChartContainer config={config} data={query.data?.data} loading={query.isLoading} error={query.error} onRetry={() => query.refetch()} />
+      <ChartContainer config={drillable} data={query.data?.data} loading={query.isLoading} error={query.error} onRetry={() => query.refetch()} />
     </div>
   );
 }
 
-function ProfileHeader({ endpoint }: { endpoint: string }) {
+function ProfileHeader({ endpoint, params }: { endpoint: string; params: Record<string, string> }) {
   const { filters } = useFilters();
-  const query = useApiQuery<TableRow>(`profile-${endpoint}`, endpoint, filters);
+  const query = useApiQuery<TableRow>(`profile-${endpoint}`, endpoint, filters, params);
   if (query.isLoading) return <Skeleton className="h-28 w-full" />;
   if (query.isError || !query.data?.data) return null;
   const profile = query.data.data;
@@ -87,8 +90,9 @@ function ProfileHeader({ endpoint }: { endpoint: string }) {
 }
 
 export function AnalyticsPage({ config }: { config: PageConfig }) {
-  const { filters } = useFilters();
-  const kpiQuery = useKpis(config.kpiEndpoint, filters);
+  const { filters, compare } = useFilters();
+  const { params: pageParams } = usePageFilters();
+  const kpiQuery = useKpis(config.kpiEndpoint, filters, { ...pageParams, ...(compare ? { previous: 'true' } : {}) });
   const glossaryQuery = useApiQuery<unknown>('kpi-glossary', '/kpis/glossary', { ...filters, date_from: '', date_to: '', hospital_ids: [], department_id: '', specialty_id: '', payer_id: '', encounter_type: '', patient_type: '' });
   const definitions = useMemo(() => glossaryDefinitions(glossaryQuery.data?.data), [glossaryQuery.data]);
 
@@ -102,7 +106,7 @@ export function AnalyticsPage({ config }: { config: PageConfig }) {
   return (
     <div className="space-y-6">
       <PageHeading title={config.title} description={config.description} badge={<Badge tone="info">{config.navGroup}</Badge>} />
-      {config.profileEndpoint && <ProfileHeader endpoint={config.profileEndpoint} />}
+      {config.profileEndpoint && <ProfileHeader endpoint={config.profileEndpoint} params={pageParams} />}
 
       {config.kpiEndpoint && (
         <section aria-label="Key performance indicators">
@@ -138,7 +142,7 @@ export function AnalyticsPage({ config }: { config: PageConfig }) {
           </div>
           <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
             {config.charts.map((chartConfig) => (
-              <ChartPanel key={`${chartConfig.title}-${chartConfig.endpoint}`} config={chartConfig} filters={filters} />
+              <ChartPanel key={`${chartConfig.title}-${chartConfig.endpoint}`} config={chartConfig} tableEndpoint={config.tableEndpoint} filters={filters} params={pageParams} />
             ))}
           </div>
         </section>
@@ -146,7 +150,7 @@ export function AnalyticsPage({ config }: { config: PageConfig }) {
 
       {config.tableEndpoint && (
         <section aria-label="Records">
-          <DataTable endpoint={config.tableEndpoint} columns={config.tableColumns} filters={filters} exportName={config.slug} />
+          <DataTable endpoint={config.tableEndpoint} columns={config.tableColumns} filters={filters} params={pageParams} exportName={config.slug} />
         </section>
       )}
     </div>

@@ -485,6 +485,17 @@ def clean_table(
     failed_idx = list(failures.keys())
     clean = df.drop(index=failed_idx).copy() if failed_idx else df.copy()
 
+    # Additive derived dimension used by the blueprint's patient-age filter.
+    # The synthetic reference date keeps the value stable across runs.
+    if table == "patients" and "birth_date" in clean.columns:
+        birth = _as_datetime(clean["birth_date"])
+        age = (pd.Timestamp("2026-12-31") - birth).dt.days / 365.25
+        clean["age_group"] = pd.cut(
+            age,
+            bins=[-float("inf"), 17, 34, 49, 64, float("inf")],
+            labels=["0-17", "18-34", "35-49", "50-64", "65+"],
+        ).astype("string")
+
     for idx, reasons in failures.items():
         original = raw_snapshot.loc[idx]
         record_json = json.dumps(

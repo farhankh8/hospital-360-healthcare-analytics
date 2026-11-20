@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Database, GitBranch } from 'lucide-react';
 import { useApiQuery } from '@/lib/api';
 import { useFilters } from '@/lib/filters';
+import { usePageFilters } from '@/lib/page-filters';
 import type { SelectOption, TableRow } from '@/lib/types';
 import { NO_FILTERS } from '@/lib/types';
 import { displayValue } from '@/lib/utils';
@@ -38,11 +39,14 @@ function schemaRows(data: unknown): TableRow[] {
   return [];
 }
 
+const NUMERIC_HINTS = ['INTEGER', 'BIGINT', 'DOUBLE', 'FLOAT', 'DECIMAL', 'HUGEINT', 'REAL'];
+
 export function ExplorerPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const { filters } = useFilters();
+  const { params: pageParams, setPageParam } = usePageFilters();
 
   const datasetsQuery = useApiQuery<unknown>('explorer-datasets', '/explorer/datasets', NO_FILTERS);
   const datasets = useMemo(() => datasetOptions(datasetsQuery.data?.data), [datasetsQuery.data]);
@@ -51,25 +55,55 @@ export function ExplorerPage() {
   const schemaQuery = useApiQuery<unknown>(`explorer-schema-${selected}`, selected ? `/explorer/${encodeURIComponent(selected)}/schema` : undefined, NO_FILTERS, undefined, Boolean(selected));
   const lineageQuery = useApiQuery<unknown>('pipeline-lineage', '/pipeline/lineage', NO_FILTERS);
   const schema = useMemo(() => schemaRows(schemaQuery.data?.data), [schemaQuery.data]);
+  const numericColumns = useMemo(
+    () => schema.filter((row) => NUMERIC_HINTS.some((hint) => String(row.column_type ?? row.data_type ?? '').toUpperCase().includes(hint))),
+    [schema],
+  );
+  const lineageRows = useMemo(() => {
+    const data = lineageQuery.data?.data;
+    const rows = Array.isArray(data) ? data : data && typeof data === 'object' ? Object.values(data as Record<string, unknown>).find(Array.isArray) ?? [] : [];
+    return (rows as TableRow[]).filter((row) => !selected || String(row.target_table ?? '').includes(selected));
+  }, [lineageQuery.data, selected]);
 
   const selectDataset = (value: string) => {
     const params = new URLSearchParams(searchParams.toString());
     if (value) params.set('dataset', value);
     else params.delete('dataset');
+    params.delete('numeric_column');
+    params.delete('numeric_min');
+    params.delete('numeric_max');
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   return (
     <div className="space-y-6">
-      <PageHeading title="Data Explorer" description="Inspect validated, record-level datasets with schema and source lineage from the API." badge={<Badge tone="info">Record level</Badge>} />
+      <PageHeading title="Data Explorer" description="Inspect validated, record-level datasets with schema, numeric range filters and source lineage." badge={<Badge tone="info">Record level</Badge>} />
 
       <Card className="p-5">
         <div className="flex flex-wrap items-end gap-4">
           <div className="w-64">
             <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-400">Dataset</label>
-            <Select value={selected} onChange={(event) => selectDataset(event.target.value)} options={datasets} placeholder="Select a dataset" disabled={datasetsQuery.isLoading} />
+            <Select value={selected} onChange={(event) => selectDataset(event.target.value)} options={datasets} placeholder="Select a dataset" disabled={datasetsQuery.isLoading} data-testid="explorer-dataset-select" />
           </div>
-          <p className="pb-2 text-xs text-slate-500">{datasets.length} datasets available · server-side pagination · maximum page size enforced by the API</p>
+          <div className="w-52">
+            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-400">Numeric column</label>
+            <Select
+              value={pageParams.numeric_column ?? ''}
+              onChange={(event) => setPageParam('numeric_column', event.target.value)}
+              options={numericColumns.map((row) => ({ value: String(row.column_name), label: String(row.column_name) }))}
+              placeholder="No numeric filter"
+              data-testid="explorer-numeric-column"
+            />
+          </div>
+          <div className="w-32">
+            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-400">Minimum</label>
+            <input value={pageParams.numeric_min ?? ''} onChange={(event) => setPageParam('numeric_min', event.target.value)} placeholder="Min" data-testid="explorer-numeric-min" className="h-9 w-full rounded-md border border-line bg-white px-2.5 text-xs outline-none focus:border-teal" />
+          </div>
+          <div className="w-32">
+            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-400">Maximum</label>
+            <input value={pageParams.numeric_max ?? ''} onChange={(event) => setPageParam('numeric_max', event.target.value)} placeholder="Max" data-testid="explorer-numeric-max" className="h-9 w-full rounded-md border border-line bg-white px-2.5 text-xs outline-none focus:border-teal" />
+          </div>
+          <p className="pb-2 text-xs text-slate-500">{datasets.length} datasets · server-side pagination · maximum page size enforced by the API</p>
         </div>
         {datasetsQuery.isError && <p className="mt-3 text-xs text-critical">Datasets could not be loaded: {datasetsQuery.error?.message}</p>}
       </Card>
@@ -77,31 +111,23 @@ export function ExplorerPage() {
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
         <div className="xl:col-span-2">
           {selected ? (
-            <DataTable endpoint={endpoint} columns={[]} filters={filters} title={`${selected} records`} exportName={`explorer-${selected}`} initialSearch={searchParams.get('search') || ''} />
-          ) : (
-            <Card><EmptyState message="Select a dataset" hint="Choose a dataset to load its records." /></Card>
-          )}
+            <DataTable endpoint={endpoint} columns={[]} filters={filters} params={pageParams} title={`${selected} records`} exportName={`explorer-${selected}`} initialSearch={searchParams.get('search') || ''} />
+          ) : <Card><EmptyState message="Select a dataset" hint="Choose a dataset to load its records." /></Card>}
         </div>
         <div className="space-y-5">
           <Card>
             <CardHeader title="Schema" subtitle={selected || 'No dataset selected'} action={<Database className="h-4 w-4 text-teal" />} />
             {schemaQuery.isLoading ? (
               <div className="space-y-2 p-4">{Array.from({ length: 6 }).map((_item, index) => <Skeleton key={index} className="h-5 w-full" />)}</div>
-            ) : schemaQuery.isError ? (
-              <ErrorState message="Schema unavailable" />
-            ) : schema.length === 0 ? (
-              <EmptyState message="No schema returned" />
-            ) : (
+            ) : schemaQuery.isError ? <ErrorState message="Schema unavailable" /> : schema.length === 0 ? <EmptyState message="No schema returned" /> : (
               <div className="max-h-[420px] overflow-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-canvas text-[10px] uppercase tracking-wide text-slate-400">
-                    <tr><th className="px-4 py-2">Column</th><th className="px-4 py-2">Type</th></tr>
-                  </thead>
+                  <thead className="bg-canvas text-[10px] uppercase tracking-wide text-slate-400"><tr><th className="px-4 py-2">Column</th><th className="px-4 py-2">Type</th></tr></thead>
                   <tbody className="divide-y divide-line">
                     {schema.map((row, index) => (
-                      <tr key={index}>
+                      <tr key={index} className="cursor-pointer hover:bg-teal-light/30" onClick={() => setPageParam('numeric_column', String(row.column_name))}>
                         <td className="px-4 py-2 font-medium text-ink">{displayValue(row.column_name ?? row.name ?? row.column)}</td>
-                        <td className="px-4 py-2 text-slate-500">{displayValue(row.data_type ?? row.type ?? row.dtype)}</td>
+                        <td className="px-4 py-2 text-slate-500">{displayValue(row.column_type ?? row.data_type ?? row.type)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -109,20 +135,18 @@ export function ExplorerPage() {
               </div>
             )}
           </Card>
-
           <Card>
-            <CardHeader title="Source lineage" subtitle="From /pipeline/lineage" action={<GitBranch className="h-4 w-4 text-teal" />} />
-            {lineageQuery.isLoading ? (
-              <div className="p-4"><Skeleton className="h-24 w-full" /></div>
-            ) : lineageQuery.isError ? (
-              <ErrorState message="Lineage unavailable" />
-            ) : (
-              <details className="p-4">
-                <summary className="cursor-pointer text-xs font-medium text-teal">View lineage definition</summary>
-                <pre className="mt-3 max-h-72 overflow-auto whitespace-pre-wrap rounded bg-canvas p-3 text-[10px] leading-relaxed text-slate-600">
-                  {JSON.stringify(lineageQuery.data?.data ?? {}, null, 2)}
-                </pre>
-              </details>
+            <CardHeader title="Source lineage" subtitle={selected ? `Sources for ${selected}` : 'From /pipeline/lineage'} action={<GitBranch className="h-4 w-4 text-teal" />} />
+            {lineageQuery.isLoading ? <div className="p-4"><Skeleton className="h-24 w-full" /></div> : lineageQuery.isError ? <ErrorState message="Lineage unavailable" /> : (
+              <div className="max-h-72 space-y-2 overflow-auto p-4">
+                {lineageRows.length === 0 ? <EmptyState message="No lineage rows for this dataset" /> : lineageRows.map((row, index) => (
+                  <div key={index} className="rounded border border-line p-2 text-[11px]">
+                    <p className="font-medium text-navy">{displayValue(row.target_table)}</p>
+                    <p className="mt-0.5 text-slate-500">{displayValue(row.source_tables)}</p>
+                    <p className="mt-0.5 text-slate-400">{displayValue(row.transformations)}</p>
+                  </div>
+                ))}
+              </div>
             )}
           </Card>
         </div>

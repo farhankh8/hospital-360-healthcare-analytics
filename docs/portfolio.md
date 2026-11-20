@@ -31,11 +31,11 @@ visualization, and deployment/documentation.
 | Basic project | HOSPITAL 360 |
 | --- | --- |
 | Static charts | Interactive, filter-connected analytics |
-| One dataset | Multiple connected datasets across 39 tables |
+| One dataset | Multiple connected datasets across 41 tables |
 | One dashboard | 21-page application |
 | Manually cleaned data | Reproducible bronze → silver → gold ETL |
 | Simple KPIs | 163 documented KPI contracts |
-| No validation | 297 DQ rules with weighted scoring and quarantine |
+| No validation | 304 DQ rules with weighted scoring and quarantine |
 | Hard-coded numbers | API is the only source of metric values |
 | No drill-down | Explorer, patient journey and detail drawers |
 | No deployment | Docker configuration, CI and deployment guide |
@@ -52,8 +52,8 @@ Three items to present:
 3. **Project case study** — problem, solution, methodology and **measured** results.
 
 Measured results from the local verification run (see README section 16):
-1,540,892 records, 39 bronze tables, 12 gold models, 163 KPIs, 83 API endpoints,
-82 automated tests, DQ score 96.32/100. No result is claimed that was not measured.
+1,588,637 records, 41 bronze tables, 12 gold models, 163 KPIs, 83 API endpoints,
+all automated tests passing, DQ score 100.00/100. No result is claimed that was not measured.
 
 ## 4. Three-minute demonstration (blueprint §35)
 

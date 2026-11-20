@@ -103,6 +103,10 @@ Non-negotiable rules:
    silver tables are loaded with a `silver_` prefix for record drill-down.
 5. **Manifest.** Every run writes `data/manifests/manifest_<run_id>.json` with actual
    counts, valid/quarantined totals, injected issues and pipeline status.
+   Quarantine reconciliation distinguishes `quarantined_rows` (distinct dropped source
+   rows, identified by `source_row_key`) from `quarantine_rule_failures` (one record per
+   row-and-rule violation). A row failing multiple rules therefore contributes one to
+   the former and multiple to the latter.
 
 Pipeline stage sequence (blueprint section 20):
 

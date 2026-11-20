@@ -182,3 +182,39 @@ def test_etl_pipeline_module_importable_when_available() -> None:
     if module is None:
         pytest.skip("etl.pipeline not implemented yet")
     assert hasattr(module, "__name__")
+
+
+def test_write_quarantine_counts_rows_separately_from_rule_records(tmp_path) -> None:
+    """A row failing two rules is one dropped row but two rule-failure records."""
+    from etl.silver import write_quarantine
+
+    records = [
+        {
+            "quarantine_id": "Q_RUN_lab_orders_5_HOSPITAL_ID_INVALID",
+            "source_row_key": "lab_orders:5",
+            "rule_id": "HOSPITAL_ID_INVALID",
+            "table": "lab_orders",
+            "failure_reason": "invalid hospital",
+        },
+        {
+            "quarantine_id": "Q_RUN_lab_orders_5_FK_ORPHAN",
+            "source_row_key": "lab_orders:5",
+            "rule_id": "FK_ORPHAN",
+            "table": "lab_orders",
+            "failure_reason": "orphan hospital",
+        },
+        {
+            "quarantine_id": "Q_RUN_claims_7_FK_NULL",
+            "source_row_key": "claims:7",
+            "rule_id": "FK_NULL",
+            "table": "claims",
+            "failure_reason": "missing payer",
+        },
+    ]
+    summary = write_quarantine(records, "RUN_TEST", tmp_path)
+    assert summary["records"] == 3
+    assert summary["rule_failure_records"] == 3
+    assert summary["rows"] == 2
+    assert summary["multi_rule_rows"] == 1
+    assert summary["by_table_rows"] == {"claims": 1, "lab_orders": 1}
+    assert summary["counting_method"].startswith("rows=distinct source_row_key")

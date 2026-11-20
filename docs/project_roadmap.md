@@ -14,7 +14,7 @@ README, Docker and CI configuration all exist. `python scripts/verify_project.py
 
 ## 🟢 Phase 2 - Business requirements and data model
 
-`generator/schema.py` defines 39 tables with explicit grains. `CONTRACT.md`,
+`generator/schema.py` defines 41 tables with explicit grains. `CONTRACT.md`,
 [erd.md](erd.md), [data_dictionary.md](data_dictionary.md) and [kpi_glossary.md](kpi_glossary.md)
 document the model.
 
@@ -26,7 +26,7 @@ diagnoses, 44 procedures, 52 medications, 38 lab tests, 122 inventory items, 20 
 
 ## 🟢 Phase 4 - Patient and appointment system
 
-15,240 source patients, 104,000 appointments and 82,000 encounters generated; booking,
+15,240 source patients, 136,800 appointments and 82,000 encounters generated; booking,
 cancellation, no-show, completion, check-in and waiting-time fields are present in silver/gold
 models.
 
@@ -64,9 +64,10 @@ categories and resolution metrics are implemented.
 
 ## 🟢 Phase 11 - Data engineering
 
-Bronze CSVs, silver Parquet with quarantine, gold Parquet, 72 DuckDB tables, 12 gold models,
-297 DQ rules, manifests and 5 pipeline runs are present. Current run: `RUN_20261120_005`,
-1,540,892 source / 1,539,720 valid / 1,172 quarantined rows, DQ score **96.29 / 100**.
+Bronze CSVs, silver Parquet with quarantine, gold Parquet, 76 DuckDB tables, 12 gold models,
+304 DQ rules and manifests are present. Current run: `RUN_20261120_006`,
+1,588,637 source / 1,585,818 valid / 2,819 quarantined rows / 2,859 rule-failure records,
+DQ score **100.00 / 100**.
 
 ## 🟢 Phase 12 - Backend
 
@@ -87,7 +88,7 @@ Every page renders without uncaught browser errors.
 
 ## 🟢 Phase 15 - Testing
 
-82 pytest tests pass; 18 Playwright tests pass (9 cases × Chromium/mobile), covering the §28
+87 pytest tests pass; 18 Playwright tests pass (9 cases × Chromium/mobile), covering the §28
 journey, no-data/API-failure/invalid-filter/large-range/empty/mobile/refresh/back/export/
 compare cases and all 21 routes. Ruff, lint, type-check and build are clean.
 
@@ -102,7 +103,7 @@ only on the local stack.
 
 ## Blueprint §31 acceptance status
 
-- **Dataset:** all items verified; 1,540,892 records, 10 hospitals, 15,240 patients, 24 months.
+- **Dataset:** all items verified; 1,588,637 records, 10 hospitals, 15,200 unique patients, 24 months.
 - **Data engineering:** all items verified.
 - **Analytics:** KPI definitions, calculations, SQL models, comparisons and no-double-counting
   grains implemented; some operational KPIs are documented proxies where source systems do not

@@ -211,6 +211,8 @@ def run_pipeline(run_id: str | None = None, bronze_dir: Path | None = None) -> d
                 "source_rows": silver_out["source_rows"],
                 "valid_rows": silver_out["valid_rows"],
                 "quarantined_rows": silver_out["quarantined_rows"],
+                "quarantine_rule_failures": silver_out["quarantine_summary"]["records"],
+                "counting_method": silver_out["quarantine_summary"]["counting_method"],
             },
             "quality": {
                 "dq_score": dq["dq_score"],
@@ -229,6 +231,8 @@ def run_pipeline(run_id: str | None = None, bronze_dir: Path | None = None) -> d
                 "source_records": silver_out["source_rows"],
                 "valid_records": silver_out["valid_rows"],
                 "quarantined_records": silver_out["quarantined_rows"],
+                "quarantined_rows": silver_out["quarantined_rows"],
+                "quarantine_rule_failures": silver_out["quarantine_summary"]["records"],
                 "tables_created": tables_created,
             },
             "manifest_path": str(manifest_path),

@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 from faker import Faker
 
-from . import config
+from . import config, schema
 
 # ---------------------------------------------------------------------------
 # Shared helpers
@@ -55,6 +55,17 @@ def days_to_datetime(day_offsets: np.ndarray, minutes: np.ndarray) -> pd.Datetim
         + pd.to_timedelta(np.asarray(day_offsets, dtype=np.int64), unit="D")
         + pd.to_timedelta(np.asarray(minutes, dtype=np.int64), unit="m")
     )
+
+
+WINDOW_END = pd.Timestamp(config.END_DATE) + pd.Timedelta(hours=23, minutes=59, seconds=59)
+
+
+def clip_to_window(values) -> np.ndarray:
+    """Clamp event timestamps to the declared reporting window, preserving NaT."""
+    arr = np.asarray(values, dtype="datetime64[ns]")
+    lower = np.datetime64(config.START_DATE, "ns")
+    upper = WINDOW_END.to_datetime64()
+    return np.where(np.isnat(arr), arr, np.clip(arr, lower, upper))
 
 
 # Seasonal (winter higher) and weekday patterns used wherever events are dated.
@@ -635,6 +646,20 @@ def build_reference(seed: int) -> ReferenceData:
         "latitude": [lat_lon[h[0]][0] for h in hospitals],
         "longitude": [lat_lon[h[0]][1] for h in hospitals],
     })
+
+    # -- dim_location -------------------------------------------------------
+    location_rows = []
+    for hid, hospital_name, city, _, _ in hospitals:
+        lat, lon = lat_lon[hid]
+        location_rows.append((
+            f"LOC-{hid}", hid, f"{hospital_name} Main Campus", "Hospital campus",
+            f"{100 + len(location_rows)} Synthetic Way", city, "Synthetic Region", lat, lon,
+        ))
+    location_df = pd.DataFrame(location_rows, columns=[
+        "location_id", "hospital_id", "location_name", "location_type",
+        "address_line", "city", "state", "latitude", "longitude",
+    ])
+    refs.tables["dim_location"] = location_df[schema.columns("dim_location")]
 
     # -- dim_specialty ------------------------------------------------------
     refs.specialty_ids = np.array([s[0] for s in SPECIALTIES], dtype=object)

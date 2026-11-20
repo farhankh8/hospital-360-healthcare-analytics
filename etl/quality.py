@@ -452,7 +452,13 @@ def write_results(
             "passed_rules": passed,
             "failed_rules": failed,
             "total_failures": int(sum(r["failed_count"] for r in results)),
+            "total_rule_failures": int(sum(r["failed_count"] for r in results)),
             "quarantined_records": len(quarantine_records),
+            "quarantine_rule_failures": len(quarantine_records),
+            "quarantined_rows": len({r.get("source_row_key") for r in quarantine_records
+                                     if r.get("source_row_key")}),
+            "warning_failures": int(sum(r["failed_count"] for r in results
+                                        if r["severity"] == "warning")),
         },
         "scoring": score,
         "dq_score": score["overall_score"],

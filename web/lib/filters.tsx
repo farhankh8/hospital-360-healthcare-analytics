@@ -1,7 +1,7 @@
 'use client';
 
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { usePathname, useRouter, useSearchParams, type ReadonlyURLSearchParams } from 'next/navigation';
 import { useApiQuery } from './api';
 import { DEFAULT_FILTERS, NO_FILTERS, type FilterKey, type FilterState, type SelectOption, type TableRow } from './types';
 
@@ -87,6 +87,13 @@ export function FilterProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  // Next's router.replace is async; a ref keeps rapid sequential filter changes
+  // (date-from then date-to, chart zoom, compare) from overwriting each other.
+  const paramsRef = useRef<URLSearchParams | ReadonlyURLSearchParams>(searchParams);
+
+  useEffect(() => {
+    paramsRef.current = searchParams;
+  }, [searchParams]);
 
   const filters = useMemo<FilterState>(
     () => ({
@@ -112,12 +119,13 @@ export function FilterProvider({ children }: { children: ReactNode }) {
 
   const commit = useCallback(
     (mutate: (params: URLSearchParams) => void) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(paramsRef.current.toString());
       mutate(params);
+      paramsRef.current = params;
       const query = params.toString();
       router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
     },
-    [pathname, router, searchParams],
+    [pathname, router],
   );
 
   const setFilter = useCallback(

@@ -10,7 +10,7 @@ from api.core.config import DATA_PATH, ROOT
 from api.core.db import get_conn, table_exists
 from api.core.filters import parse_filters
 from api.core.responses import envelope, table_envelope
-from api.services.query import columns, query_rows
+from api.services.query import columns, paginated_rows, query_rows
 
 router = APIRouter(tags=["system"])
 
@@ -50,9 +50,93 @@ def _empty(data: Any, request: Request, **extra: Any) -> dict[str, Any]:
     return envelope(data, f.date_from, f.date_to, f.hospital_ids, **extra)
 
 
+def _card(kpi_id: str, label: str, value: Any, unit: str = "count",
+          definition: str = "", higher: bool = True) -> dict[str, Any]:
+    """Build a KPI card in the same shape as build_kpis for system pages."""
+    return {
+        "id": kpi_id, "label": label, "value": value, "previous": None,
+        "change_pct": None, "trend": "flat", "favourable": "flat", "unit": unit,
+        "precision": 2 if isinstance(value, float) else 0, "sparkline": [],
+        "definition": definition, "higher_is_better": higher,
+    }
+
+
 # ---------------------------------------------------------------------------
 # Data quality
 # ---------------------------------------------------------------------------
+OPTION_SOURCES: dict[str, tuple[str, str, str, str | None]] = {
+    "doctors": ("dim_doctor", "doctor_id", "doctor_name", None),
+    "appointment_types": ("silver_appointments", "appointment_type", "appointment_type", None),
+    "booking_channels": ("silver_appointments", "booking_channel", "booking_channel", None),
+    "statuses": ("silver_appointments", "status", "status", None),
+    "triage_categories": ("silver_encounters", "triage_category", "triage_category", None),
+    "dispositions": ("silver_encounters", "disposition", "disposition", None),
+    "arrival_modes": ("silver_encounters", "arrival_mode", "arrival_mode", None),
+    "wards": ("silver_admissions", "ward", "ward", None),
+    "bed_types": ("silver_bed_snapshots", "bed_type", "bed_type", None),
+    "admission_types": ("silver_admissions", "admission_type", "admission_type", None),
+    "discharge_types": ("silver_admissions", "discharge_status", "discharge_status", None),
+    "or_rooms": ("silver_procedures", "or_room", "or_room", None),
+    "procedure_codes": ("silver_procedures", "procedure_code", "procedure_code", None),
+    "elective_emergency": ("silver_procedures", "elective_emergency", "elective_emergency", None),
+    "priorities": ("silver_lab_orders", "priority", "priority", None),
+    "test_codes": ("silver_lab_orders", "test_code", "test_code", None),
+    "medication_codes": ("silver_prescriptions", "medication_code", "medication_code", None),
+    "service_categories": ("silver_invoice_lines", "service_category", "service_category", None),
+    "invoice_statuses": ("silver_invoices", "invoice_status", "invoice_status", None),
+    "payment_statuses": ("silver_invoices", "payment_status", "payment_status", None),
+    "claim_types": ("silver_claims", "claim_type", "claim_type", None),
+    "denial_reasons": ("silver_claims", "denial_reason", "denial_reason", None),
+    "shift_types": ("silver_shifts", "shift_type", "shift_type", None),
+    "categories": ("silver_incidents", "category", "category", None),
+    "severities": ("silver_incidents", "severity", "severity", None),
+    "resolution_statuses": ("silver_feedback", "resolution_status", "resolution_status", None),
+    "feedback_types": ("silver_feedback", "feedback_type", "feedback_type", None),
+    "sentiments": ("silver_feedback", "sentiment_label", "sentiment_label", None),
+    "movement_types": ("silver_inventory_movements", "movement_type", "movement_type", None),
+    "item_ids": ("silver_inventory_movements", "item_id", "item_id", None),
+    "suppliers": ("silver_inventory_movements", "supplier_id", "supplier_id", None),
+    "age_groups": ("silver_patients", "age_group", "age_group", None),
+    "datasets": ("dq_rules", "table_name", "table_name", None),
+    "dq_severities": ("dq_rules", "severity", "severity", None),
+    "dq_categories": ("dq_rules", "category", "category", None),
+    "pipeline_layers": ("lineage", "layer", "layer", None),
+    "run_statuses": ("pipeline_runs", "status", "status", None),
+    "roles": ("dim_staff", "role", "role", None),
+    "employment_types": ("dim_staff", "employment_type", "employment_type", None),
+}
+
+
+@router.get("/filters/options")
+def filter_options(request: Request):
+    """Distinct, data-driven option lists for page-specific filters."""
+    result: dict[str, Any] = {}
+    with get_conn() as conn:
+        for name, (table, value_col, label_col, predicate) in OPTION_SOURCES.items():
+            if not table_exists(table):
+                result[name] = []
+                continue
+            cols = columns(conn, table)
+            if value_col not in cols:
+                result[name] = []
+                continue
+            # Doctors/wards are labelled; all other options use the raw value.
+            select = (
+                f"DISTINCT {value_col} AS value, {label_col} AS label"
+                if label_col in cols and label_col != value_col
+                else f"DISTINCT {value_col} AS value, {value_col} AS label"
+            )
+            sql = f"SELECT {select} FROM {table}"
+            if predicate:
+                sql += f" WHERE {predicate}"
+            sql += " ORDER BY value LIMIT 200"
+            rows = query_rows(conn, sql)
+            result[name] = [
+                {"value": str(r["value"]), "label": str(r["label"])} for r in rows if r["value"] is not None
+            ]
+    return _empty(result, request)
+
+
 @router.get("/data-quality/summary")
 def dq_summary(request: Request):
     with get_conn() as conn:
@@ -75,12 +159,39 @@ def dq_summary(request: Request):
     for bucket in categories.values():
         bucket["score"] = round(bucket["score"] / bucket["rules"], 2) if bucket["rules"] else None
     overall = round(sum(b["score"] or 0 for b in categories.values()) / len(categories), 2) if categories else None
+    with get_conn() as conn:
+        runs = query_rows(conn, "SELECT * FROM pipeline_runs ORDER BY start_time DESC LIMIT 1") if table_exists("pipeline_runs") else []
+        failures = query_rows(
+            conn,
+            "SELECT f.rule_id, r.category, f.severity FROM dq_failures f "
+            "LEFT JOIN dq_rules r ON r.rule_id = f.rule_id",
+        ) if table_exists("dq_failures") else []
+    latest = runs[0] if runs else {}
+    source_records = int(latest.get("source_records") or 0)
+    valid_records = int(latest.get("valid_records") or 0)
+    quarantined = int(latest.get("quarantined_records") or 0)
+    failed_rules = sum(1 for r in rows if not r.get("passed"))
+    by_rule = lambda needle: sum(1 for f in failures if needle in (f.get("rule_id") or "").upper())
+    by_category = lambda needle: sum(1 for f in failures if needle in (f.get("category") or "").lower())
+    kpis = {
+        "total_records_processed": _card("total_records_processed", "Total Records Processed", source_records, definition="Source records in the latest pipeline run."),
+        "valid_records": _card("valid_records", "Valid Records", valid_records, definition="Records accepted into the silver layer."),
+        "invalid_records": _card("invalid_records", "Invalid Records", quarantined, definition="Records rejected to quarantine.", higher=False),
+        "data_quality_score": _card("data_quality_score", "Data Quality Score", overall, "score", "Mean weighted pass rate across DQ categories."),
+        "duplicate_records": _card("duplicate_records", "Duplicate Records", by_rule("DUP") + by_category("uniqueness"), definition="Uniqueness-rule failures in the latest run.", higher=False),
+        "missing_values": _card("missing_values", "Missing Values", by_rule("NOT_NULL") + by_category("completeness"), definition="Completeness-rule failures in the latest run.", higher=False),
+        "referential_integrity_violations": _card("referential_integrity_violations", "Referential Integrity Violations", by_category("referential"), definition="Failures where a referenced key is missing.", higher=False),
+        "invalid_dates": _card("invalid_dates", "Invalid Dates", by_rule("DATE"), definition="Date-format and date-order rule failures.", higher=False),
+        "failed_checks": _card("failed_checks", "Failed Checks", failed_rules, definition="DQ rules that failed in the latest run.", higher=False),
+        "quarantined_records": _card("quarantined_records", "Quarantined Records", quarantined, definition="Records held in the quarantine layer.", higher=False),
+    }
     return _empty({
         "overall_score": overall,
         "categories": list(categories.values()),
         "rules_total": len(rows),
         "rules_passed": sum(1 for r in rows if r.get("passed")),
         "total_failures": sum(int(r.get("failed_count") or 0) for r in rows),
+        "kpis": kpis,
     }, request)
 
 
@@ -136,6 +247,39 @@ def pipeline_runs(request: Request):
     with get_conn() as conn:
         rows = query_rows(conn, "SELECT * FROM pipeline_runs ORDER BY start_time DESC") if table_exists("pipeline_runs") else []
     return _empty(rows, request)
+
+
+@router.get("/pipeline/summary")
+def pipeline_summary(request: Request):
+    """Blueprint pipeline KPI cards for the latest run and manifest."""
+    with get_conn() as conn:
+        runs = query_rows(conn, "SELECT * FROM pipeline_runs ORDER BY start_time DESC") if table_exists("pipeline_runs") else []
+    latest = runs[0] if runs else {}
+    successful = next((r for r in runs if str(r.get("status", "")).lower() == "success"), {})
+    manifest_dir = DATA_PATH / "manifests"
+    files = sorted(manifest_dir.glob("pipeline_*.json")) if manifest_dir.exists() else []
+    manifest: dict[str, Any] = {}
+    if files:
+        try:
+            manifest = json.loads(files[-1].read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            manifest = {}
+    bronze = manifest.get("bronze") or {}
+    gold = manifest.get("gold") or {}
+    totals = manifest.get("totals") or {}
+    kpis = {
+        "latest_run": _card("latest_run", "Latest Run", latest.get("run_id", "N/A"), "text", "Most recent pipeline execution."),
+        "total_source_records": _card("total_source_records", "Total Source Records", int(latest.get("source_records") or totals.get("source_records") or 0)),
+        "bronze_records": _card("bronze_records", "Bronze Records", int(bronze.get("total_rows") or 0)),
+        "silver_records": _card("silver_records", "Silver Records", int(latest.get("valid_records") or totals.get("valid_records") or 0)),
+        "gold_records": _card("gold_records", "Gold Records", sum(int(v or 0) for v in (gold.get("row_counts") or {}).values())),
+        "valid_records": _card("valid_records", "Valid Records", int(latest.get("valid_records") or 0)),
+        "quarantined_records": _card("quarantined_records", "Quarantined Records", int(latest.get("quarantined_records") or 0), higher=False),
+        "processing_duration": _card("processing_duration", "Processing Duration", round(float(latest.get("duration_seconds") or 0), 2), "seconds", "Wall-clock duration of the latest run.", higher=False),
+        "failed_stages": _card("failed_stages", "Failed Stages", sum(1 for r in runs if str(r.get("status", "")).lower() not in {"success", "succeeded"}), definition="Pipeline runs with a non-success status.", higher=False),
+        "last_successful_run": _card("last_successful_run", "Last Successful Run", successful.get("run_id", "N/A"), "text", "Most recent successful pipeline execution."),
+    }
+    return _empty(kpis, request)
 
 
 @router.get("/pipeline/runs/{run_id}")
@@ -197,15 +341,7 @@ def explorer_records(dataset: str, request: Request):
         cols = columns(conn, table)
         date_cols = [c for c in cols if c.endswith(("_date", "_at")) or c in {"month", "date"}]
         date_col = date_cols[0] if date_cols else "month"
-        # Build safe pagination with allowlisted sort column.
-        from api.core.filters import build_where
-        where, params = build_where(f, cols, date_col=date_col)
-        total = int(query_rows(conn, f"SELECT COUNT(*) AS n FROM {table}{where}", params)[0]["n"])
-        order = f" ORDER BY {f.sort_by} {f.sort_dir.upper()}" if f.sort_by in cols else ""
-        rows = query_rows(
-            conn, f"SELECT * FROM {table}{where}{order} LIMIT $limit OFFSET $offset",
-            {**params, "limit": f.page_size, "offset": (f.page - 1) * f.page_size},
-        )
+        rows, total = paginated_rows(conn, table, f, date_col=date_col)
     return table_envelope(rows, total, f.page, f.page_size, f.applied(), dataset=dataset)
 
 

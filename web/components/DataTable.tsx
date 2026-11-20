@@ -26,11 +26,15 @@ interface DataTableProps {
   endpoint?: string;
   columns: TableColumn[];
   filters: FilterState;
+  /** Page-scoped filter values forwarded to the API. */
+  params?: Record<string, QueryParamValue>;
   title?: string;
   searchable?: boolean;
   pageSize?: number;
   exportName?: string;
   initialSearch?: string;
+  /** Optional custom row interaction; defaults to the shared drill-down drawer. */
+  onRowClick?: (row: TableRow) => void;
   /** Only one table per page should respond to the global Export action. */
   primaryExport?: boolean;
 }
@@ -49,7 +53,7 @@ function resolveColumns(configured: TableColumn[], rows: TableRow[]): TableColum
   }));
 }
 
-export function DataTable({ endpoint, columns, filters, title = 'Detailed records', searchable = true, pageSize = 25, exportName = 'export', initialSearch = '', primaryExport = true }: DataTableProps) {
+export function DataTable({ endpoint, columns, filters, params: extraParams, title = 'Detailed records', searchable = true, pageSize = 25, exportName = 'export', initialSearch = '', onRowClick, primaryExport = true }: DataTableProps) {
   const { openDrilldown } = useDrilldown();
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize });
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -68,13 +72,14 @@ export function DataTable({ endpoint, columns, filters, title = 'Detailed record
 
   const params = useMemo<Record<string, QueryParamValue>>(
     () => ({
+      ...extraParams,
       page: pagination.pageIndex + 1,
       page_size: pagination.pageSize,
       search: search || undefined,
       sort_by: sorting[0]?.id,
       sort_dir: sorting[0] ? (sorting[0].desc ? 'desc' : 'asc') : undefined,
     }),
-    [pagination.pageIndex, pagination.pageSize, search, sorting],
+    [extraParams, pagination.pageIndex, pagination.pageSize, search, sorting],
   );
   const query = useTableData(endpoint, filters, params, Boolean(endpoint));
   const rows = useMemo(() => (Array.isArray(query.data?.data) ? query.data.data : []), [query.data]);
@@ -88,14 +93,14 @@ export function DataTable({ endpoint, columns, filters, title = 'Detailed record
     if (!endpoint) return;
     try {
       const result = await apiGet<TableRow[]>(endpoint, filters, {
-        params: { page: 1, page_size: EXPORT_LIMIT, search: search || undefined, sort_by: sorting[0]?.id, sort_dir: sorting[0]?.desc ? 'desc' : 'asc' },
+        params: { ...extraParams, page: 1, page_size: EXPORT_LIMIT, search: search || undefined, sort_by: sorting[0]?.id, sort_dir: sorting[0]?.desc ? 'desc' : 'asc' },
       });
       const exported = Array.isArray(result.data) ? result.data.slice(0, EXPORT_LIMIT) : [];
       downloadCsv(`${exportName}-filtered.csv`, exported);
     } catch (error) {
       console.error('Export failed', error);
     }
-  }, [endpoint, filters, search, sorting, exportName]);
+  }, [endpoint, filters, extraParams, search, sorting, exportName]);
 
   useEffect(() => {
     if (!primaryExport) return;
@@ -227,7 +232,7 @@ export function DataTable({ endpoint, columns, filters, title = 'Detailed record
             </thead>
             <tbody className="divide-y divide-line">
               {table.getRowModel().rows.map((row) => (
-                <tr key={row.id} onClick={() => openDrilldown(row.original, 'Record details')} className="cursor-pointer transition hover:bg-teal-light/40">
+                <tr key={row.id} onClick={() => onRowClick ? onRowClick(row.original) : openDrilldown(row.original, 'Record details')} className="cursor-pointer transition hover:bg-teal-light/40">
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className={cn('whitespace-nowrap px-4 py-2.5')}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}

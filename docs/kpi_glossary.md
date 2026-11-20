@@ -1,10 +1,15 @@
 # HOSPITAL 360 - KPI Glossary
 
 This glossary is the human-readable companion to the machine-readable KPI dictionary at
-`analytics/kpi_definitions/kpis.json`. The JSON file is the canonical registry consumed by
-the API (`GET /api/v1/kpis/glossary`) and the frontend KPI Glossary page; this document
-explains each definition, its grain and its interpretation limits. If a definition changes,
-update **both** files in the same change.
+`analytics/kpi_definitions/kpis.json` (163 definitions). The JSON file is the canonical
+registry consumed by the API (`GET /api/v1/kpis/glossary`) and the frontend KPI Glossary
+page; this document explains each definition, its grain and its interpretation limits. If a
+definition changes, update **both** files in the same change.
+
+**Field-name mapping:** this document uses the blueprint labels. In `kpis.json` they appear
+as `id` (KPI ID), `name`, `business_definition`, `formula`, `numerator`, `denominator`,
+`grain`, `date_field`, `exclusions`, `source_tables` (Source), `dimensions`, `unit`,
+`target`, `caveat` and `validation_test` (Validation), plus `category`.
 
 No KPI value is hard-coded in the frontend. Every value comes from a gold table through the
 API, with a comparison period, sparkline, unit and definition.
@@ -220,69 +225,110 @@ API, with a comparison period, sparkline, unit and definition.
 
 ## 2. Module-level KPIs
 
-The following KPIs appear on their module pages. The API keys match the `kpi_id` values in
-`analytics/kpi_definitions/kpis.json`. All rates follow the `0..100` / NULL-denominator rule.
+The table below uses the exact `id` values from `analytics/kpi_definitions/kpis.json`, which
+is the authoritative registry for API response keys. All rates follow the `0..100` /
+NULL-denominator rule. Full definitions (numerator, denominator, exclusions, dimensions,
+target, caveat and validation test) for every row live in the JSON registry.
 
 | Module | KPI ID | Formula / measure | Grain & date field | Exclusions / caveat | Validation focus |
 |---|---|---|---|---|---|
-| Appointments | `scheduled_appointments` | `COUNT(*)` | hospital x month, `appointment_date` | none | volume reconciles across appointment gold tables |
-| Appointments | `completed_appointments` | `COUNT(*) WHERE status='Completed'` | hospital x month | cancelled / no-show excluded | completed + no-show + cancelled = scheduled |
-| Appointments | `cancelled_appointments` | `COUNT(*) WHERE status='Cancelled'` | hospital x month | must carry reason | cancellation reason present |
-| Appointments | `no_show_appointments` | `COUNT(*) WHERE status='No-show'` | hospital x month | cancelled excluded | drill-down returns matching records |
-| Appointments | `avg_wait_minutes` | `AVG(waiting_minutes)` | hospital x month | null waits excluded | non-negative |
-| Appointments | `avg_lead_days` | `AVG(lead_days)` | hospital x month | negative lead days quarantined | `lead_days = appointment - booking` |
-| Appointments | `same_day_pct` | `COUNT(lead_days=0)/scheduled*100` | hospital x month | cancelled excluded | 0..100 or NULL |
-| Appointments | `reschedule_rate` | `COUNT(rescheduled_flag)/scheduled*100` | hospital x month | cancelled excluded | 0..100 or NULL |
+| Access | `scheduled_appointments` | `COUNT(*)` | hospital x month, `appointment_date` | none | volume reconciles across appointment gold tables |
+| Access | `completed_appointments` | `COUNT(*) WHERE status='Completed'` | hospital x month | cancelled / no-show excluded | completed + no-show + cancelled = scheduled |
+| Access | `cancelled_appointments` | `COUNT(*) WHERE status='Cancelled'` | hospital x month | must carry reason | cancellation reason present |
+| Access | `no_show_appointments` | `COUNT(*) WHERE status='No-show'` | hospital x month | cancelled excluded | drill-down returns matching records |
+| Access | `average_wait_for_appointment` | `AVG(waiting_minutes)` | hospital x month | null waits excluded | non-negative |
+| Access | `average_checkin_waiting_time` | `AVG(waiting_minutes)` at check-in | hospital x month | null waits excluded | non-negative |
+| Access | `appointment_utilization` | completed / scheduled x100 | hospital x month | cancelled excluded | 0..100 or NULL |
+| Access | `same_day_appointment_pct` | `COUNT(lead_days=0)/scheduled*100` | hospital x month | cancelled excluded | 0..100 or NULL |
+| Access | `rescheduling_rate` | `COUNT(rescheduled_flag)/scheduled*100` | hospital x month | cancelled excluded | 0..100 or NULL |
 | Emergency | `emergency_visits` | `COUNT(*) WHERE encounter_type='Emergency'` | hospital x month, `arrival_datetime` | n/a | matches encounter module totals |
-| Emergency | `avg_triage_minutes` | `AVG(triage_datetime - arrival_datetime)` | hospital x month | missing timestamps excluded | non-negative, triage after arrival |
-| Emergency | `avg_treatment_minutes` | `AVG(treatment_minutes)` | hospital x month | n/a | non-negative |
-| Emergency | `lwbs_count` | `COUNT(*) WHERE disposition='LWBS'` | hospital x month | n/a | disposition allowlist |
-| Emergency | `critical_volume` | `COUNT(*) WHERE critical_flag` | hospital x month | n/a | boolean flag only |
-| Inpatient | `occupancy_rate` | occupied bed-days / available bed-days x100 | hospital x ward x month, `snapshot_datetime` | blocked beds excluded | 0/100/NULL cases; duplicates detected |
-| Inpatient | `bed_turnover` | discharges / available beds | hospital x ward x month | blocked beds excluded | non-negative |
-| Inpatient | `boarding_hours` | `AVG(boarding_hours)` | admission grain | open admissions excluded | non-negative |
-| Inpatient | `available_beds` | snapshot state `Available` | hospital x ward x month | blocked beds excluded | snapshot dedup |
-| Procedures | `procedure_volume` | `COUNT(*)` | hospital x month, `scheduled_start` | n/a | completed + cancelled + delayed = scheduled |
+| Emergency | `average_triage_time` | `AVG(triage_datetime - arrival_datetime)` | hospital x month | missing timestamps excluded | non-negative, triage after arrival |
+| Emergency | `average_waiting_time` | `AVG(waiting_minutes)` | hospital x month | n/a | non-negative |
+| Emergency | `average_treatment_time` | `AVG(treatment_minutes)` | hospital x month | n/a | non-negative |
+| Emergency | `patients_admitted` | `COUNT(disposition='Admit')` | hospital x month | n/a | disposition allowlist |
+| Emergency | `patients_discharged` | `COUNT(disposition='Discharge')` | hospital x month | n/a | disposition allowlist |
+| Emergency | `patients_transferred` | `COUNT(disposition='Transfer')` | hospital x month | n/a | disposition allowlist |
+| Emergency | `left_without_being_seen` | `COUNT(disposition='LWBS')` | hospital x month | n/a | disposition allowlist |
+| Emergency | `critical_patient_volume` | `COUNT(critical_flag)` | hospital x month | n/a | boolean flag only |
+| Inpatient | `total_beds` | licensed capacity | hospital, `dim_hospital.beds` | n/a | matches 3,450 network capacity |
+| Inpatient | `available_beds` | snapshot state `Available` | hospital x ward x month, `snapshot_datetime` | blocked beds excluded | snapshot dedup |
+| Inpatient | `occupied_beds` | snapshot state `Occupied` | hospital x ward x month | n/a | snapshot dedup |
+| Inpatient | `blocked_beds` | snapshot state `Blocked` | hospital x ward x month | excluded from occupancy denominator | non-negative |
+| Inpatient | `occupancy_rate` | occupied bed-days / available bed-days x100 | hospital x ward x month | blocked beds excluded | 0/100/NULL cases; duplicates detected |
+| Inpatient | `bed_turnover_rate` | discharges / available beds | hospital x ward x month | blocked beds excluded | non-negative |
+| Inpatient | `average_discharge_time` | mean discharge clock time | hospital x month | open admissions excluded | time within day bounds |
+| Inpatient | `admissions`, `discharges` | admission / discharge counts | hospital x month | n/a | admit vs discharge reconcile |
+| Inpatient | `readmission_rate` | readmissions / discharges x100 | hospital x month | discharged only | 0..100 or NULL |
+| Inpatient | `average_boarding_time` | `AVG(boarding_hours)` | admission grain | open admissions excluded | non-negative |
+| Procedures | `scheduled_procedures` | `COUNT(*)` | hospital x month, `scheduled_start` | n/a | scheduled = completed + cancelled + delayed |
+| Procedures | `completed_procedures` | `COUNT(status='Completed')` | hospital x month | n/a | matches procedure fact |
+| Procedures | `cancelled_procedures` | `COUNT(status='Cancelled')` | hospital x month | reason required | cancellation reason present |
 | Procedures | `cancellation_rate` | cancelled / scheduled x100 | hospital x month | n/a | 0..100 or NULL |
-| Procedures | `or_utilization` | procedure minutes / available OR minutes x100 | hospital x OR x month | cancelled procedures excluded | denominator documented; 0..100 or NULL |
-| Procedures | `procedure_delay_minutes` | `AVG(delay_minutes)` | hospital x month | null delays excluded | non-negative |
-| Diagnostics | `lab_orders` | `COUNT(*)` | hospital x month, `ordered_at` | n/a | matches lab gold volume |
-| Diagnostics | `completed_tests` | `COUNT(labs status='Completed')` | hospital x test x month | held at result level | completion reconciles with `lab_orders` |
-| Diagnostics | `avg_tat_minutes` | `AVG(tat_minutes)` | hospital x test x month | pending/cancelled excluded | result time >= order time |
-| Diagnostics | `sla_rate` | `COUNT(tat <= sla_minutes)/completed*100` | hospital x test x month | pending excluded | 0..100 or NULL |
+| Procedures | `average_procedure_duration` | `AVG(duration_minutes)` | hospital x month | cancelled excluded | non-negative |
+| Procedures | `or_utilization` | procedure minutes / available OR minutes x100 | hospital x OR x month | cancelled excluded | denominator documented; 0..100 or NULL |
+| Procedures | `first_case_on_time_start_rate` | on-time first cases / first cases x100 | hospital x OR x month | n/a | 0..100 or NULL |
+| Procedures | `procedure_turnaround_time` | mean room turnaround | hospital x OR x month | n/a | non-negative |
+| Procedures | `delayed_procedures` | `COUNT(delay_minutes > 0)` | hospital x month | n/a | non-negative |
+| Procedures | `procedure_revenue` | `SUM(revenue)` | hospital x month | cancelled excluded | non-negative |
+| Diagnostics | `total_lab_orders` | `COUNT(*)` | hospital x month, `ordered_at` | n/a | matches lab gold volume |
+| Diagnostics | `completed_tests` | `COUNT(status='Completed')` | hospital x test x month | held at result level | reconciles with `total_lab_orders` |
+| Diagnostics | `pending_tests`, `cancelled_tests` | status counts | hospital x test x month | n/a | status allowlist |
+| Diagnostics | `average_turnaround_time` | `AVG(tat_minutes)` | hospital x test x month | pending/cancelled excluded | result time >= order time |
+| Diagnostics | `median_turnaround_time` | `MEDIAN(tat_minutes)` | hospital x test x month | pending excluded | <= max TAT |
+| Diagnostics | `sla_compliance_rate` | `COUNT(tat <= sla_minutes)/completed*100` | hospital x test x month | pending excluded | 0..100 or NULL |
+| Diagnostics | `delayed_results` | count breaching SLA | hospital x test x month | n/a | non-negative |
 | Diagnostics | `critical_results` | `COUNT(is_critical)` | hospital x test x month | synthetic flag | boolean flag only |
 | Pharmacy | `prescriptions` | `COUNT(*)` | hospital x month, `prescribed_date` | n/a | prescription -> dispensing link valid |
-| Pharmacy | `dispensing_completion_rate` | dispensed / prescribed x100 | hospital x month | cancelled prescriptions excluded | 0..100 or NULL |
-| Pharmacy | `avg_prescription_value` | `AVG(amount)` | hospital x month | negative amounts quarantined | non-negative |
-| Finance | `net_revenue` | `SUM(net_amount)` | hospital x month, `invoice_date` | refunds/write-offs documented | net = gross - discount |
-| Finance | `outstanding_balance` | `SUM(balance_amount)` | hospital x month | n/a | balance = net - paid |
-| Finance | `avg_invoice_value` | `AVG(net_amount)` | hospital x month | n/a | non-negative |
-| Finance | `refunds` | `SUM(-amount) WHERE type='Refund'` | hospital x month, `payment_date` | n/a | refunds are negative payments |
-| Finance | `writeoffs` | documented write-off amount | hospital x month | not in payment fact unless present | reconciles with finance gold |
-| Finance | `revenue_growth_pct` | (current - prior)/prior x100 | hospital x month | no prior period -> NULL | sign and NULL handling |
+| Pharmacy | `items_prescribed`, `items_dispensed` | quantity sums | hospital x medication x month | cancelled excluded | dispensed <= prescribed |
+| Pharmacy | `pending_prescriptions` | `COUNT(status='Pending')` | hospital x month | n/a | status allowlist |
+| Pharmacy | `dispensing_completion_rate` | dispensed / prescribed x100 | hospital x month | cancelled excluded | 0..100 or NULL |
+| Pharmacy | `medication_revenue` | `SUM(amount)` | hospital x month | negative amounts quarantined | non-negative |
+| Pharmacy | `average_prescription_value` | `AVG(amount)` | hospital x month | n/a | non-negative |
+| Pharmacy | `stockout_medication_count`, `expired_medication_value`, `pharmacy_waste` | stock events / values | hospital x month | n/a | non-negative |
+| Finance | `net_revenue`, `total_billed`, `total_collected` | invoice / payment sums | hospital x month, `invoice_date` | refunds documented | net = gross - discount |
+| Finance | `outstanding_receivables` | `SUM(balance_amount)` | hospital x month | n/a | balance = net - paid |
+| Finance | `average_revenue_per_encounter` | net revenue / encounters | hospital x month | encounters = 0 -> NULL | non-negative |
+| Finance | `average_invoice_value` | `AVG(net_amount)` | hospital x month | n/a | non-negative |
+| Finance | `refund_amount`, `writeoff_amount` | refund / write-off totals | hospital x month, `payment_date` | refunds are negative payments | non-negative magnitude |
+| Finance | `revenue_growth` | (current - prior)/prior x100 | hospital x month | no prior -> NULL | sign and NULL handling |
+| Finance | `revenue_per_hospital_department` | net revenue by department | hospital x dept x month | n/a | reconciles with hospital total |
 | Claims | `claims_submitted` | `COUNT(*)` | hospital x payer x month, `claim_date` | n/a | header count matches claims fact |
-| Claims | `claims_approved` | `COUNT(status='Approved')` | hospital x payer x month | adjudicated only | payer breakdown reconciles |
-| Claims | `claims_denied` | `COUNT(status='Denied')` | hospital x payer x month | adjudicated only | denial reason present |
-| Claims | `avg_processing_days` | `AVG(processing_days)` | hospital x payer x month | pending claims excluded | non-negative |
+| Claims | `claims_approved`, `claims_denied` | adjudicated status counts | hospital x payer x month | pending excluded | payer breakdown reconciles |
+| Claims | `denial_rate` | denied / (approved + denied) x100 | hospital x payer x month | pending excluded | 0..100 or NULL |
+| Claims | `pending_claims` | `COUNT(status='Pending')` | hospital x payer x month | n/a | aging buckets reconcile |
+| Claims | `total_claimed_amount`, `approved_amount`, `denied_amount`, `paid_amount` | amount sums | hospital x payer x month | n/a | paid <= approved <= claimed |
+| Claims | `average_processing_time` | `AVG(processing_days)` | hospital x payer x month | pending excluded | non-negative |
 | Claims | `appeal_success_rate` | successful appeals / appeals x100 | hospital x payer x month | no appeals -> NULL | 0..100 or NULL |
-| Workforce | `scheduled_hours` | `SUM(scheduled_hours)` | hospital x dept x month, `shift_date` | n/a | non-negative |
-| Workforce | `overtime_hours` | `SUM(overtime_hours)` | hospital x dept x month | n/a | overtime <= worked hours |
-| Workforce | `absence_rate` | absent attendance / scheduled attendance x100 | hospital x dept x month | leave excluded per definition | 0..100 or NULL |
-| Workforce | `coverage_pct` | worked hours / scheduled hours x100 | hospital x dept x month | n/a | 0..100 or NULL |
+| Claims | `outstanding_claim_value` | claimed - paid | hospital x payer x month | n/a | non-negative |
+| Workforce | `staff_count`, `total_employees`, `active_employees` | distinct staff counts | hospital x dept x month | n/a | active <= total |
+| Workforce | `scheduled_hours`, `worked_hours`, `overtime_hours` | hour sums | hospital x dept x month, `shift_date` | n/a | overtime <= worked |
+| Workforce | `absence_rate` | absent / scheduled x100 | hospital x dept x month | leave per definition | 0..100 or NULL |
+| Workforce | `shift_coverage` | worked / scheduled x100 | hospital x dept x month | n/a | 0..100 or NULL |
+| Workforce | `staffing_shortage`, `open_staffing_gaps` | uncovered demand | hospital x dept x month | n/a | non-negative |
+| Workforce | `nurse_to_patient_ratio` | nurses / patients | hospital x month | patients = 0 -> NULL | non-negative |
+| Workforce | `physician_utilization` | worked / available physician hours x100 | hospital x dept x month | n/a | 0..100 or NULL |
 | Workforce | `workforce_cost` | `SUM(hours * hourly_rate)` | hospital x dept x month | n/a | matches staff rates |
 | Inventory | `inventory_value` | `SUM(on_hand * unit_cost)` | hospital x category x month, `movement_date` | n/a | movements net correctly |
-| Inventory | `stockouts` | count of stockout events | hospital x category x month | n/a | non-negative |
-| Inventory | `expired_value` | value of `Expiry` movements | hospital x category x month | n/a | non-negative |
-| Inventory | `supplier_on_time_rate` | on-time receipts / receipts x100 | hospital x supplier x month | no receipts -> NULL | 0..100 or NULL |
-| Inventory | `turnover` | issues / average inventory value | hospital x category x month | n/a | denominator > 0 else NULL |
-| Experience | `feedback_count` | `COUNT(*)` | hospital x dept x month, `visit_date` | invalid references excluded | matches gold count |
-| Experience | `nps` | promoters% - detractors% | hospital x month | no feedback -> NULL | range -100..100 or NULL |
+| Inventory | `total_skus`, `stock_available`, `low_stock_items`, `stockout_items`, `expiring_items` | stock-state counts | hospital x category x month | n/a | non-negative |
+| Inventory | `expired_inventory_value`, `inventory_waste` | `Expiry` / `Waste` movement values | hospital x category x month | n/a | non-negative |
+| Inventory | `inventory_turnover` | issues / average inventory value | hospital x category x month | denominator 0 -> NULL | non-negative |
+| Inventory | `purchase_orders`, `procurement_value` | PO count / value | hospital x supplier x month | n/a | reconciles with PO lines |
+| Inventory | `supplier_delivery_performance` | on-time receipts / receipts x100 | hospital x supplier x month | no receipts -> NULL | 0..100 or NULL |
+| Experience | `total_feedback` | `COUNT(*)` | hospital x dept x month, `visit_date` | invalid refs excluded | matches gold count |
+| Experience | `average_satisfaction_score` | `AVG(rating)` | hospital x dept x month | rating 1..5 | range 1..5 or NULL |
+| Experience | `satisfaction_percentage` | share rating >= 4 x100 | hospital x month | n/a | 0..100 or NULL |
+| Experience | `net_promoter_score` | promoters% - detractors% | hospital x month | no feedback -> NULL | -100..100 or NULL |
+| Experience | `positive_feedback_percentage`, `negative_feedback_percentage` | sentiment shares | hospital x month | synthetic labels | 0..100 or NULL |
 | Experience | `complaints` | `COUNT(complaint_flag)` | hospital x month | n/a | complaint text synthetic |
-| Experience | `complaint_resolution_days` | `AVG(resolution_days)` | hospital x month | open complaints excluded | non-negative |
-| Quality | `incidents` | `COUNT(*)` | hospital x dept x month, `incident_date` | n/a | severity allowlist |
+| Experience | `complaint_resolution_time` | `AVG(resolution_days)` | hospital x month | open complaints excluded | non-negative |
+| Experience | `response_rate` | feedback / encounters x100 | hospital x month | encounters = 0 -> NULL | 0..100 or NULL |
+| Quality | `total_incidents` | `COUNT(*)` | hospital x dept x month, `incident_date` | n/a | severity allowlist |
 | Quality | `incident_rate` | incidents / encounters x100 | hospital x month | encounters = 0 -> NULL | 0..100 or NULL |
-| Quality | `investigation_completion_rate` | completed investigations / incidents x100 | hospital x month | open incidents included in denominator | 0..100 or NULL |
-| Quality | `avg_investigation_days` | `AVG(investigation_days)` | hospital x month | incomplete investigations excluded | non-negative |
+| Quality | `falls_reported`, `medication_incidents`, `infection_incidents` | category counts | hospital x dept x month | n/a | category allowlist |
+| Quality | `incident_severity_distribution` | counts by severity | hospital x month | n/a | severity allowlist |
+| Quality | `investigation_completion_rate` | completed / incidents x100 | hospital x month | open incidents in denominator | 0..100 or NULL |
+| Quality | `average_investigation_time` | `AVG(investigation_days)` | hospital x month | incomplete excluded | non-negative |
+| Quality | `compliance_indicator` | documented composite | hospital x month | no clinical use | documented formula |
 
 ## Interpretation rules
 

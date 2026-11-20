@@ -16,8 +16,9 @@ directory during smoke tests.
 """
 from __future__ import annotations
 
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 import duckdb
 import pandas as pd
@@ -218,7 +219,7 @@ def query(
         result = conn.execute(sql, params or [])
         try:
             return result.df()
-        except Exception:
+        except Exception:  # noqa: BLE001 - DuckDB .df() may fail if Arrow is unavailable
             return pd.DataFrame(result.fetchall(), columns=[c[0] for c in result.description])
     finally:
         if own:

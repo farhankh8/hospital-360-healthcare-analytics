@@ -31,6 +31,8 @@ interface DataTableProps {
   pageSize?: number;
   exportName?: string;
   initialSearch?: string;
+  /** Only one table per page should respond to the global Export action. */
+  primaryExport?: boolean;
 }
 
 function resolveColumns(configured: TableColumn[], rows: TableRow[]): TableColumn[] {
@@ -47,7 +49,7 @@ function resolveColumns(configured: TableColumn[], rows: TableRow[]): TableColum
   }));
 }
 
-export function DataTable({ endpoint, columns, filters, title = 'Detailed records', searchable = true, pageSize = 25, exportName = 'export', initialSearch = '' }: DataTableProps) {
+export function DataTable({ endpoint, columns, filters, title = 'Detailed records', searchable = true, pageSize = 25, exportName = 'export', initialSearch = '', primaryExport = true }: DataTableProps) {
   const { openDrilldown } = useDrilldown();
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize });
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -75,7 +77,7 @@ export function DataTable({ endpoint, columns, filters, title = 'Detailed record
     [pagination.pageIndex, pagination.pageSize, search, sorting],
   );
   const query = useTableData(endpoint, filters, params, Boolean(endpoint));
-  const rows = Array.isArray(query.data?.data) ? query.data.data : [];
+  const rows = useMemo(() => (Array.isArray(query.data?.data) ? query.data.data : []), [query.data]);
   const paginationMeta = query.data?.pagination;
   const totalRecords = paginationMeta?.total_records ?? rows.length;
   const pageCount = Math.max(1, paginationMeta?.total_pages ?? Math.ceil(totalRecords / pagination.pageSize));
@@ -96,9 +98,10 @@ export function DataTable({ endpoint, columns, filters, title = 'Detailed record
   }, [endpoint, filters, search, sorting, exportName]);
 
   useEffect(() => {
+    if (!primaryExport) return;
     window.addEventListener('hospital360:export', exportCsv);
     return () => window.removeEventListener('hospital360:export', exportCsv);
-  }, [exportCsv]);
+  }, [exportCsv, primaryExport]);
 
   const handleSortingChange: OnChangeFn<SortingState> = (updater) => {
     setSorting(updater);

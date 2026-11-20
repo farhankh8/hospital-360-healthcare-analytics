@@ -13,27 +13,57 @@ export const LOWER_IS_BETTER = new Set([
   'avg_los_days',
   'avg_wait_minutes',
   'average_wait_minutes',
+  'average_waiting_time',
+  'average_wait_for_appointment',
+  'average_checkin_waiting_time',
   'avg_triage_minutes',
+  'average_triage_time',
   'avg_treatment_minutes',
+  'average_treatment_time',
   'avg_tat_minutes',
+  'average_turnaround_time',
   'median_tat_minutes',
+  'median_turnaround_time',
+  'procedure_turnaround_time',
   'avg_processing_days',
+  'average_processing_time',
   'avg_investigation_days',
+  'average_investigation_time',
   'complaint_resolution_days',
+  'complaint_resolution_time',
+  'average_discharge_time',
+  'average_boarding_time',
   'absence_rate',
   'readmission_rate',
   'incident_rate',
   'cancellation_rate',
   'reschedule_rate',
+  'rescheduling_rate',
   'expired_value',
+  'expired_inventory_value',
+  'expired_medication_value',
   'waste',
+  'inventory_waste',
+  'pharmacy_waste',
   'stockouts',
+  'stockout_items',
   'low_stock',
+  'low_stock_items',
   'blocked_beds',
   'outstanding_balance',
+  'outstanding_receivables',
   'outstanding_claim_value',
   'refunds',
+  'refund_amount',
   'writeoffs',
+  'writeoff_amount',
+  'duplicate_records',
+  'invalid_records',
+  'missing_values',
+  'quarantined_records',
+  'failed_checks',
+  'invalid_dates',
+  'referential_integrity_violations',
 ]);
 
 export function isLowerBetter(id: string, kpi?: KpiValue): boolean {
@@ -59,7 +89,10 @@ export function formatValue(value: unknown, unit?: string): string {
   if (kind === 'percent' || kind === '%' || kind === 'rate') return `${numeric.toFixed(1)}%`;
   if (kind === 'count' || kind === 'integer') return Math.round(numeric).toLocaleString('en-US');
   if (kind === 'minutes') return `${numeric.toFixed(1)} min`;
+  if (kind === 'hours') return `${numeric.toFixed(1)} h`;
+  if (kind === 'seconds') return `${numeric.toFixed(1)} s`;
   if (kind === 'days') return `${numeric.toFixed(1)} d`;
+  if (kind === 'ratio' || kind === 'score') return numeric.toFixed(2);
   if (Number.isInteger(numeric)) return numeric.toLocaleString('en-US');
   if (Math.abs(numeric) >= 1000) return compactNumber(numeric);
   return numeric.toLocaleString('en-US', { maximumFractionDigits: 2 });

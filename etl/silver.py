@@ -132,7 +132,8 @@ REQUIRED_DATES: dict[str, list[str]] = {
     "procedures": ["scheduled_start"],
     "lab_orders": ["ordered_at"],
     "prescriptions": ["prescribed_date"],
-    "dispensing": ["dispensed_date"],
+    # dispensing.dispensed_date is intentionally NULL when status='Pending'
+    # (the generator emits no dispensing date for un-dispensed prescriptions).
     "invoices": ["invoice_date"],
     "payments": ["payment_date"],
     "claims": ["claim_date"],
@@ -171,8 +172,7 @@ DATE_ORDER_CROSS: list[tuple[str, str, str, str, str, str]] = [
 ]
 
 NONNEGATIVE_COLUMNS = {
-    "beds", "lead_days", "sla_minutes", "reorder_level", "lead_days",
-    "waiting_minutes", "treatment_minutes", "los_days", "boarding_hours",
+    "beds", "lead_days", "sla_minutes", "reorder_level", "waiting_minutes", "treatment_minutes", "los_days", "boarding_hours",
     "duration_minutes", "delay_minutes", "tat_minutes", "processing_days",
     "investigation_days", "resolution_days", "scheduled_hours", "actual_hours",
     "overtime_hours", "hours_worked", "quantity_dispensed",
@@ -212,8 +212,8 @@ STATUS_MAP: dict[str, str] = {
 CANONICAL_STATUSES = set(STATUS_MAP.values()) | {
     "Elective", "Emergency", "Transfer", "Recovered", "Referred", "Deceased",
     "Against Advice", "Discharge", "Admit", "LWBS", "Walk-in", "Ambulance",
-    "Referral", "Outpatient", "Emergency", "Inpatient", "New", "Follow-up",
-    "Routine", "Urgent", "STAT", "New", "Returning", "Male", "Female", "Other",
+    "Referral", "Outpatient", "Inpatient", "New", "Follow-up",
+    "Routine", "Urgent", "STAT", "Returning", "Male", "Female", "Other",
     "Consultant", "Specialist", "Resident", "Nurse", "Technician", "Admin",
     "Positive", "Neutral", "Negative", "Survey", "Complaint", "Suggestion",
     "Fall", "Medication", "Infection", "Safety",
@@ -276,21 +276,32 @@ def _as_date(series: pd.Series) -> pd.Series:
                      index=series.index, dtype="object")
 
 
+def normalise_status(value: Any) -> str | None:
+    """Return the canonical status label for a single value.
+
+    Nulls and blank strings return ``None``.  Known aliases (``COMPLETED ``,
+    ``No Show``, ``Canceled`` ...) are mapped to their documented canonical
+    form; unknown labels are title-cased and left for DQ rules to flag.
+    """
+    if value is None or (not isinstance(value, str) and pd.isna(value)):
+        return None
+    text = re.sub(r"\s+", " ", str(value).strip())
+    if not text:
+        return None
+    return STATUS_MAP.get(text.lower(), text.title())
+
+
 def _normalise_status(series: pd.Series) -> tuple[pd.Series, int]:
     values: list[Any] = []
     invalid = 0
     for value in series:
-        if pd.isna(value) or str(value).strip() == "":
+        canon = normalise_status(value)
+        if canon is None:
             values.append(pd.NA)
             continue
-        token = re.sub(r"\s+", " ", str(value).strip()).lower()
-        if token in STATUS_MAP:
-            values.append(STATUS_MAP[token])
-        else:
-            canon = re.sub(r"\s+", " ", str(value).strip()).title()
-            values.append(canon)
-            if canon not in CANONICAL_STATUSES:
-                invalid += 1
+        values.append(canon)
+        if canon not in CANONICAL_STATUSES:
+            invalid += 1
     return pd.Series(values, index=series.index, dtype="string"), invalid
 
 
@@ -364,7 +375,7 @@ def clean_table(
         df["hospital_id"] = _normalise_hospital(df["hospital_id"])
 
     raw_snapshot = df.copy(deep=True)
-    input_rows = int(len(df))
+    input_rows = len(df)
     failures: dict[int, list[tuple[str, str]]] = {}
     rule_failures: dict[str, int] = {}
 
@@ -503,7 +514,7 @@ def clean_table(
     return {
         "table": table,
         "input_rows": input_rows,
-        "output_rows": int(len(clean)),
+        "output_rows": len(clean),
         "quarantined_rows": len(set(failed_idx)),
         "quarantine_records": sum(len(v) for v in failures.values()),
         "rule_failures": rule_failures,

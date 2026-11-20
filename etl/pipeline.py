@@ -13,14 +13,17 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
 
-from generator import config, schema
 from etl import bronze, db, gold, quality, silver
+from generator import config, schema
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Documented lineage used by /pipeline/lineage and the Data Explorer.
@@ -100,7 +103,7 @@ def _now() -> str:
 def next_run_id(manifest_dir: Path | None = None) -> str:
     directory = Path(manifest_dir) if manifest_dir is not None else Path(config.MANIFEST_DIR)
     directory.mkdir(parents=True, exist_ok=True)
-    day = datetime.now().strftime("%Y%m%d")
+    day = datetime.now(timezone.utc).strftime("%Y%m%d")
     prefix = f"pipeline_RUN_{day}_"
     existing = [p for p in directory.glob(prefix + "*.json")]
     sequence = len(existing) + 1
@@ -230,7 +233,7 @@ def run_pipeline(run_id: str | None = None, bronze_dir: Path | None = None) -> d
             },
             "manifest_path": str(manifest_path),
         }
-    except Exception as exc:  # pragma: no cover - exercised only on failure
+    except Exception as exc:  # noqa: BLE001  # pragma: no cover - exercised only on failure
         status = "failed"
         error_message = f"{type(exc).__name__}: {exc}"
         end = datetime.now(timezone.utc)
@@ -252,7 +255,7 @@ def run_pipeline(run_id: str | None = None, bronze_dir: Path | None = None) -> d
                 "error_message": error_message,
             }], db.PIPELINE_RUN_TYPES)
         except Exception:
-            pass
+            logger.debug("Could not append failed pipeline run to parquet", exc_info=True)
 
     manifest_path.write_text(json.dumps(manifest, indent=2, default=str), encoding="utf-8")
 

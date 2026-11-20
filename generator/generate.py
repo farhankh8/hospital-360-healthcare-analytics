@@ -8,7 +8,6 @@ import argparse
 import json
 from datetime import datetime, timezone
 
-import numpy as np
 import pandas as pd
 
 from . import config, schema
@@ -245,7 +244,7 @@ def generate_all(seed: int = config.SEED) -> dict:
     validation = validate(tables, dq_log)
     write_bronze(tables)
 
-    counts = {table: int(len(tables[table])) for table in schema.TABLES}
+    counts = {table: len(tables[table]) for table in schema.TABLES}
     manifest = {
         "run_id": f"GEN_{started:%Y%m%d_%H%M%S}_{seed}",
         "generator_version": config.GENERATOR_VERSION,

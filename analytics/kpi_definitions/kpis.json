@@ -261,7 +261,7 @@
     ],
     "unit": "percent",
     "target": 95,
-    "caveat": "Refunds reduce collections; overdue balances are reported as writeoff proxy.",
+    "caveat": "Refunds reduce collections; payments can settle prior-period invoices so the published rate is capped at 100%.",
     "validation_test": "Reconcile the KPI value against the corresponding silver fact aggregate at the same grain."
   },
   {
@@ -2413,7 +2413,7 @@
     "denominator": "Appeals",
     "grain": "hospital x payer x month",
     "date_field": "claim_events.event_date",
-    "exclusions": "No additional exclusions; global date and hospital filters apply.",
+    "exclusions": "Only claims with an Appeal event are counted; approvals of non-appealed claims are excluded.",
     "source_tables": [
       "silver_claim_events",
       "silver_claims"

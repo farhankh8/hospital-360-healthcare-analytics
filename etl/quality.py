@@ -20,7 +20,6 @@ validity failures.
 from __future__ import annotations
 
 import json
-import math
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -28,7 +27,6 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from generator import config, schema
 from etl import db
 from etl.silver import (
     DATE_ORDER_CROSS,
@@ -38,6 +36,7 @@ from etl.silver import (
     PRIMARY_KEYS,
     PROCESS_ORDER,
 )
+from generator import config, schema
 
 CATEGORY_WEIGHTS: dict[str, float] = {
     "Completeness": 0.15,
@@ -147,7 +146,7 @@ def run_silver(silver_tables: dict[str, pd.DataFrame], run_id: str) -> list[dict
         # --- primary key uniqueness / completeness -------------------------
         pk = PRIMARY_KEYS.get(table)
         if pk and pk in df.columns:
-            n = int(len(df))
+            n = len(df)
             dupes = int(df[pk].dropna().duplicated().sum())
             results.append(_result(
                 f"PK_UNIQUE_{table.upper()}", f"Unique primary key: {table}.{pk}",
@@ -169,7 +168,7 @@ def run_silver(silver_tables: dict[str, pd.DataFrame], run_id: str) -> list[dict
             results.append(_result(
                 f"HOSPITAL_CODE_{table.upper()}", f"Canonical hospital codes: {table}",
                 "Validity", table, "error", "hospital_id is one of H01..H10.",
-                invalid, int(len(df)), run_id,
+                invalid, len(df), run_id,
             ))
 
         # --- FK referential integrity --------------------------------------
@@ -196,7 +195,7 @@ def run_silver(silver_tables: dict[str, pd.DataFrame], run_id: str) -> list[dict
                     f"NULL_FK_{table.upper()}_{col.upper()}", f"Completeness {table}.{col}",
                     "Completeness", table, "warning",
                     "Business-nullable FK null count (retained, not quarantined).",
-                    int((~present).sum()), int(len(df)), run_id,
+                    int((~present).sum()), len(df), run_id,
                 ))
 
         # --- intra-table timelines -----------------------------------------
@@ -218,7 +217,7 @@ def run_silver(silver_tables: dict[str, pd.DataFrame], run_id: str) -> list[dict
                 "BUSINESS_APPOINTMENT_STATUS", "Appointment status vocabulary",
                 "Validity", "appointments", "warning",
                 "Status is one of Completed / Cancelled / No-show / Scheduled.",
-                int(bad.sum()), int(len(df)), run_id,
+                int(bad.sum()), len(df), run_id,
                 df.loc[bad, "status"].dropna().astype(str).head(5).tolist(),
             ))
         if table == "invoices":
@@ -231,14 +230,14 @@ def run_silver(silver_tables: dict[str, pd.DataFrame], run_id: str) -> list[dict
                     "BUSINESS_INVOICE_RECONCILE", "Invoice net amount reconciliation",
                     "Consistency", "invoices", "warning",
                     "net_amount = gross_amount - discount_amount (tolerance 1.0).",
-                    int(bad.sum()), int(len(df)), run_id,
+                    int(bad.sum()), len(df), run_id,
                 ))
         if table == "admissions" and "los_days" in df.columns:
             bad = df["los_days"].notna() & (df["los_days"] < 0)
             results.append(_result(
                 "BUSINESS_LOS_NONNEGATIVE", "Length of stay non-negative",
                 "Validity", "admissions", "error", "los_days is never negative.",
-                int(bad.sum()), int(len(df)), run_id,
+                int(bad.sum()), len(df), run_id,
             ))
 
         # --- timeliness -----------------------------------------------------
@@ -360,14 +359,14 @@ def run_gold(gold_tables: dict[str, pd.DataFrame], run_id: str) -> list[dict[str
             "GOLD_GRAIN_HOSPITAL_MONTHLY", "Hospital-month grain uniqueness",
             "Uniqueness", "gold_hospital_monthly", "error",
             "Exactly one row per (hospital_id, month).",
-            bad, int(len(monthly)), run_id,
+            bad, len(monthly), run_id,
         ))
         expected_rows = len(config.HOSPITALS) * 24
         results.append(_result(
             "GOLD_GRID_HOSPITAL_MONTHLY", "Continuous 10 hospitals x 24 months grid",
             "Completeness", "gold_hospital_monthly", "error",
             f"All {expected_rows} hospital-month combinations are present for continuous charts.",
-            abs(int(len(monthly)) - expected_rows), expected_rows, run_id,
+            abs(len(monthly) - expected_rows), expected_rows, run_id,
         ))
 
     # --- analytical reconciliation ----------------------------------------

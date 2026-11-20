@@ -74,7 +74,7 @@ def paginated_rows(
             parts = []
             for i, c in enumerate(text_cols):
                 key = f"search_{i}"
-                parts.append(f"CAST({c} AS VARCHAR) ILIKE :{key}")
+                parts.append(f"CAST({c} AS VARCHAR) ILIKE ${key}")
                 params[key] = f"%{f.search}%"
             where += (" AND " if where else " WHERE ") + "(" + " OR ".join(parts) + ")"
 
@@ -89,10 +89,10 @@ def paginated_rows(
         if date_col in cols:
             order = f" ORDER BY {date_col} DESC"
         else:
-            first = sorted(cols)[0] if cols else "1"
+            first = min(cols) if cols else "1"
             order = f" ORDER BY {first} ASC"
 
-    sql = f"SELECT * FROM {table}{where}{order} LIMIT :limit OFFSET :offset"
+    sql = f"SELECT * FROM {table}{where}{order} LIMIT $limit OFFSET $offset"
     params["limit"] = f.page_size
     params["offset"] = (f.page - 1) * f.page_size
     return query_rows(conn, sql, params), total

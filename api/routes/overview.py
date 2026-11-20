@@ -95,7 +95,7 @@ def heatmap(request: Request):
             select.append(f"{expr} AS {name}")
         rows = query_rows(
             conn,
-            ", ".join(select) + " FROM gold_hospital_monthly m "
+            "SELECT " + ", ".join(select) + " FROM gold_hospital_monthly m "
             "LEFT JOIN dim_hospital h ON h.hospital_id = m.hospital_id"
             f"{where} GROUP BY 1, 2 ORDER BY 1",
             params,

@@ -42,14 +42,14 @@ def hospital_departments(hospital_id: str, request: Request):
             conn,
             "SELECT d.department_id, d.department_name, s.specialty_name "
             "FROM dim_department d LEFT JOIN dim_specialty s ON s.specialty_id = d.specialty_id "
-            "WHERE d.hospital_id = ? ORDER BY d.department_name",
+            "WHERE d.hospital_id = $hospital_id ORDER BY d.department_name",
             {"hospital_id": hospital_id},
         )
         if not rows:
             rows = query_rows(
                 conn,
                 "SELECT department_id, department_name, specialty_id AS specialty_name "
-                "FROM silver_dim_department WHERE hospital_id = ? ORDER BY department_name",
+                "FROM silver_dim_department WHERE hospital_id = $hospital_id ORDER BY department_name",
                 {"hospital_id": hospital_id},
             )
     return envelope(rows, f.date_from, f.date_to, [hospital_id])
@@ -61,7 +61,7 @@ def hospital_trends(hospital_id: str, request: Request):
     with get_conn() as conn:
         cols = columns(conn, "gold_hospital_monthly")
         where, params = build_where(f, cols, date_col="month")
-        where = (where + " AND hospital_id = :hid") if where else " WHERE hospital_id = :hid"
+        where = (where + " AND hospital_id = $hid") if where else " WHERE hospital_id = $hid"
         params["hid"] = hospital_id
         rows = query_rows(
             conn,
@@ -79,17 +79,17 @@ def hospital_profile(hospital_id: str, request: Request):
     f = parse_filters(request)
     with get_conn() as conn:
         hospital = query_rows(
-            conn, "SELECT * FROM dim_hospital WHERE hospital_id = ?", {"hospital_id": hospital_id}
+            conn, "SELECT * FROM dim_hospital WHERE hospital_id = $hospital_id", {"hospital_id": hospital_id}
         )
         if not hospital:
             hospital = query_rows(
-                conn, "SELECT * FROM silver_dim_hospital WHERE hospital_id = ?", {"hospital_id": hospital_id}
+                conn, "SELECT * FROM silver_dim_hospital WHERE hospital_id = $hospital_id", {"hospital_id": hospital_id}
             )
         if not hospital:
             raise HTTPException(404, f"Hospital {hospital_id} not found")
         cols = columns(conn, "gold_hospital_monthly")
         where, params = build_where(f, cols, date_col="month")
-        where = (where + " AND hospital_id = :hid") if where else " WHERE hospital_id = :hid"
+        where = (where + " AND hospital_id = $hid") if where else " WHERE hospital_id = $hid"
         params["hid"] = hospital_id
         summary = query_rows(
             conn,

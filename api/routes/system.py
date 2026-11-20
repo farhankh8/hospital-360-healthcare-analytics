@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request
@@ -97,7 +96,7 @@ def dq_failures(request: Request):
             return table_envelope([], 0, f.page, f.page_size, f.applied())
         total = int(query_rows(conn, "SELECT COUNT(*) AS n FROM dq_failures")[0]["n"])
         rows = query_rows(
-            conn, "SELECT * FROM dq_failures ORDER BY detection_time DESC LIMIT :limit OFFSET :offset",
+            conn, "SELECT * FROM dq_failures ORDER BY detected_at DESC LIMIT $limit OFFSET $offset",
             {"limit": f.page_size, "offset": (f.page - 1) * f.page_size},
         )
     return table_envelope(rows, total, f.page, f.page_size, f.applied())
@@ -129,7 +128,7 @@ def pipeline_runs(request: Request):
 @router.get("/pipeline/runs/{run_id}")
 def pipeline_run(run_id: str, request: Request):
     with get_conn() as conn:
-        rows = query_rows(conn, "SELECT * FROM pipeline_runs WHERE run_id = ?", {"run_id": run_id}) if table_exists("pipeline_runs") else []
+        rows = query_rows(conn, "SELECT * FROM pipeline_runs WHERE run_id = $run_id", {"run_id": run_id}) if table_exists("pipeline_runs") else []
     if not rows:
         raise HTTPException(404, f"Run {run_id} not found")
     return _empty(rows[0], request)
@@ -165,7 +164,7 @@ def explorer_datasets(request: Request):
         for name, table in EXPLORER_DATASETS.items():
             try:
                 n = int(query_rows(conn, f"SELECT COUNT(*) AS n FROM {table}")[0]["n"])
-            except Exception:
+            except Exception:  # noqa: BLE001 - a dataset table may not exist in a partial build
                 n = 0
             out.append({"id": name, "table": table, "label": name.replace("-", " ").title(), "row_count": n})
     return _empty(out, request)
@@ -183,7 +182,7 @@ def explorer_records(dataset: str, request: Request):
     table = _explorer_table(dataset)
     with get_conn() as conn:
         cols = columns(conn, table)
-        date_cols = [c for c in cols if c.endswith("_date") or c.endswith("_at") or c in {"month", "date"}]
+        date_cols = [c for c in cols if c.endswith(("_date", "_at")) or c in {"month", "date"}]
         date_col = date_cols[0] if date_cols else "month"
         # Build safe pagination with allowlisted sort column.
         from api.core.filters import build_where
@@ -191,7 +190,7 @@ def explorer_records(dataset: str, request: Request):
         total = int(query_rows(conn, f"SELECT COUNT(*) AS n FROM {table}{where}", params)[0]["n"])
         order = f" ORDER BY {f.sort_by} {f.sort_dir.upper()}" if f.sort_by in cols else ""
         rows = query_rows(
-            conn, f"SELECT * FROM {table}{where}{order} LIMIT :limit OFFSET :offset",
+            conn, f"SELECT * FROM {table}{where}{order} LIMIT $limit OFFSET $offset",
             {**params, "limit": f.page_size, "offset": (f.page - 1) * f.page_size},
         )
     return table_envelope(rows, total, f.page, f.page_size, f.applied(), dataset=dataset)
@@ -201,7 +200,7 @@ def explorer_records(dataset: str, request: Request):
 def explorer_schema(dataset: str, request: Request):
     table = _explorer_table(dataset)
     with get_conn() as conn:
-        rows = query_rows(conn, f"DESCRIBE {table}")
+        rows = conn.execute(f"DESCRIBE {table}").fetchall()
     schema = [{"column_name": r[0], "column_type": r[1], "nullable": r[2]} for r in rows]
     return _empty({"dataset": dataset, "table": table, "columns": schema}, request)
 

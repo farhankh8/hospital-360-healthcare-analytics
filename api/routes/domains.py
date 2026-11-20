@@ -7,7 +7,10 @@ from api.core.db import get_conn
 from api.core.filters import build_where, parse_filters
 from api.core.responses import envelope
 from api.routes.common import (
-    grouped, make_kpis_route, multi_series, rows_endpoint, series,
+    grouped,
+    make_kpis_route,
+    multi_series,
+    rows_endpoint,
 )
 from api.services.query import columns, query_rows
 

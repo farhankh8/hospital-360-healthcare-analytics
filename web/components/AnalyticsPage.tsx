@@ -13,6 +13,10 @@ import { Badge, Card, ErrorState, PageHeading, Skeleton } from './ui';
 
 function glossaryDefinitions(data: unknown): Record<string, string> {
   const result: Record<string, string> = {};
+  if (data && typeof data === 'object' && !Array.isArray(data)) {
+    const array = Object.values(data as Record<string, unknown>).find(Array.isArray);
+    if (array) data = array;
+  }
   if (Array.isArray(data)) {
     data.forEach((row) => {
       if (!row || typeof row !== 'object') return;

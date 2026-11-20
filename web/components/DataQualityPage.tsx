@@ -59,6 +59,7 @@ export function DataQualityPage() {
           filters={filters}
           title="Validation rules"
           exportName="dq-rules"
+          primaryExport={false}
           columns={[
             { key: 'rule_id', title: 'Rule ID', sortable: true },
             { key: 'rule_name', title: 'Rule', sortable: true },
@@ -75,6 +76,7 @@ export function DataQualityPage() {
         filters={filters}
         title="Validation failures"
         exportName="dq-failures"
+        primaryExport={false}
         columns={[
           { key: 'validation_id', title: 'Validation ID', sortable: true },
           { key: 'dataset', title: 'Dataset', sortable: true },

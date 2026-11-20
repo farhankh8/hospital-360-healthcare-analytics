@@ -48,7 +48,12 @@ base AS (
 )
 SELECT b.hospital_id, b.department_id, b.month,
        b.gross_revenue, b.net_revenue, b.collections, b.outstanding_balance,
-       ROUND(100.0 * b.collections / NULLIF(b.net_revenue, 0), 2) AS collection_rate,
+       -- Cash collected in a month can settle prior-period invoices, so the
+       -- rate is bounded to 0..100. CASE keeps a zero denominator as NULL.
+       CASE WHEN b.net_revenue = 0 THEN NULL
+            ELSE ROUND(GREATEST(0.0, LEAST(100.0,
+                   100.0 * b.collections / b.net_revenue)), 2)
+       END AS collection_rate,
        ROUND(b.avg_invoice_value, 2) AS avg_invoice_value,
        b.refunds, b.writeoffs,
        ROUND(100.0 * (b.net_revenue - COALESCE(LAG(b.net_revenue) OVER (

@@ -10,8 +10,8 @@ import re
 
 import pandas as pd
 import pytest
-
 from conftest import load_optional
+
 from generator import schema
 
 pytestmark = pytest.mark.silver
@@ -51,9 +51,7 @@ def coerce_dtypes(frame: pd.DataFrame, table: str) -> pd.DataFrame:
             continue
         if dtype in {"date", "datetime64[ns]"}:
             out[col] = pd.to_datetime(out[col], errors="coerce")
-        elif dtype == "int64":
-            out[col] = pd.to_numeric(out[col], errors="coerce")
-        elif dtype == "float64":
+        elif dtype in {"int64", "float64"}:
             out[col] = pd.to_numeric(out[col], errors="coerce")
         elif dtype == "string":
             out[col] = out[col].astype("string")

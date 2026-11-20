@@ -241,18 +241,20 @@ Data-dependent suites skip gracefully until `python -m generator.generate` and
 
 ## 15. Project status
 
-Features are implemented across the layers, but **measured results are deliberately not
-claimed here**. Fill the placeholders below only after running the generator, the pipeline
-and the test suite.
+Measured from a local end-to-end run of `python -m generator.generate`,
+`python -m etl.pipeline`, `python -m pytest -q`, `npm run build` and
+`python scripts/verify_project.py`:
 
-- Generated records (actual): <!-- FILL AFTER RUN --> (read `data/manifests/manifest_*.json`)
-- Hospitals / patients: <!-- FILL AFTER RUN --> / <!-- FILL AFTER RUN -->
-- Coverage window achieved: <!-- FILL AFTER RUN -->
-- Gold tables loaded in DuckDB: <!-- FILL AFTER RUN -->
-- Automated data-quality score: <!-- FILL AFTER RUN -->
-- pytest result (passed / skipped / failed): <!-- FILL AFTER RUN -->
-- Playwright e2e result: <!-- FILL AFTER RUN -->
-- Live deployment URL: <!-- FILL AFTER RUN -->
+- Generated records (actual): **1,540,892** across 39 bronze tables
+- Hospitals / patients: **10** / **15,240**
+- Coverage window achieved: **2025-01-01 → 2026-12-31 (24 months)**
+- Gold tables loaded in DuckDB: **12** (72 tables total; `gold_hospital_monthly` = 240 rows)
+- Automated data-quality score: **96.32 / 100** (297 rules, 1,212 failures, 1,172 quarantined records)
+- API: **83 / 83 GET endpoints returned HTTP 200**; verifier PASS for bronze, manifest, DuckDB and API
+- pytest result (passed / skipped / failed): **82 / 0 / 0**
+- Frontend: `npm run build` succeeded (21 routes); `tsc --noEmit` and `npm run lint` clean
+- Playwright e2e result: **not run** (requires browsers + running API/web servers; see `tests/e2e/`)
+- Live deployment URL: **not deployed** (local stack via `docker-compose.yml`)
 
 See [docs/project_roadmap.md](docs/project_roadmap.md) for the 16-phase status overview and
 the blueprint's acceptance checklist.

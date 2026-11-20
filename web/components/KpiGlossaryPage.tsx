@@ -8,6 +8,10 @@ import { displayValue } from '@/lib/utils';
 import { Badge, Card, CardHeader, EmptyState, ErrorState, PageHeading, Skeleton } from './ui';
 
 function glossaryRows(data: unknown): TableRow[] {
+  if (data && typeof data === 'object' && !Array.isArray(data)) {
+    const array = Object.values(data as Record<string, unknown>).find(Array.isArray);
+    if (array) data = array;
+  }
   if (Array.isArray(data)) return data as TableRow[];
   if (data && typeof data === 'object') {
     return Object.entries(data as Record<string, unknown>).map(([id, value]) => {

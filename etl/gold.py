@@ -17,8 +17,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from generator import config, schema
 from etl import db
+from generator import config, schema
 
 SQL_DIR_NAME = "sql"
 
@@ -119,14 +119,14 @@ def build_all(
             tables[table] = frame
             row_counts[table] = count
             validation[table] = {
-                "preview_rows": int(len(preview)),
+                "preview_rows": len(preview),
                 "count": count,
                 "columns": list(frame.columns),
                 "parquet": str(parquet),
             }
 
         monthly = tables.get("gold_hospital_monthly")
-        monthly_rows = int(len(monthly)) if monthly is not None else 0
+        monthly_rows = len(monthly) if monthly is not None else 0
         validation["hospital_monthly_grid"] = {
             "expected": len(config.HOSPITALS) * 24,
             "actual": monthly_rows,

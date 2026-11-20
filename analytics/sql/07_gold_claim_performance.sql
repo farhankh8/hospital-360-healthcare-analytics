@@ -18,10 +18,17 @@ clm AS (
     WHERE claim_date IS NOT NULL
     GROUP BY 1, 2, 3
 ),
+appealed_claims AS (
+    SELECT DISTINCT claim_id FROM silver_claim_events
+    WHERE LOWER(event_type) = 'appealed'
+),
 appeals AS (
     SELECT c.hospital_id, c.payer_id, DATE_TRUNC('month', c.claim_date)::DATE AS month,
            COUNT(DISTINCT e.claim_id) FILTER (WHERE LOWER(e.event_type) = 'appealed') AS appeals,
-           COUNT(DISTINCT e.claim_id) FILTER (WHERE LOWER(e.event_type) = 'approved') AS appeals_approved
+           COUNT(DISTINCT e.claim_id) FILTER (
+               WHERE LOWER(e.event_type) = 'approved'
+                 AND e.claim_id IN (SELECT claim_id FROM appealed_claims)
+           ) AS appeals_approved
     FROM silver_claim_events e
     JOIN silver_claims c ON e.claim_id = c.claim_id
     WHERE c.claim_date IS NOT NULL

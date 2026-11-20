@@ -87,6 +87,7 @@ def check_duckdb() -> bool:
 def check_api() -> bool:
     section("4. API ENDPOINTS")
     from fastapi.testclient import TestClient
+
     from api.main import app
 
     client = TestClient(app)
@@ -117,11 +118,17 @@ def check_api() -> bool:
     ]
     failed = []
     for ep in endpoints:
-        resp = client.get(ep)
-        flag = "OK" if resp.status_code == 200 else f"HTTP {resp.status_code}"
+        try:
+            resp = client.get(ep)
+            status = resp.status_code
+            body = resp.text[:160]
+        except Exception as exc:  # noqa: BLE001 - report broken endpoints instead of crashing the verifier
+            status = "EXC"
+            body = f"{type(exc).__name__}: {exc}"[:160]
+        flag = "OK" if status == 200 else f"HTTP {status}"
         print(f"  {flag:>10s}  {ep}")
-        if resp.status_code != 200:
-            failed.append((ep, resp.status_code, resp.text[:120]))
+        if status != 200:
+            failed.append((ep, status, body))
     if failed:
         print("\n  Failures:")
         for ep, code, body in failed:

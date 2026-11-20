@@ -6,8 +6,9 @@ a clear ApiError instead of an opaque failure.
 """
 from __future__ import annotations
 
+from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import Any, Iterator
+from typing import Any
 
 import duckdb
 
@@ -57,7 +58,7 @@ def table_exists(name: str) -> bool:
     if not database_exists():
         return False
     row = fetch_one(
-        "SELECT COUNT(*) AS n FROM information_schema.tables WHERE table_name = ?",
+        "SELECT COUNT(*) AS n FROM information_schema.tables WHERE table_name = $name",
         {"name": name},
     )
     return bool(row and row["n"])

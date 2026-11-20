@@ -1,12 +1,13 @@
 """Reusable route factories."""
 from __future__ import annotations
 
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from fastapi import Request
 
 from api.core.db import get_conn
-from api.core.filters import Filters, parse_filters
+from api.core.filters import parse_filters
 from api.core.responses import envelope
 from api.services.kpi_specs import SPECS
 from api.services.metrics import build_kpis, period_metadata

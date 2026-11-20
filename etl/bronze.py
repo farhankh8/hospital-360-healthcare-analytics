@@ -109,7 +109,7 @@ def ingest_all(
         raw.to_parquet(raw_parquet, index=False)
         frames[table] = raw
         stat = csv_path.stat()
-        rows = int(len(raw))
+        rows = len(raw)
         total_rows += rows
         table_entries[table] = {
             "source": SOURCE_LAYER,

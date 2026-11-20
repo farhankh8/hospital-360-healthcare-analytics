@@ -138,7 +138,12 @@ def test_schema_defined_for_all_layer_tables() -> None:
 
 
 def test_manifest_reports_actual_counts_if_present(data_dir) -> None:
-    manifests = sorted((data_dir / "manifests").glob("manifest_*.json"))
+    manifest_dir = data_dir / "manifests"
+    manifests = sorted(
+        list(manifest_dir.glob("manifest_*.json"))
+        + list(manifest_dir.glob("pipeline_*.json"))
+        + list(manifest_dir.glob("generator_manifest.json"))
+    )
     if not manifests:
         pytest.skip("no pipeline manifest generated yet")
     payload = json.loads(manifests[-1].read_text(encoding="utf-8"))

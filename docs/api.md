@@ -353,10 +353,10 @@ GET /api/v1/explorer/appointments/schema
 GET /api/v1/kpis/glossary
 ```
 
-Returns the full registry with the definition fields documented in
-[kpi_glossary.md](kpi_glossary.md): `kpi_id`, `name`, `business_definition`, `formula`,
-`numerator`, `denominator`, `grain`, `date_field`, `exclusions`, `source`, `dimensions`,
-`target`, `caveat` and `validation`.
+Returns the full registry (163 definitions) with the fields documented in
+[kpi_glossary.md](kpi_glossary.md): `id`, `name`, `category`, `business_definition`,
+`formula`, `numerator`, `denominator`, `grain`, `date_field`, `exclusions`, `source_tables`,
+`dimensions`, `unit`, `target`, `caveat` and `validation_test`.
 
 ## Notes for frontend consumers
 

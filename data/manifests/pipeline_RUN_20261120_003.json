@@ -1,0 +1,3601 @@
+{
+  "run_id": "RUN_20261120_003",
+  "generator_version": "1.0.0",
+  "seed": 42,
+  "status": "success",
+  "start_time": "2026-11-20T09:05:34.363226Z",
+  "end_time": "2026-11-20T09:06:52.072770Z",
+  "duration_seconds": 77.71,
+  "bronze": {
+    "run_id": "RUN_20261120_003",
+    "batch_id": "BATCH_RUN_20261120_003",
+    "layer": "bronze",
+    "source": "bronze_csv",
+    "generator_version": "1.0.0",
+    "seed": 42,
+    "ingested_at": "2026-11-20T09:05:34Z",
+    "bronze_dir": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze",
+    "raw_parquet_dir": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest",
+    "tables": {
+      "dim_hospital": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "dim_hospital.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\dim_hospital\\dim_hospital.csv",
+        "created_time": "2026-11-20T09:01:54Z",
+        "row_count": 10,
+        "columns": [
+          "hospital_id",
+          "hospital_name",
+          "city",
+          "profile",
+          "hospital_type",
+          "beds",
+          "status",
+          "latitude",
+          "longitude"
+        ],
+        "schema": [
+          {
+            "column": "hospital_id",
+            "dtype": "string",
+            "description": "H01..H10"
+          },
+          {
+            "column": "hospital_name",
+            "dtype": "string",
+            "description": "Facility name"
+          },
+          {
+            "column": "city",
+            "dtype": "string",
+            "description": "City / district"
+          },
+          {
+            "column": "profile",
+            "dtype": "string",
+            "description": "Operating profile"
+          },
+          {
+            "column": "hospital_type",
+            "dtype": "string",
+            "description": "Facility type"
+          },
+          {
+            "column": "beds",
+            "dtype": "int64",
+            "description": "Licensed bed capacity"
+          },
+          {
+            "column": "status",
+            "dtype": "string",
+            "description": "Active / Inactive"
+          },
+          {
+            "column": "latitude",
+            "dtype": "float64",
+            "description": "Synthetic latitude"
+          },
+          {
+            "column": "longitude",
+            "dtype": "float64",
+            "description": "Synthetic longitude"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\dim_hospital.parquet",
+        "status": "ingested"
+      },
+      "dim_specialty": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "dim_specialty.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\dim_specialty\\dim_specialty.csv",
+        "created_time": "2026-11-20T09:01:54Z",
+        "row_count": 18,
+        "columns": [
+          "specialty_id",
+          "specialty_name"
+        ],
+        "schema": [
+          {
+            "column": "specialty_id",
+            "dtype": "string",
+            "description": "S01.."
+          },
+          {
+            "column": "specialty_name",
+            "dtype": "string",
+            "description": "Specialty name"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\dim_specialty.parquet",
+        "status": "ingested"
+      },
+      "dim_department": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "dim_department.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\dim_department\\dim_department.csv",
+        "created_time": "2026-11-20T09:01:54Z",
+        "row_count": 120,
+        "columns": [
+          "department_id",
+          "hospital_id",
+          "department_name",
+          "specialty_id"
+        ],
+        "schema": [
+          {
+            "column": "department_id",
+            "dtype": "string",
+            "description": "D001.."
+          },
+          {
+            "column": "hospital_id",
+            "dtype": "string",
+            "description": "Parent hospital"
+          },
+          {
+            "column": "department_name",
+            "dtype": "string",
+            "description": "Department name"
+          },
+          {
+            "column": "specialty_id",
+            "dtype": "string",
+            "description": "Primary specialty"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\dim_department.parquet",
+        "status": "ingested"
+      },
+      "dim_doctor": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "dim_doctor.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\dim_doctor\\dim_doctor.csv",
+        "created_time": "2026-11-20T09:01:54Z",
+        "row_count": 690,
+        "columns": [
+          "doctor_id",
+          "hospital_id",
+          "department_id",
+          "doctor_name",
+          "specialty_id",
+          "role"
+        ],
+        "schema": [
+          {
+            "column": "doctor_id",
+            "dtype": "string",
+            "description": "DOC0001.."
+          },
+          {
+            "column": "hospital_id",
+            "dtype": "string",
+            "description": "Parent hospital"
+          },
+          {
+            "column": "department_id",
+            "dtype": "string",
+            "description": "Parent department"
+          },
+          {
+            "column": "doctor_name",
+            "dtype": "string",
+            "description": "Synthetic clinician name"
+          },
+          {
+            "column": "specialty_id",
+            "dtype": "string",
+            "description": "Specialty"
+          },
+          {
+            "column": "role",
+            "dtype": "string",
+            "description": "Consultant / Specialist / Resident"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\dim_doctor.parquet",
+        "status": "ingested"
+      },
+      "dim_staff": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "dim_staff.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\dim_staff\\dim_staff.csv",
+        "created_time": "2026-11-20T09:01:54Z",
+        "row_count": 2980,
+        "columns": [
+          "staff_id",
+          "hospital_id",
+          "department_id",
+          "staff_name",
+          "role",
+          "employment_type",
+          "status",
+          "hourly_rate"
+        ],
+        "schema": [
+          {
+            "column": "staff_id",
+            "dtype": "string",
+            "description": "STF00001.."
+          },
+          {
+            "column": "hospital_id",
+            "dtype": "string",
+            "description": "Parent hospital"
+          },
+          {
+            "column": "department_id",
+            "dtype": "string",
+            "description": "Parent department"
+          },
+          {
+            "column": "staff_name",
+            "dtype": "string",
+            "description": "Synthetic staff name"
+          },
+          {
+            "column": "role",
+            "dtype": "string",
+            "description": "Nurse / Technician / Admin / ..."
+          },
+          {
+            "column": "employment_type",
+            "dtype": "string",
+            "description": "Full-time / Part-time / Contract"
+          },
+          {
+            "column": "status",
+            "dtype": "string",
+            "description": "Active / On leave"
+          },
+          {
+            "column": "hourly_rate",
+            "dtype": "float64",
+            "description": "Synthetic hourly rate"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\dim_staff.parquet",
+        "status": "ingested"
+      },
+      "dim_payer": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "dim_payer.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\dim_payer\\dim_payer.csv",
+        "created_time": "2026-11-20T09:01:54Z",
+        "row_count": 6,
+        "columns": [
+          "payer_id",
+          "payer_name",
+          "payer_type"
+        ],
+        "schema": [
+          {
+            "column": "payer_id",
+            "dtype": "string",
+            "description": "P01.."
+          },
+          {
+            "column": "payer_name",
+            "dtype": "string",
+            "description": "Payer name"
+          },
+          {
+            "column": "payer_type",
+            "dtype": "string",
+            "description": "Insurance / Self-pay / Government"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\dim_payer.parquet",
+        "status": "ingested"
+      },
+      "dim_diagnosis": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "dim_diagnosis.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\dim_diagnosis\\dim_diagnosis.csv",
+        "created_time": "2026-11-20T09:01:54Z",
+        "row_count": 45,
+        "columns": [
+          "diagnosis_code",
+          "diagnosis_name",
+          "category"
+        ],
+        "schema": [
+          {
+            "column": "diagnosis_code",
+            "dtype": "string",
+            "description": "ICD-like code"
+          },
+          {
+            "column": "diagnosis_name",
+            "dtype": "string",
+            "description": "Diagnosis label"
+          },
+          {
+            "column": "category",
+            "dtype": "string",
+            "description": "Diagnosis category"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\dim_diagnosis.parquet",
+        "status": "ingested"
+      },
+      "dim_procedure": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "dim_procedure.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\dim_procedure\\dim_procedure.csv",
+        "created_time": "2026-11-20T09:01:54Z",
+        "row_count": 44,
+        "columns": [
+          "procedure_code",
+          "procedure_name",
+          "specialty_id",
+          "category"
+        ],
+        "schema": [
+          {
+            "column": "procedure_code",
+            "dtype": "string",
+            "description": "CPT-like code"
+          },
+          {
+            "column": "procedure_name",
+            "dtype": "string",
+            "description": "Procedure label"
+          },
+          {
+            "column": "specialty_id",
+            "dtype": "string",
+            "description": "Owning specialty"
+          },
+          {
+            "column": "category",
+            "dtype": "string",
+            "description": "Procedure category"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\dim_procedure.parquet",
+        "status": "ingested"
+      },
+      "dim_medication": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "dim_medication.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\dim_medication\\dim_medication.csv",
+        "created_time": "2026-11-20T09:01:54Z",
+        "row_count": 52,
+        "columns": [
+          "medication_code",
+          "medication_name",
+          "category",
+          "unit_cost"
+        ],
+        "schema": [
+          {
+            "column": "medication_code",
+            "dtype": "string",
+            "description": "MED0001.."
+          },
+          {
+            "column": "medication_name",
+            "dtype": "string",
+            "description": "Medicine name"
+          },
+          {
+            "column": "category",
+            "dtype": "string",
+            "description": "Medication category"
+          },
+          {
+            "column": "unit_cost",
+            "dtype": "float64",
+            "description": "Synthetic unit cost"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\dim_medication.parquet",
+        "status": "ingested"
+      },
+      "dim_lab_test": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "dim_lab_test.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\dim_lab_test\\dim_lab_test.csv",
+        "created_time": "2026-11-20T09:01:54Z",
+        "row_count": 38,
+        "columns": [
+          "test_code",
+          "test_name",
+          "category",
+          "sla_minutes"
+        ],
+        "schema": [
+          {
+            "column": "test_code",
+            "dtype": "string",
+            "description": "LAB0001.."
+          },
+          {
+            "column": "test_name",
+            "dtype": "string",
+            "description": "Test name"
+          },
+          {
+            "column": "category",
+            "dtype": "string",
+            "description": "Test category"
+          },
+          {
+            "column": "sla_minutes",
+            "dtype": "int64",
+            "description": "Turnaround SLA in minutes"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\dim_lab_test.parquet",
+        "status": "ingested"
+      },
+      "dim_service": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "dim_service.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\dim_service\\dim_service.csv",
+        "created_time": "2026-11-20T09:01:54Z",
+        "row_count": 38,
+        "columns": [
+          "service_code",
+          "service_name",
+          "category",
+          "unit_price"
+        ],
+        "schema": [
+          {
+            "column": "service_code",
+            "dtype": "string",
+            "description": "SVC0001.."
+          },
+          {
+            "column": "service_name",
+            "dtype": "string",
+            "description": "Service label"
+          },
+          {
+            "column": "category",
+            "dtype": "string",
+            "description": "Consultation / Procedures / Diagnostics / Pharmacy / Inpatient services"
+          },
+          {
+            "column": "unit_price",
+            "dtype": "float64",
+            "description": "Synthetic unit price"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\dim_service.parquet",
+        "status": "ingested"
+      },
+      "dim_supplier": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "dim_supplier.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\dim_supplier\\dim_supplier.csv",
+        "created_time": "2026-11-20T09:01:54Z",
+        "row_count": 20,
+        "columns": [
+          "supplier_id",
+          "supplier_name",
+          "lead_days",
+          "reliability_score"
+        ],
+        "schema": [
+          {
+            "column": "supplier_id",
+            "dtype": "string",
+            "description": "SUP0001.."
+          },
+          {
+            "column": "supplier_name",
+            "dtype": "string",
+            "description": "Supplier name"
+          },
+          {
+            "column": "lead_days",
+            "dtype": "int64",
+            "description": "Typical lead time"
+          },
+          {
+            "column": "reliability_score",
+            "dtype": "float64",
+            "description": "0..1 on-time reliability"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\dim_supplier.parquet",
+        "status": "ingested"
+      },
+      "dim_inventory_item": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "dim_inventory_item.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\dim_inventory_item\\dim_inventory_item.csv",
+        "created_time": "2026-11-20T09:01:54Z",
+        "row_count": 122,
+        "columns": [
+          "item_id",
+          "item_name",
+          "category",
+          "unit_cost",
+          "reorder_level",
+          "supplier_id"
+        ],
+        "schema": [
+          {
+            "column": "item_id",
+            "dtype": "string",
+            "description": "ITEM00001.."
+          },
+          {
+            "column": "item_name",
+            "dtype": "string",
+            "description": "Item name"
+          },
+          {
+            "column": "category",
+            "dtype": "string",
+            "description": "Clinical / Surgical / Pharmacy / Consumables"
+          },
+          {
+            "column": "unit_cost",
+            "dtype": "float64",
+            "description": "Unit cost"
+          },
+          {
+            "column": "reorder_level",
+            "dtype": "int64",
+            "description": "Reorder threshold"
+          },
+          {
+            "column": "supplier_id",
+            "dtype": "string",
+            "description": "Preferred supplier"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\dim_inventory_item.parquet",
+        "status": "ingested"
+      },
+      "dim_bed": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "dim_bed.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\dim_bed\\dim_bed.csv",
+        "created_time": "2026-11-20T09:01:54Z",
+        "row_count": 3450,
+        "columns": [
+          "bed_id",
+          "hospital_id",
+          "ward",
+          "bed_type"
+        ],
+        "schema": [
+          {
+            "column": "bed_id",
+            "dtype": "string",
+            "description": "BED-H01-0001.."
+          },
+          {
+            "column": "hospital_id",
+            "dtype": "string",
+            "description": "Parent hospital"
+          },
+          {
+            "column": "ward",
+            "dtype": "string",
+            "description": "Ward / unit"
+          },
+          {
+            "column": "bed_type",
+            "dtype": "string",
+            "description": "General / ICU / Pediatric / Maternity / Observation"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\dim_bed.parquet",
+        "status": "ingested"
+      },
+      "dim_date": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "dim_date.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\dim_date\\dim_date.csv",
+        "created_time": "2026-11-20T09:01:54Z",
+        "row_count": 730,
+        "columns": [
+          "date_key",
+          "full_date",
+          "year",
+          "quarter",
+          "month",
+          "month_name",
+          "day",
+          "weekday",
+          "weekday_name",
+          "is_weekend"
+        ],
+        "schema": [
+          {
+            "column": "date_key",
+            "dtype": "int64",
+            "description": "YYYYMMDD"
+          },
+          {
+            "column": "full_date",
+            "dtype": "date",
+            "description": "Calendar date"
+          },
+          {
+            "column": "year",
+            "dtype": "int64",
+            "description": "Year"
+          },
+          {
+            "column": "quarter",
+            "dtype": "int64",
+            "description": "Quarter"
+          },
+          {
+            "column": "month",
+            "dtype": "int64",
+            "description": "Month number"
+          },
+          {
+            "column": "month_name",
+            "dtype": "string",
+            "description": "Month name"
+          },
+          {
+            "column": "day",
+            "dtype": "int64",
+            "description": "Day of month"
+          },
+          {
+            "column": "weekday",
+            "dtype": "int64",
+            "description": "Monday=0"
+          },
+          {
+            "column": "weekday_name",
+            "dtype": "string",
+            "description": "Weekday name"
+          },
+          {
+            "column": "is_weekend",
+            "dtype": "bool",
+            "description": "Sat/Sun flag"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\dim_date.parquet",
+        "status": "ingested"
+      },
+      "dim_time": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "dim_time.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\dim_time\\dim_time.csv",
+        "created_time": "2026-11-20T09:01:54Z",
+        "row_count": 1440,
+        "columns": [
+          "time_key",
+          "hour",
+          "minute",
+          "hour_bucket"
+        ],
+        "schema": [
+          {
+            "column": "time_key",
+            "dtype": "int64",
+            "description": "HHMM"
+          },
+          {
+            "column": "hour",
+            "dtype": "int64",
+            "description": "Hour 0-23"
+          },
+          {
+            "column": "minute",
+            "dtype": "int64",
+            "description": "Minute 0-59"
+          },
+          {
+            "column": "hour_bucket",
+            "dtype": "string",
+            "description": "Morning / Afternoon / Evening / Night"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\dim_time.parquet",
+        "status": "ingested"
+      },
+      "patients": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "patients.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\patients\\patients.csv",
+        "created_time": "2026-11-20T09:01:54Z",
+        "row_count": 15240,
+        "columns": [
+          "patient_id",
+          "first_name",
+          "last_name",
+          "birth_date",
+          "gender",
+          "city",
+          "state",
+          "registration_date",
+          "blood_type",
+          "patient_type"
+        ],
+        "schema": [
+          {
+            "column": "patient_id",
+            "dtype": "string",
+            "description": "PAT000001.."
+          },
+          {
+            "column": "first_name",
+            "dtype": "string",
+            "description": "Synthetic first name"
+          },
+          {
+            "column": "last_name",
+            "dtype": "string",
+            "description": "Synthetic last name"
+          },
+          {
+            "column": "birth_date",
+            "dtype": "date",
+            "description": "Date of birth"
+          },
+          {
+            "column": "gender",
+            "dtype": "string",
+            "description": "Male / Female / Other"
+          },
+          {
+            "column": "city",
+            "dtype": "string",
+            "description": "City"
+          },
+          {
+            "column": "state",
+            "dtype": "string",
+            "description": "State / region"
+          },
+          {
+            "column": "registration_date",
+            "dtype": "date",
+            "description": "Registration date"
+          },
+          {
+            "column": "blood_type",
+            "dtype": "string",
+            "description": "ABO group"
+          },
+          {
+            "column": "patient_type",
+            "dtype": "string",
+            "description": "New / Returning"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\patients.parquet",
+        "status": "ingested"
+      },
+      "appointments": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "appointments.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\appointments\\appointments.csv",
+        "created_time": "2026-11-20T09:01:55Z",
+        "row_count": 104000,
+        "columns": [
+          "appointment_id",
+          "patient_id",
+          "hospital_id",
+          "department_id",
+          "doctor_id",
+          "booking_date",
+          "appointment_date",
+          "appointment_type",
+          "status",
+          "checkin_datetime",
+          "waiting_minutes",
+          "cancellation_reason",
+          "booking_channel",
+          "lead_days",
+          "rescheduled_flag"
+        ],
+        "schema": [
+          {
+            "column": "appointment_id",
+            "dtype": "string",
+            "description": "APT0000001.."
+          },
+          {
+            "column": "patient_id",
+            "dtype": "string",
+            "description": "FK patients"
+          },
+          {
+            "column": "hospital_id",
+            "dtype": "string",
+            "description": "FK dim_hospital"
+          },
+          {
+            "column": "department_id",
+            "dtype": "string",
+            "description": "FK dim_department"
+          },
+          {
+            "column": "doctor_id",
+            "dtype": "string",
+            "description": "FK dim_doctor"
+          },
+          {
+            "column": "booking_date",
+            "dtype": "date",
+            "description": "Booking date"
+          },
+          {
+            "column": "appointment_date",
+            "dtype": "date",
+            "description": "Scheduled date"
+          },
+          {
+            "column": "appointment_type",
+            "dtype": "string",
+            "description": "New / Follow-up / Routine / Urgent"
+          },
+          {
+            "column": "status",
+            "dtype": "string",
+            "description": "Completed / Cancelled / No-show / Scheduled"
+          },
+          {
+            "column": "checkin_datetime",
+            "dtype": "datetime64[ns]",
+            "description": "Check-in timestamp (nullable)"
+          },
+          {
+            "column": "waiting_minutes",
+            "dtype": "float64",
+            "description": "Check-in waiting time"
+          },
+          {
+            "column": "cancellation_reason",
+            "dtype": "string",
+            "description": "Reason or None"
+          },
+          {
+            "column": "booking_channel",
+            "dtype": "string",
+            "description": "Online / Phone / Walk-in / Portal"
+          },
+          {
+            "column": "lead_days",
+            "dtype": "int64",
+            "description": "Booking-to-appointment days"
+          },
+          {
+            "column": "rescheduled_flag",
+            "dtype": "bool",
+            "description": "Was rescheduled"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\appointments.parquet",
+        "status": "ingested"
+      },
+      "encounters": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "encounters.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\encounters\\encounters.csv",
+        "created_time": "2026-11-20T09:01:56Z",
+        "row_count": 82000,
+        "columns": [
+          "encounter_id",
+          "patient_id",
+          "appointment_id",
+          "hospital_id",
+          "department_id",
+          "encounter_type",
+          "arrival_datetime",
+          "triage_category",
+          "triage_datetime",
+          "provider_datetime",
+          "disposition_datetime",
+          "waiting_minutes",
+          "treatment_minutes",
+          "disposition",
+          "arrival_mode",
+          "critical_flag"
+        ],
+        "schema": [
+          {
+            "column": "encounter_id",
+            "dtype": "string",
+            "description": "ENC0000001.."
+          },
+          {
+            "column": "patient_id",
+            "dtype": "string",
+            "description": "FK patients"
+          },
+          {
+            "column": "appointment_id",
+            "dtype": "string",
+            "description": "FK appointments (nullable)"
+          },
+          {
+            "column": "hospital_id",
+            "dtype": "string",
+            "description": "FK dim_hospital"
+          },
+          {
+            "column": "department_id",
+            "dtype": "string",
+            "description": "FK dim_department"
+          },
+          {
+            "column": "encounter_type",
+            "dtype": "string",
+            "description": "Outpatient / Emergency / Inpatient"
+          },
+          {
+            "column": "arrival_datetime",
+            "dtype": "datetime64[ns]",
+            "description": "Arrival / start time"
+          },
+          {
+            "column": "triage_category",
+            "dtype": "string",
+            "description": "Critical/Urgent/Standard/Non-urgent"
+          },
+          {
+            "column": "triage_datetime",
+            "dtype": "datetime64[ns]",
+            "description": "Triage timestamp"
+          },
+          {
+            "column": "provider_datetime",
+            "dtype": "datetime64[ns]",
+            "description": "Seen-by-provider timestamp"
+          },
+          {
+            "column": "disposition_datetime",
+            "dtype": "datetime64[ns]",
+            "description": "Disposition timestamp"
+          },
+          {
+            "column": "waiting_minutes",
+            "dtype": "float64",
+            "description": "Arrival to provider"
+          },
+          {
+            "column": "treatment_minutes",
+            "dtype": "float64",
+            "description": "Provider to disposition"
+          },
+          {
+            "column": "disposition",
+            "dtype": "string",
+            "description": "Discharge / Admit / Transfer / LWBS"
+          },
+          {
+            "column": "arrival_mode",
+            "dtype": "string",
+            "description": "Walk-in / Ambulance / Referral"
+          },
+          {
+            "column": "critical_flag",
+            "dtype": "bool",
+            "description": "Critical patient"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\encounters.parquet",
+        "status": "ingested"
+      },
+      "admissions": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "admissions.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\admissions\\admissions.csv",
+        "created_time": "2026-11-20T09:01:56Z",
+        "row_count": 24804,
+        "columns": [
+          "admission_id",
+          "encounter_id",
+          "patient_id",
+          "hospital_id",
+          "department_id",
+          "ward",
+          "bed_id",
+          "admission_datetime",
+          "discharge_datetime",
+          "admission_type",
+          "discharge_status",
+          "los_days",
+          "readmission_flag",
+          "boarding_hours"
+        ],
+        "schema": [
+          {
+            "column": "admission_id",
+            "dtype": "string",
+            "description": "ADM000001.."
+          },
+          {
+            "column": "encounter_id",
+            "dtype": "string",
+            "description": "FK encounters"
+          },
+          {
+            "column": "patient_id",
+            "dtype": "string",
+            "description": "FK patients"
+          },
+          {
+            "column": "hospital_id",
+            "dtype": "string",
+            "description": "FK dim_hospital"
+          },
+          {
+            "column": "department_id",
+            "dtype": "string",
+            "description": "FK dim_department"
+          },
+          {
+            "column": "ward",
+            "dtype": "string",
+            "description": "Ward / unit"
+          },
+          {
+            "column": "bed_id",
+            "dtype": "string",
+            "description": "FK dim_bed"
+          },
+          {
+            "column": "admission_datetime",
+            "dtype": "datetime64[ns]",
+            "description": "Admission timestamp"
+          },
+          {
+            "column": "discharge_datetime",
+            "dtype": "datetime64[ns]",
+            "description": "Discharge timestamp (nullable)"
+          },
+          {
+            "column": "admission_type",
+            "dtype": "string",
+            "description": "Elective / Emergency / Transfer"
+          },
+          {
+            "column": "discharge_status",
+            "dtype": "string",
+            "description": "Recovered / Referred / Deceased / Against advice"
+          },
+          {
+            "column": "los_days",
+            "dtype": "float64",
+            "description": "Length of stay in days"
+          },
+          {
+            "column": "readmission_flag",
+            "dtype": "bool",
+            "description": "Readmission within 30 days"
+          },
+          {
+            "column": "boarding_hours",
+            "dtype": "float64",
+            "description": "Boarding time before bed"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\admissions.parquet",
+        "status": "ingested"
+      },
+      "transfers": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "transfers.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\transfers\\transfers.csv",
+        "created_time": "2026-11-20T09:01:56Z",
+        "row_count": 3600,
+        "columns": [
+          "transfer_id",
+          "admission_id",
+          "patient_id",
+          "hospital_id",
+          "from_ward",
+          "to_ward",
+          "transfer_datetime",
+          "reason"
+        ],
+        "schema": [
+          {
+            "column": "transfer_id",
+            "dtype": "string",
+            "description": "TRF000001.."
+          },
+          {
+            "column": "admission_id",
+            "dtype": "string",
+            "description": "FK admissions"
+          },
+          {
+            "column": "patient_id",
+            "dtype": "string",
+            "description": "FK patients"
+          },
+          {
+            "column": "hospital_id",
+            "dtype": "string",
+            "description": "FK dim_hospital"
+          },
+          {
+            "column": "from_ward",
+            "dtype": "string",
+            "description": "Source ward"
+          },
+          {
+            "column": "to_ward",
+            "dtype": "string",
+            "description": "Destination ward"
+          },
+          {
+            "column": "transfer_datetime",
+            "dtype": "datetime64[ns]",
+            "description": "Transfer timestamp"
+          },
+          {
+            "column": "reason",
+            "dtype": "string",
+            "description": "Clinical / Capacity / Specialist"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\transfers.parquet",
+        "status": "ingested"
+      },
+      "bed_snapshots": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "bed_snapshots.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\bed_snapshots\\bed_snapshots.csv",
+        "created_time": "2026-11-20T09:01:57Z",
+        "row_count": 102000,
+        "columns": [
+          "snapshot_id",
+          "snapshot_datetime",
+          "hospital_id",
+          "ward",
+          "bed_id",
+          "bed_type",
+          "status",
+          "occupied_flag",
+          "blocked_flag"
+        ],
+        "schema": [
+          {
+            "column": "snapshot_id",
+            "dtype": "string",
+            "description": "SNP0000001.."
+          },
+          {
+            "column": "snapshot_datetime",
+            "dtype": "datetime64[ns]",
+            "description": "Snapshot timestamp"
+          },
+          {
+            "column": "hospital_id",
+            "dtype": "string",
+            "description": "FK dim_hospital"
+          },
+          {
+            "column": "ward",
+            "dtype": "string",
+            "description": "Ward"
+          },
+          {
+            "column": "bed_id",
+            "dtype": "string",
+            "description": "FK dim_bed"
+          },
+          {
+            "column": "bed_type",
+            "dtype": "string",
+            "description": "Bed type"
+          },
+          {
+            "column": "status",
+            "dtype": "string",
+            "description": "Occupied / Available / Blocked"
+          },
+          {
+            "column": "occupied_flag",
+            "dtype": "bool",
+            "description": "1 when Occupied"
+          },
+          {
+            "column": "blocked_flag",
+            "dtype": "bool",
+            "description": "1 when Blocked"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\bed_snapshots.parquet",
+        "status": "ingested"
+      },
+      "procedures": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "procedures.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\procedures\\procedures.csv",
+        "created_time": "2026-11-20T09:01:57Z",
+        "row_count": 31000,
+        "columns": [
+          "procedure_id",
+          "patient_id",
+          "encounter_id",
+          "hospital_id",
+          "department_id",
+          "or_room",
+          "surgeon_id",
+          "procedure_code",
+          "scheduled_start",
+          "actual_start",
+          "actual_end",
+          "duration_minutes",
+          "delay_minutes",
+          "status",
+          "cancellation_reason",
+          "elective_emergency",
+          "revenue"
+        ],
+        "schema": [
+          {
+            "column": "procedure_id",
+            "dtype": "string",
+            "description": "PRC0000001.."
+          },
+          {
+            "column": "patient_id",
+            "dtype": "string",
+            "description": "FK patients"
+          },
+          {
+            "column": "encounter_id",
+            "dtype": "string",
+            "description": "FK encounters"
+          },
+          {
+            "column": "hospital_id",
+            "dtype": "string",
+            "description": "FK dim_hospital"
+          },
+          {
+            "column": "department_id",
+            "dtype": "string",
+            "description": "FK dim_department"
+          },
+          {
+            "column": "or_room",
+            "dtype": "string",
+            "description": "Operating room"
+          },
+          {
+            "column": "surgeon_id",
+            "dtype": "string",
+            "description": "FK dim_doctor"
+          },
+          {
+            "column": "procedure_code",
+            "dtype": "string",
+            "description": "FK dim_procedure"
+          },
+          {
+            "column": "scheduled_start",
+            "dtype": "datetime64[ns]",
+            "description": "Scheduled start"
+          },
+          {
+            "column": "actual_start",
+            "dtype": "datetime64[ns]",
+            "description": "Actual start (nullable)"
+          },
+          {
+            "column": "actual_end",
+            "dtype": "datetime64[ns]",
+            "description": "Actual end (nullable)"
+          },
+          {
+            "column": "duration_minutes",
+            "dtype": "float64",
+            "description": "Procedure duration"
+          },
+          {
+            "column": "delay_minutes",
+            "dtype": "float64",
+            "description": "Start delay"
+          },
+          {
+            "column": "status",
+            "dtype": "string",
+            "description": "Completed / Cancelled / Delayed"
+          },
+          {
+            "column": "cancellation_reason",
+            "dtype": "string",
+            "description": "Reason or None"
+          },
+          {
+            "column": "elective_emergency",
+            "dtype": "string",
+            "description": "Elective / Emergency"
+          },
+          {
+            "column": "revenue",
+            "dtype": "float64",
+            "description": "Procedure revenue"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\procedures.parquet",
+        "status": "ingested"
+      },
+      "lab_orders": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "lab_orders.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\lab_orders\\lab_orders.csv",
+        "created_time": "2026-11-20T09:01:58Z",
+        "row_count": 106000,
+        "columns": [
+          "lab_order_id",
+          "patient_id",
+          "encounter_id",
+          "hospital_id",
+          "ordering_department",
+          "test_code",
+          "priority",
+          "ordered_at",
+          "collection_at",
+          "status"
+        ],
+        "schema": [
+          {
+            "column": "lab_order_id",
+            "dtype": "string",
+            "description": "LBO0000001.."
+          },
+          {
+            "column": "patient_id",
+            "dtype": "string",
+            "description": "FK patients"
+          },
+          {
+            "column": "encounter_id",
+            "dtype": "string",
+            "description": "FK encounters"
+          },
+          {
+            "column": "hospital_id",
+            "dtype": "string",
+            "description": "FK dim_hospital"
+          },
+          {
+            "column": "ordering_department",
+            "dtype": "string",
+            "description": "Ordering department"
+          },
+          {
+            "column": "test_code",
+            "dtype": "string",
+            "description": "FK dim_lab_test"
+          },
+          {
+            "column": "priority",
+            "dtype": "string",
+            "description": "Routine / Urgent / STAT"
+          },
+          {
+            "column": "ordered_at",
+            "dtype": "datetime64[ns]",
+            "description": "Order timestamp"
+          },
+          {
+            "column": "collection_at",
+            "dtype": "datetime64[ns]",
+            "description": "Collection timestamp"
+          },
+          {
+            "column": "status",
+            "dtype": "string",
+            "description": "Completed / Pending / Cancelled"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\lab_orders.parquet",
+        "status": "ingested"
+      },
+      "lab_results": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "lab_results.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\lab_results\\lab_results.csv",
+        "created_time": "2026-11-20T09:01:59Z",
+        "row_count": 156592,
+        "columns": [
+          "result_id",
+          "lab_order_id",
+          "patient_id",
+          "test_code",
+          "result_at",
+          "result_value",
+          "result_flag",
+          "is_critical",
+          "tat_minutes",
+          "status"
+        ],
+        "schema": [
+          {
+            "column": "result_id",
+            "dtype": "string",
+            "description": "LBR0000001.."
+          },
+          {
+            "column": "lab_order_id",
+            "dtype": "string",
+            "description": "FK lab_orders"
+          },
+          {
+            "column": "patient_id",
+            "dtype": "string",
+            "description": "FK patients"
+          },
+          {
+            "column": "test_code",
+            "dtype": "string",
+            "description": "Test performed"
+          },
+          {
+            "column": "result_at",
+            "dtype": "datetime64[ns]",
+            "description": "Result timestamp (nullable)"
+          },
+          {
+            "column": "result_value",
+            "dtype": "float64",
+            "description": "Synthetic numeric result"
+          },
+          {
+            "column": "result_flag",
+            "dtype": "string",
+            "description": "Normal / High / Low"
+          },
+          {
+            "column": "is_critical",
+            "dtype": "bool",
+            "description": "Critical result flag"
+          },
+          {
+            "column": "tat_minutes",
+            "dtype": "float64",
+            "description": "Turnaround time"
+          },
+          {
+            "column": "status",
+            "dtype": "string",
+            "description": "Final / Pending"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\lab_results.parquet",
+        "status": "ingested"
+      },
+      "prescriptions": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "prescriptions.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\prescriptions\\prescriptions.csv",
+        "created_time": "2026-11-20T09:01:59Z",
+        "row_count": 53000,
+        "columns": [
+          "prescription_id",
+          "patient_id",
+          "encounter_id",
+          "hospital_id",
+          "medication_code",
+          "quantity",
+          "prescribed_date",
+          "status",
+          "amount"
+        ],
+        "schema": [
+          {
+            "column": "prescription_id",
+            "dtype": "string",
+            "description": "RX0000001.."
+          },
+          {
+            "column": "patient_id",
+            "dtype": "string",
+            "description": "FK patients"
+          },
+          {
+            "column": "encounter_id",
+            "dtype": "string",
+            "description": "FK encounters"
+          },
+          {
+            "column": "hospital_id",
+            "dtype": "string",
+            "description": "FK dim_hospital"
+          },
+          {
+            "column": "medication_code",
+            "dtype": "string",
+            "description": "FK dim_medication"
+          },
+          {
+            "column": "quantity",
+            "dtype": "int64",
+            "description": "Quantity prescribed"
+          },
+          {
+            "column": "prescribed_date",
+            "dtype": "date",
+            "description": "Prescription date"
+          },
+          {
+            "column": "status",
+            "dtype": "string",
+            "description": "Dispensed / Pending / Cancelled"
+          },
+          {
+            "column": "amount",
+            "dtype": "float64",
+            "description": "Prescription value"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\prescriptions.parquet",
+        "status": "ingested"
+      },
+      "dispensing": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "dispensing.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\dispensing\\dispensing.csv",
+        "created_time": "2026-11-20T09:01:59Z",
+        "row_count": 53000,
+        "columns": [
+          "dispensing_id",
+          "prescription_id",
+          "hospital_id",
+          "pharmacy_id",
+          "dispensed_date",
+          "quantity_dispensed",
+          "status"
+        ],
+        "schema": [
+          {
+            "column": "dispensing_id",
+            "dtype": "string",
+            "description": "DSP0000001.."
+          },
+          {
+            "column": "prescription_id",
+            "dtype": "string",
+            "description": "FK prescriptions"
+          },
+          {
+            "column": "hospital_id",
+            "dtype": "string",
+            "description": "FK dim_hospital"
+          },
+          {
+            "column": "pharmacy_id",
+            "dtype": "string",
+            "description": "Pharmacy identifier"
+          },
+          {
+            "column": "dispensed_date",
+            "dtype": "date",
+            "description": "Dispensing date"
+          },
+          {
+            "column": "quantity_dispensed",
+            "dtype": "int64",
+            "description": "Quantity dispensed"
+          },
+          {
+            "column": "status",
+            "dtype": "string",
+            "description": "Completed / Partial / Pending"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\dispensing.parquet",
+        "status": "ingested"
+      },
+      "invoices": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "invoices.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\invoices\\invoices.csv",
+        "created_time": "2026-11-20T09:02:00Z",
+        "row_count": 66000,
+        "columns": [
+          "invoice_id",
+          "encounter_id",
+          "patient_id",
+          "hospital_id",
+          "payer_id",
+          "invoice_date",
+          "gross_amount",
+          "discount_amount",
+          "net_amount",
+          "paid_amount",
+          "balance_amount",
+          "invoice_status",
+          "payment_status"
+        ],
+        "schema": [
+          {
+            "column": "invoice_id",
+            "dtype": "string",
+            "description": "INV0000001.."
+          },
+          {
+            "column": "encounter_id",
+            "dtype": "string",
+            "description": "FK encounters"
+          },
+          {
+            "column": "patient_id",
+            "dtype": "string",
+            "description": "FK patients"
+          },
+          {
+            "column": "hospital_id",
+            "dtype": "string",
+            "description": "FK dim_hospital"
+          },
+          {
+            "column": "payer_id",
+            "dtype": "string",
+            "description": "FK dim_payer"
+          },
+          {
+            "column": "invoice_date",
+            "dtype": "date",
+            "description": "Invoice date"
+          },
+          {
+            "column": "gross_amount",
+            "dtype": "float64",
+            "description": "Gross charged"
+          },
+          {
+            "column": "discount_amount",
+            "dtype": "float64",
+            "description": "Discount applied"
+          },
+          {
+            "column": "net_amount",
+            "dtype": "float64",
+            "description": "Net after discount"
+          },
+          {
+            "column": "paid_amount",
+            "dtype": "float64",
+            "description": "Amount collected so far"
+          },
+          {
+            "column": "balance_amount",
+            "dtype": "float64",
+            "description": "Outstanding balance"
+          },
+          {
+            "column": "invoice_status",
+            "dtype": "string",
+            "description": "Paid / Partial / Pending / Overdue"
+          },
+          {
+            "column": "payment_status",
+            "dtype": "string",
+            "description": "Settled / Partial / Unpaid"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\invoices.parquet",
+        "status": "ingested"
+      },
+      "invoice_lines": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "invoice_lines.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\invoice_lines\\invoice_lines.csv",
+        "created_time": "2026-11-20T09:02:01Z",
+        "row_count": 138729,
+        "columns": [
+          "line_id",
+          "invoice_id",
+          "service_code",
+          "service_category",
+          "description",
+          "quantity",
+          "unit_price",
+          "line_amount"
+        ],
+        "schema": [
+          {
+            "column": "line_id",
+            "dtype": "string",
+            "description": "IL00000001.."
+          },
+          {
+            "column": "invoice_id",
+            "dtype": "string",
+            "description": "FK invoices"
+          },
+          {
+            "column": "service_code",
+            "dtype": "string",
+            "description": "FK dim_service"
+          },
+          {
+            "column": "service_category",
+            "dtype": "string",
+            "description": "Service category"
+          },
+          {
+            "column": "description",
+            "dtype": "string",
+            "description": "Line description"
+          },
+          {
+            "column": "quantity",
+            "dtype": "int64",
+            "description": "Quantity"
+          },
+          {
+            "column": "unit_price",
+            "dtype": "float64",
+            "description": "Unit price"
+          },
+          {
+            "column": "line_amount",
+            "dtype": "float64",
+            "description": "Line total"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\invoice_lines.parquet",
+        "status": "ingested"
+      },
+      "payments": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "payments.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\payments\\payments.csv",
+        "created_time": "2026-11-20T09:02:01Z",
+        "row_count": 78884,
+        "columns": [
+          "payment_id",
+          "invoice_id",
+          "patient_id",
+          "payment_date",
+          "amount",
+          "method",
+          "payment_type",
+          "status"
+        ],
+        "schema": [
+          {
+            "column": "payment_id",
+            "dtype": "string",
+            "description": "PAY0000001.."
+          },
+          {
+            "column": "invoice_id",
+            "dtype": "string",
+            "description": "FK invoices"
+          },
+          {
+            "column": "patient_id",
+            "dtype": "string",
+            "description": "FK patients"
+          },
+          {
+            "column": "payment_date",
+            "dtype": "date",
+            "description": "Payment date"
+          },
+          {
+            "column": "amount",
+            "dtype": "float64",
+            "description": "Payment amount (refunds negative)"
+          },
+          {
+            "column": "method",
+            "dtype": "string",
+            "description": "Cash / Card / Insurance / Transfer"
+          },
+          {
+            "column": "payment_type",
+            "dtype": "string",
+            "description": "Payment / Refund"
+          },
+          {
+            "column": "status",
+            "dtype": "string",
+            "description": "Cleared / Pending / Failed"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\payments.parquet",
+        "status": "ingested"
+      },
+      "claims": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "claims.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\claims\\claims.csv",
+        "created_time": "2026-11-20T09:02:02Z",
+        "row_count": 52000,
+        "columns": [
+          "claim_id",
+          "invoice_id",
+          "patient_id",
+          "hospital_id",
+          "payer_id",
+          "claim_date",
+          "claim_amount",
+          "approved_amount",
+          "paid_amount",
+          "status",
+          "denial_reason",
+          "processing_days",
+          "claim_type"
+        ],
+        "schema": [
+          {
+            "column": "claim_id",
+            "dtype": "string",
+            "description": "CLM0000001.."
+          },
+          {
+            "column": "invoice_id",
+            "dtype": "string",
+            "description": "FK invoices"
+          },
+          {
+            "column": "patient_id",
+            "dtype": "string",
+            "description": "FK patients"
+          },
+          {
+            "column": "hospital_id",
+            "dtype": "string",
+            "description": "FK dim_hospital"
+          },
+          {
+            "column": "payer_id",
+            "dtype": "string",
+            "description": "FK dim_payer"
+          },
+          {
+            "column": "claim_date",
+            "dtype": "date",
+            "description": "Claim submission date"
+          },
+          {
+            "column": "claim_amount",
+            "dtype": "float64",
+            "description": "Claimed amount"
+          },
+          {
+            "column": "approved_amount",
+            "dtype": "float64",
+            "description": "Approved amount"
+          },
+          {
+            "column": "paid_amount",
+            "dtype": "float64",
+            "description": "Paid amount"
+          },
+          {
+            "column": "status",
+            "dtype": "string",
+            "description": "Approved / Denied / Pending / Under review / Appealed"
+          },
+          {
+            "column": "denial_reason",
+            "dtype": "string",
+            "description": "Reason or None"
+          },
+          {
+            "column": "processing_days",
+            "dtype": "float64",
+            "description": "Days to adjudication"
+          },
+          {
+            "column": "claim_type",
+            "dtype": "string",
+            "description": "Inpatient / Outpatient / Emergency"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\claims.parquet",
+        "status": "ingested"
+      },
+      "claim_lines": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "claim_lines.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\claim_lines\\claim_lines.csv",
+        "created_time": "2026-11-20T09:02:02Z",
+        "row_count": 104002,
+        "columns": [
+          "claim_line_id",
+          "claim_id",
+          "service_code",
+          "line_amount",
+          "status"
+        ],
+        "schema": [
+          {
+            "column": "claim_line_id",
+            "dtype": "string",
+            "description": "CXL0000001.."
+          },
+          {
+            "column": "claim_id",
+            "dtype": "string",
+            "description": "FK claims"
+          },
+          {
+            "column": "service_code",
+            "dtype": "string",
+            "description": "Service code"
+          },
+          {
+            "column": "line_amount",
+            "dtype": "float64",
+            "description": "Line amount"
+          },
+          {
+            "column": "status",
+            "dtype": "string",
+            "description": "Approved / Denied / Pending"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\claim_lines.parquet",
+        "status": "ingested"
+      },
+      "claim_events": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "claim_events.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\claim_events\\claim_events.csv",
+        "created_time": "2026-11-20T09:02:03Z",
+        "row_count": 179238,
+        "columns": [
+          "event_id",
+          "claim_id",
+          "event_date",
+          "event_type",
+          "status"
+        ],
+        "schema": [
+          {
+            "column": "event_id",
+            "dtype": "string",
+            "description": "CVE0000001.."
+          },
+          {
+            "column": "claim_id",
+            "dtype": "string",
+            "description": "FK claims"
+          },
+          {
+            "column": "event_date",
+            "dtype": "date",
+            "description": "Event date"
+          },
+          {
+            "column": "event_type",
+            "dtype": "string",
+            "description": "Submitted / Under review / Approved / Denied / Paid / Appealed"
+          },
+          {
+            "column": "status",
+            "dtype": "string",
+            "description": "Resulting status"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\claim_events.parquet",
+        "status": "ingested"
+      },
+      "shifts": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "shifts.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\shifts\\shifts.csv",
+        "created_time": "2026-11-20T09:02:03Z",
+        "row_count": 52000,
+        "columns": [
+          "shift_id",
+          "staff_id",
+          "hospital_id",
+          "department_id",
+          "shift_date",
+          "shift_type",
+          "scheduled_hours",
+          "actual_hours",
+          "overtime_hours"
+        ],
+        "schema": [
+          {
+            "column": "shift_id",
+            "dtype": "string",
+            "description": "SFT0000001.."
+          },
+          {
+            "column": "staff_id",
+            "dtype": "string",
+            "description": "FK dim_staff"
+          },
+          {
+            "column": "hospital_id",
+            "dtype": "string",
+            "description": "FK dim_hospital"
+          },
+          {
+            "column": "department_id",
+            "dtype": "string",
+            "description": "FK dim_department"
+          },
+          {
+            "column": "shift_date",
+            "dtype": "date",
+            "description": "Shift date"
+          },
+          {
+            "column": "shift_type",
+            "dtype": "string",
+            "description": "Morning / Evening / Night"
+          },
+          {
+            "column": "scheduled_hours",
+            "dtype": "float64",
+            "description": "Scheduled hours"
+          },
+          {
+            "column": "actual_hours",
+            "dtype": "float64",
+            "description": "Actual hours"
+          },
+          {
+            "column": "overtime_hours",
+            "dtype": "float64",
+            "description": "Overtime hours"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\shifts.parquet",
+        "status": "ingested"
+      },
+      "attendance": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "attendance.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\attendance\\attendance.csv",
+        "created_time": "2026-11-20T09:02:04Z",
+        "row_count": 52000,
+        "columns": [
+          "attendance_id",
+          "shift_id",
+          "staff_id",
+          "attendance_date",
+          "status",
+          "hours_worked"
+        ],
+        "schema": [
+          {
+            "column": "attendance_id",
+            "dtype": "string",
+            "description": "ATT0000001.."
+          },
+          {
+            "column": "shift_id",
+            "dtype": "string",
+            "description": "FK shifts"
+          },
+          {
+            "column": "staff_id",
+            "dtype": "string",
+            "description": "FK dim_staff"
+          },
+          {
+            "column": "attendance_date",
+            "dtype": "date",
+            "description": "Date"
+          },
+          {
+            "column": "status",
+            "dtype": "string",
+            "description": "Present / Absent / Late / Leave"
+          },
+          {
+            "column": "hours_worked",
+            "dtype": "float64",
+            "description": "Hours worked"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\attendance.parquet",
+        "status": "ingested"
+      },
+      "inventory_movements": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "inventory_movements.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\inventory_movements\\inventory_movements.csv",
+        "created_time": "2026-11-20T09:02:04Z",
+        "row_count": 52000,
+        "columns": [
+          "movement_id",
+          "hospital_id",
+          "item_id",
+          "supplier_id",
+          "movement_date",
+          "movement_type",
+          "quantity",
+          "unit_cost",
+          "expiry_date"
+        ],
+        "schema": [
+          {
+            "column": "movement_id",
+            "dtype": "string",
+            "description": "INVM0000001.."
+          },
+          {
+            "column": "hospital_id",
+            "dtype": "string",
+            "description": "FK dim_hospital"
+          },
+          {
+            "column": "item_id",
+            "dtype": "string",
+            "description": "FK dim_inventory_item"
+          },
+          {
+            "column": "supplier_id",
+            "dtype": "string",
+            "description": "FK dim_supplier"
+          },
+          {
+            "column": "movement_date",
+            "dtype": "date",
+            "description": "Movement date"
+          },
+          {
+            "column": "movement_type",
+            "dtype": "string",
+            "description": "Receipt/Issue/Transfer/Adjustment/Return/Waste/Expiry"
+          },
+          {
+            "column": "quantity",
+            "dtype": "int64",
+            "description": "Quantity moved (signed)"
+          },
+          {
+            "column": "unit_cost",
+            "dtype": "float64",
+            "description": "Unit cost"
+          },
+          {
+            "column": "expiry_date",
+            "dtype": "date",
+            "description": "Expiry date for received stock"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\inventory_movements.parquet",
+        "status": "ingested"
+      },
+      "purchase_orders": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "purchase_orders.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\purchase_orders\\purchase_orders.csv",
+        "created_time": "2026-11-20T09:02:04Z",
+        "row_count": 5200,
+        "columns": [
+          "po_id",
+          "hospital_id",
+          "supplier_id",
+          "order_date",
+          "expected_date",
+          "received_date",
+          "status",
+          "total_amount"
+        ],
+        "schema": [
+          {
+            "column": "po_id",
+            "dtype": "string",
+            "description": "PO0000001.."
+          },
+          {
+            "column": "hospital_id",
+            "dtype": "string",
+            "description": "FK dim_hospital"
+          },
+          {
+            "column": "supplier_id",
+            "dtype": "string",
+            "description": "FK dim_supplier"
+          },
+          {
+            "column": "order_date",
+            "dtype": "date",
+            "description": "Order date"
+          },
+          {
+            "column": "expected_date",
+            "dtype": "date",
+            "description": "Expected delivery"
+          },
+          {
+            "column": "received_date",
+            "dtype": "date",
+            "description": "Actual delivery (nullable)"
+          },
+          {
+            "column": "status",
+            "dtype": "string",
+            "description": "Pending / Received / Delayed / Cancelled"
+          },
+          {
+            "column": "total_amount",
+            "dtype": "float64",
+            "description": "Order value"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\purchase_orders.parquet",
+        "status": "ingested"
+      },
+      "feedback": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "feedback.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\feedback\\feedback.csv",
+        "created_time": "2026-11-20T09:02:04Z",
+        "row_count": 15600,
+        "columns": [
+          "feedback_id",
+          "patient_id",
+          "hospital_id",
+          "department_id",
+          "visit_date",
+          "rating",
+          "category",
+          "sentiment_label",
+          "complaint_flag",
+          "complaint_text",
+          "resolution_status",
+          "resolution_days",
+          "feedback_type",
+          "nps_score"
+        ],
+        "schema": [
+          {
+            "column": "feedback_id",
+            "dtype": "string",
+            "description": "FBK0000001.."
+          },
+          {
+            "column": "patient_id",
+            "dtype": "string",
+            "description": "FK patients"
+          },
+          {
+            "column": "hospital_id",
+            "dtype": "string",
+            "description": "FK dim_hospital"
+          },
+          {
+            "column": "department_id",
+            "dtype": "string",
+            "description": "FK dim_department"
+          },
+          {
+            "column": "visit_date",
+            "dtype": "date",
+            "description": "Visit date"
+          },
+          {
+            "column": "rating",
+            "dtype": "int64",
+            "description": "1..5"
+          },
+          {
+            "column": "category",
+            "dtype": "string",
+            "description": "Care / Facilities / Staff / Waiting / Billing / Other"
+          },
+          {
+            "column": "sentiment_label",
+            "dtype": "string",
+            "description": "Synthetic: Positive / Neutral / Negative"
+          },
+          {
+            "column": "complaint_flag",
+            "dtype": "bool",
+            "description": "Is a complaint"
+          },
+          {
+            "column": "complaint_text",
+            "dtype": "string",
+            "description": "Synthetic complaint text or None"
+          },
+          {
+            "column": "resolution_status",
+            "dtype": "string",
+            "description": "Resolved / Open / In progress / N/A"
+          },
+          {
+            "column": "resolution_days",
+            "dtype": "float64",
+            "description": "Days to resolve"
+          },
+          {
+            "column": "feedback_type",
+            "dtype": "string",
+            "description": "Survey / Complaint / Suggestion"
+          },
+          {
+            "column": "nps_score",
+            "dtype": "int64",
+            "description": "0..10 synthetic NPS"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\feedback.parquet",
+        "status": "ingested"
+      },
+      "incidents": {
+        "source": "bronze_csv",
+        "batch_id": "BATCH_RUN_20261120_003",
+        "file_name": "incidents.csv",
+        "file_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\bronze\\incidents\\incidents.csv",
+        "created_time": "2026-11-20T09:02:04Z",
+        "row_count": 4200,
+        "columns": [
+          "incident_id",
+          "hospital_id",
+          "department_id",
+          "incident_date",
+          "category",
+          "severity",
+          "status",
+          "investigation_complete_flag",
+          "investigation_days",
+          "resolution_date"
+        ],
+        "schema": [
+          {
+            "column": "incident_id",
+            "dtype": "string",
+            "description": "INC0000001.."
+          },
+          {
+            "column": "hospital_id",
+            "dtype": "string",
+            "description": "FK dim_hospital"
+          },
+          {
+            "column": "department_id",
+            "dtype": "string",
+            "description": "FK dim_department"
+          },
+          {
+            "column": "incident_date",
+            "dtype": "date",
+            "description": "Incident date"
+          },
+          {
+            "column": "category",
+            "dtype": "string",
+            "description": "Fall / Medication / Infection / Safety / Other"
+          },
+          {
+            "column": "severity",
+            "dtype": "string",
+            "description": "Low / Medium / High / Critical"
+          },
+          {
+            "column": "status",
+            "dtype": "string",
+            "description": "Open / Investigating / Resolved / Closed"
+          },
+          {
+            "column": "investigation_complete_flag",
+            "dtype": "bool",
+            "description": "Investigation complete"
+          },
+          {
+            "column": "investigation_days",
+            "dtype": "float64",
+            "description": "Days to complete investigation"
+          },
+          {
+            "column": "resolution_date",
+            "dtype": "date",
+            "description": "Resolution date (nullable)"
+          }
+        ],
+        "unexpected_columns": [],
+        "raw_parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\incidents.parquet",
+        "status": "ingested"
+      }
+    },
+    "total_rows": 1540892,
+    "tables_ingested": 39,
+    "tables_missing": 0,
+    "notes": "Values are preserved as raw strings. Type correction, null handling and de-duplication occur only in the silver layer.",
+    "manifest_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\_bronze_ingest\\manifest.json"
+  },
+  "silver": {
+    "reports": [
+      {
+        "table": "dim_hospital",
+        "input_rows": 10,
+        "output_rows": 10,
+        "quarantined_rows": 0,
+        "quarantine_records": 0,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "HOSPITAL_ID_MISSING": 0,
+          "HOSPITAL_ID_INVALID": 0,
+          "NEGATIVE_AMOUNT": 0
+        },
+        "source_file": "dim_hospital.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\dim_hospital.parquet"
+      },
+      {
+        "table": "dim_specialty",
+        "input_rows": 18,
+        "output_rows": 18,
+        "quarantined_rows": 0,
+        "quarantine_records": 0,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0
+        },
+        "source_file": "dim_specialty.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\dim_specialty.parquet"
+      },
+      {
+        "table": "dim_payer",
+        "input_rows": 6,
+        "output_rows": 6,
+        "quarantined_rows": 0,
+        "quarantine_records": 0,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0
+        },
+        "source_file": "dim_payer.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\dim_payer.parquet"
+      },
+      {
+        "table": "dim_supplier",
+        "input_rows": 20,
+        "output_rows": 20,
+        "quarantined_rows": 0,
+        "quarantine_records": 0,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "NEGATIVE_DURATION": 0,
+          "NUMERIC_OUT_OF_RANGE": 0
+        },
+        "source_file": "dim_supplier.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\dim_supplier.parquet"
+      },
+      {
+        "table": "dim_diagnosis",
+        "input_rows": 45,
+        "output_rows": 45,
+        "quarantined_rows": 0,
+        "quarantine_records": 0,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0
+        },
+        "source_file": "dim_diagnosis.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\dim_diagnosis.parquet"
+      },
+      {
+        "table": "dim_lab_test",
+        "input_rows": 38,
+        "output_rows": 38,
+        "quarantined_rows": 0,
+        "quarantine_records": 0,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "NEGATIVE_AMOUNT": 0
+        },
+        "source_file": "dim_lab_test.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\dim_lab_test.parquet"
+      },
+      {
+        "table": "dim_service",
+        "input_rows": 38,
+        "output_rows": 38,
+        "quarantined_rows": 0,
+        "quarantine_records": 0,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "NEGATIVE_AMOUNT": 0
+        },
+        "source_file": "dim_service.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\dim_service.parquet"
+      },
+      {
+        "table": "dim_medication",
+        "input_rows": 52,
+        "output_rows": 52,
+        "quarantined_rows": 0,
+        "quarantine_records": 0,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "NEGATIVE_AMOUNT": 0
+        },
+        "source_file": "dim_medication.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\dim_medication.parquet"
+      },
+      {
+        "table": "dim_department",
+        "input_rows": 120,
+        "output_rows": 120,
+        "quarantined_rows": 0,
+        "quarantine_records": 0,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "HOSPITAL_ID_MISSING": 0,
+          "HOSPITAL_ID_INVALID": 0,
+          "FK_ORPHAN": 0
+        },
+        "source_file": "dim_department.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\dim_department.parquet"
+      },
+      {
+        "table": "dim_doctor",
+        "input_rows": 690,
+        "output_rows": 690,
+        "quarantined_rows": 0,
+        "quarantine_records": 0,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "HOSPITAL_ID_MISSING": 0,
+          "HOSPITAL_ID_INVALID": 0,
+          "FK_ORPHAN": 0
+        },
+        "source_file": "dim_doctor.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\dim_doctor.parquet"
+      },
+      {
+        "table": "dim_staff",
+        "input_rows": 2980,
+        "output_rows": 2980,
+        "quarantined_rows": 0,
+        "quarantine_records": 0,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "HOSPITAL_ID_MISSING": 0,
+          "HOSPITAL_ID_INVALID": 0,
+          "NEGATIVE_AMOUNT": 0,
+          "FK_ORPHAN": 0
+        },
+        "source_file": "dim_staff.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\dim_staff.parquet"
+      },
+      {
+        "table": "dim_bed",
+        "input_rows": 3450,
+        "output_rows": 3450,
+        "quarantined_rows": 0,
+        "quarantine_records": 0,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "HOSPITAL_ID_MISSING": 0,
+          "HOSPITAL_ID_INVALID": 0,
+          "FK_ORPHAN": 0
+        },
+        "source_file": "dim_bed.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\dim_bed.parquet"
+      },
+      {
+        "table": "dim_procedure",
+        "input_rows": 44,
+        "output_rows": 44,
+        "quarantined_rows": 0,
+        "quarantine_records": 0,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "FK_ORPHAN": 0
+        },
+        "source_file": "dim_procedure.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\dim_procedure.parquet"
+      },
+      {
+        "table": "dim_inventory_item",
+        "input_rows": 122,
+        "output_rows": 122,
+        "quarantined_rows": 0,
+        "quarantine_records": 0,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "NEGATIVE_AMOUNT": 0,
+          "FK_ORPHAN": 0
+        },
+        "source_file": "dim_inventory_item.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\dim_inventory_item.parquet"
+      },
+      {
+        "table": "dim_date",
+        "input_rows": 730,
+        "output_rows": 730,
+        "quarantined_rows": 0,
+        "quarantine_records": 0,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "REQUIRED_DATE_INVALID": 0
+        },
+        "source_file": "dim_date.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\dim_date.parquet"
+      },
+      {
+        "table": "dim_time",
+        "input_rows": 1440,
+        "output_rows": 1440,
+        "quarantined_rows": 0,
+        "quarantine_records": 0,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0
+        },
+        "source_file": "dim_time.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\dim_time.parquet"
+      },
+      {
+        "table": "patients",
+        "input_rows": 15240,
+        "output_rows": 15200,
+        "quarantined_rows": 40,
+        "quarantine_records": 40,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 40,
+          "REQUIRED_DATE_INVALID": 0
+        },
+        "source_file": "patients.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\patients.parquet"
+      },
+      {
+        "table": "appointments",
+        "input_rows": 104000,
+        "output_rows": 103940,
+        "quarantined_rows": 60,
+        "quarantine_records": 60,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "HOSPITAL_ID_MISSING": 0,
+          "HOSPITAL_ID_INVALID": 0,
+          "REQUIRED_DATE_INVALID": 0,
+          "DATE_ORDER_INVALID": 0,
+          "NEGATIVE_DURATION": 0,
+          "FK_ORPHAN": 60,
+          "STATUS_INVALID": 50
+        },
+        "source_file": "appointments.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\appointments.parquet"
+      },
+      {
+        "table": "encounters",
+        "input_rows": 82000,
+        "output_rows": 81942,
+        "quarantined_rows": 58,
+        "quarantine_records": 58,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "HOSPITAL_ID_MISSING": 0,
+          "HOSPITAL_ID_INVALID": 0,
+          "REQUIRED_DATE_INVALID": 40,
+          "DATE_ORDER_INVALID": 0,
+          "NEGATIVE_DURATION": 0,
+          "FK_ORPHAN": 18,
+          "NULL_FK": 32800
+        },
+        "source_file": "encounters.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\encounters.parquet"
+      },
+      {
+        "table": "admissions",
+        "input_rows": 24804,
+        "output_rows": 24783,
+        "quarantined_rows": 21,
+        "quarantine_records": 21,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "HOSPITAL_ID_MISSING": 0,
+          "HOSPITAL_ID_INVALID": 0,
+          "REQUIRED_DATE_INVALID": 0,
+          "DATE_ORDER_INVALID": 0,
+          "NEGATIVE_DURATION": 0,
+          "FK_ORPHAN": 21
+        },
+        "source_file": "admissions.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\admissions.parquet"
+      },
+      {
+        "table": "transfers",
+        "input_rows": 3600,
+        "output_rows": 3596,
+        "quarantined_rows": 4,
+        "quarantine_records": 4,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "HOSPITAL_ID_MISSING": 0,
+          "HOSPITAL_ID_INVALID": 0,
+          "REQUIRED_DATE_INVALID": 0,
+          "FK_ORPHAN": 4,
+          "DATE_ORDER_INVALID": 0
+        },
+        "source_file": "transfers.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\transfers.parquet"
+      },
+      {
+        "table": "bed_snapshots",
+        "input_rows": 102000,
+        "output_rows": 102000,
+        "quarantined_rows": 0,
+        "quarantine_records": 0,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "HOSPITAL_ID_MISSING": 0,
+          "HOSPITAL_ID_INVALID": 0,
+          "REQUIRED_DATE_INVALID": 0,
+          "FK_ORPHAN": 0,
+          "STATUS_INVALID": 102000
+        },
+        "source_file": "bed_snapshots.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\bed_snapshots.parquet"
+      },
+      {
+        "table": "procedures",
+        "input_rows": 31000,
+        "output_rows": 30975,
+        "quarantined_rows": 25,
+        "quarantine_records": 25,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "HOSPITAL_ID_MISSING": 0,
+          "HOSPITAL_ID_INVALID": 0,
+          "REQUIRED_DATE_INVALID": 0,
+          "DATE_ORDER_INVALID": 0,
+          "NEGATIVE_DURATION": 0,
+          "NEGATIVE_AMOUNT": 0,
+          "FK_ORPHAN": 25
+        },
+        "source_file": "procedures.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\procedures.parquet"
+      },
+      {
+        "table": "lab_orders",
+        "input_rows": 106000,
+        "output_rows": 105882,
+        "quarantined_rows": 118,
+        "quarantine_records": 158,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "HOSPITAL_ID_MISSING": 0,
+          "HOSPITAL_ID_INVALID": 40,
+          "REQUIRED_DATE_INVALID": 0,
+          "FK_ORPHAN": 118
+        },
+        "source_file": "lab_orders.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\lab_orders.parquet"
+      },
+      {
+        "table": "lab_results",
+        "input_rows": 156592,
+        "output_rows": 156420,
+        "quarantined_rows": 172,
+        "quarantine_records": 172,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "NEGATIVE_DURATION": 0,
+          "FK_ORPHAN": 172,
+          "DATE_ORDER_INVALID": 0
+        },
+        "source_file": "lab_results.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\lab_results.parquet"
+      },
+      {
+        "table": "prescriptions",
+        "input_rows": 53000,
+        "output_rows": 52927,
+        "quarantined_rows": 73,
+        "quarantine_records": 73,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "HOSPITAL_ID_MISSING": 0,
+          "HOSPITAL_ID_INVALID": 0,
+          "REQUIRED_DATE_INVALID": 0,
+          "NEGATIVE_AMOUNT": 0,
+          "FK_ORPHAN": 73,
+          "STATUS_INVALID": 46717
+        },
+        "source_file": "prescriptions.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\prescriptions.parquet"
+      },
+      {
+        "table": "dispensing",
+        "input_rows": 53000,
+        "output_rows": 52927,
+        "quarantined_rows": 73,
+        "quarantine_records": 73,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "HOSPITAL_ID_MISSING": 0,
+          "HOSPITAL_ID_INVALID": 0,
+          "NEGATIVE_AMOUNT": 0,
+          "FK_ORPHAN": 73,
+          "DATE_ORDER_INVALID": 0
+        },
+        "source_file": "dispensing.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\dispensing.parquet"
+      },
+      {
+        "table": "invoices",
+        "input_rows": 66000,
+        "output_rows": 65948,
+        "quarantined_rows": 52,
+        "quarantine_records": 52,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "HOSPITAL_ID_MISSING": 0,
+          "HOSPITAL_ID_INVALID": 0,
+          "REQUIRED_DATE_INVALID": 0,
+          "NEGATIVE_AMOUNT": 0,
+          "FK_ORPHAN": 52,
+          "NULL_FK": 0
+        },
+        "source_file": "invoices.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\invoices.parquet"
+      },
+      {
+        "table": "invoice_lines",
+        "input_rows": 138729,
+        "output_rows": 138621,
+        "quarantined_rows": 108,
+        "quarantine_records": 108,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "NEGATIVE_AMOUNT": 0,
+          "FK_ORPHAN": 108
+        },
+        "source_file": "invoice_lines.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\invoice_lines.parquet"
+      },
+      {
+        "table": "payments",
+        "input_rows": 78884,
+        "output_rows": 78787,
+        "quarantined_rows": 97,
+        "quarantine_records": 97,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "REQUIRED_DATE_INVALID": 0,
+          "NEGATIVE_AMOUNT": 30,
+          "FK_ORPHAN": 67,
+          "DATE_ORDER_INVALID": 0
+        },
+        "source_file": "payments.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\payments.parquet"
+      },
+      {
+        "table": "claims",
+        "input_rows": 52000,
+        "output_rows": 51957,
+        "quarantined_rows": 43,
+        "quarantine_records": 43,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "HOSPITAL_ID_MISSING": 0,
+          "HOSPITAL_ID_INVALID": 0,
+          "REQUIRED_DATE_INVALID": 0,
+          "NEGATIVE_AMOUNT": 0,
+          "NEGATIVE_DURATION": 0,
+          "FK_ORPHAN": 43,
+          "NULL_FK": 150,
+          "DATE_ORDER_INVALID": 0
+        },
+        "source_file": "claims.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\claims.parquet"
+      },
+      {
+        "table": "claim_lines",
+        "input_rows": 104002,
+        "output_rows": 103924,
+        "quarantined_rows": 78,
+        "quarantine_records": 78,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "NEGATIVE_AMOUNT": 0,
+          "FK_ORPHAN": 78
+        },
+        "source_file": "claim_lines.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\claim_lines.parquet"
+      },
+      {
+        "table": "claim_events",
+        "input_rows": 179238,
+        "output_rows": 179096,
+        "quarantined_rows": 142,
+        "quarantine_records": 142,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "REQUIRED_DATE_INVALID": 0,
+          "FK_ORPHAN": 142,
+          "DATE_ORDER_INVALID": 0,
+          "STATUS_INVALID": 52000
+        },
+        "source_file": "claim_events.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\claim_events.parquet"
+      },
+      {
+        "table": "shifts",
+        "input_rows": 52000,
+        "output_rows": 52000,
+        "quarantined_rows": 0,
+        "quarantine_records": 0,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "HOSPITAL_ID_MISSING": 0,
+          "HOSPITAL_ID_INVALID": 0,
+          "REQUIRED_DATE_INVALID": 0,
+          "NEGATIVE_DURATION": 0,
+          "FK_ORPHAN": 0
+        },
+        "source_file": "shifts.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\shifts.parquet"
+      },
+      {
+        "table": "attendance",
+        "input_rows": 52000,
+        "output_rows": 52000,
+        "quarantined_rows": 0,
+        "quarantine_records": 0,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "REQUIRED_DATE_INVALID": 0,
+          "NEGATIVE_DURATION": 0,
+          "FK_ORPHAN": 0
+        },
+        "source_file": "attendance.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\attendance.parquet"
+      },
+      {
+        "table": "inventory_movements",
+        "input_rows": 52000,
+        "output_rows": 52000,
+        "quarantined_rows": 0,
+        "quarantine_records": 0,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "HOSPITAL_ID_MISSING": 0,
+          "HOSPITAL_ID_INVALID": 0,
+          "REQUIRED_DATE_INVALID": 0,
+          "NEGATIVE_AMOUNT": 0,
+          "FK_ORPHAN": 0
+        },
+        "source_file": "inventory_movements.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\inventory_movements.parquet"
+      },
+      {
+        "table": "purchase_orders",
+        "input_rows": 5200,
+        "output_rows": 5200,
+        "quarantined_rows": 0,
+        "quarantine_records": 0,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "HOSPITAL_ID_MISSING": 0,
+          "HOSPITAL_ID_INVALID": 0,
+          "REQUIRED_DATE_INVALID": 0,
+          "DATE_ORDER_INVALID": 0,
+          "NEGATIVE_AMOUNT": 0,
+          "FK_ORPHAN": 0
+        },
+        "source_file": "purchase_orders.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\purchase_orders.parquet"
+      },
+      {
+        "table": "feedback",
+        "input_rows": 15600,
+        "output_rows": 15600,
+        "quarantined_rows": 0,
+        "quarantine_records": 0,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "HOSPITAL_ID_MISSING": 0,
+          "HOSPITAL_ID_INVALID": 0,
+          "REQUIRED_DATE_INVALID": 0,
+          "NUMERIC_OUT_OF_RANGE": 0,
+          "NEGATIVE_DURATION": 0,
+          "FK_ORPHAN": 0
+        },
+        "source_file": "feedback.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\feedback.parquet"
+      },
+      {
+        "table": "incidents",
+        "input_rows": 4200,
+        "output_rows": 4192,
+        "quarantined_rows": 8,
+        "quarantine_records": 8,
+        "rule_failures": {
+          "PK_NULL": 0,
+          "PK_DUPLICATE": 0,
+          "HOSPITAL_ID_MISSING": 0,
+          "HOSPITAL_ID_INVALID": 0,
+          "REQUIRED_DATE_INVALID": 0,
+          "DATE_ORDER_INVALID": 8,
+          "NEGATIVE_DURATION": 0,
+          "FK_ORPHAN": 0
+        },
+        "source_file": "incidents.csv",
+        "output_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\silver\\incidents.parquet"
+      }
+    ],
+    "source_rows": 1540892,
+    "valid_rows": 1539720,
+    "quarantined_rows": 1172
+  },
+  "quality": {
+    "dq_score": 96.32,
+    "scoring": {
+      "method": "severity-weighted rule ratios, then category-weighted mean",
+      "formula": "score = SUM(weight_c * (SUM(sev_w * pass_ratio)/SUM(sev_w))) over categories; weights are normalised to sum to 1.0",
+      "category_weights": {
+        "Completeness": 0.15,
+        "Validity": 0.2,
+        "Uniqueness": 0.15,
+        "Referential integrity": 0.2,
+        "Consistency": 0.2,
+        "Timeliness": 0.1
+      },
+      "severity_weights": {
+        "error": 3.0,
+        "warning": 1.0,
+        "info": 0.5
+      },
+      "category_scores": {
+        "Completeness": 99.68,
+        "Validity": 100.0,
+        "Uniqueness": 100.0,
+        "Referential integrity": 100.0,
+        "Consistency": 100.0,
+        "Timeliness": 63.64
+      },
+      "category_details": {
+        "Completeness": {
+          "weight": 0.15,
+          "rules": 44,
+          "score": 99.68
+        },
+        "Validity": {
+          "weight": 0.2,
+          "rules": 86,
+          "score": 100.0
+        },
+        "Uniqueness": {
+          "weight": 0.15,
+          "rules": 40,
+          "score": 100.0
+        },
+        "Referential integrity": {
+          "weight": 0.2,
+          "rules": 77,
+          "score": 100.0
+        },
+        "Consistency": {
+          "weight": 0.2,
+          "rules": 28,
+          "score": 100.0
+        },
+        "Timeliness": {
+          "weight": 0.1,
+          "rules": 22,
+          "score": 63.64
+        }
+      },
+      "overall_score": 96.32
+    },
+    "summary": {
+      "total_rules": 297,
+      "passed_rules": 286,
+      "failed_rules": 11,
+      "total_failures": 32991,
+      "quarantined_records": 1212
+    },
+    "dq_results_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\manifests\\dq_results.json"
+  },
+  "gold": {
+    "row_counts": {
+      "gold_network_daily": 730,
+      "gold_hospital_monthly": 240,
+      "gold_department_monthly": 2880,
+      "gold_patient_access": 2880,
+      "gold_bed_utilization": 960,
+      "gold_financial_performance": 2880,
+      "gold_claim_performance": 1440,
+      "gold_lab_performance": 9120,
+      "gold_workforce": 2880,
+      "gold_inventory": 960,
+      "gold_patient_experience": 2880,
+      "gold_quality_safety": 2880
+    },
+    "sql_models": [
+      "gold_bed_utilization",
+      "gold_claim_performance",
+      "gold_department_monthly",
+      "gold_financial_performance",
+      "gold_hospital_monthly",
+      "gold_inventory",
+      "gold_lab_performance",
+      "gold_network_daily",
+      "gold_patient_access",
+      "gold_patient_experience",
+      "gold_quality_safety",
+      "gold_workforce"
+    ],
+    "validation": {
+      "gold_network_daily": {
+        "preview_rows": 5,
+        "count": 730,
+        "columns": [
+          "date",
+          "encounters",
+          "admissions",
+          "appointments",
+          "completed_appointments",
+          "no_show_appointments",
+          "revenue",
+          "collections",
+          "occupied_beds",
+          "available_beds",
+          "avg_wait_minutes"
+        ],
+        "parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\gold\\gold_network_daily.parquet"
+      },
+      "gold_hospital_monthly": {
+        "preview_rows": 5,
+        "count": 240,
+        "columns": [
+          "hospital_id",
+          "hospital_name",
+          "month",
+          "patients",
+          "encounters",
+          "admissions",
+          "discharges",
+          "appointments",
+          "completed_appointments",
+          "cancelled_appointments",
+          "no_show_appointments",
+          "no_show_rate",
+          "avg_wait_minutes",
+          "occupied_bed_days",
+          "available_bed_days",
+          "occupancy_rate",
+          "avg_los_days",
+          "readmissions",
+          "readmission_rate",
+          "gross_revenue",
+          "net_revenue",
+          "collections",
+          "outstanding_balance",
+          "collection_rate",
+          "lab_orders",
+          "completed_lab_tests",
+          "avg_lab_tat_minutes",
+          "lab_sla_rate",
+          "claims_submitted",
+          "claims_denied",
+          "denial_rate",
+          "feedback_count",
+          "avg_satisfaction",
+          "complaint_count",
+          "incidents_count",
+          "scheduled_hours",
+          "worked_hours",
+          "overtime_hours",
+          "stockouts",
+          "inventory_value"
+        ],
+        "parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\gold\\gold_hospital_monthly.parquet"
+      },
+      "gold_department_monthly": {
+        "preview_rows": 5,
+        "count": 2880,
+        "columns": [
+          "hospital_id",
+          "department_id",
+          "department_name",
+          "specialty_id",
+          "specialty_name",
+          "month",
+          "patients",
+          "encounters",
+          "admissions",
+          "appointments",
+          "no_show_rate",
+          "avg_wait_minutes",
+          "occupancy_rate",
+          "avg_los_days",
+          "revenue",
+          "lab_orders",
+          "avg_lab_tat_minutes",
+          "denial_rate",
+          "avg_satisfaction",
+          "incidents_count"
+        ],
+        "parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\gold\\gold_department_monthly.parquet"
+      },
+      "gold_patient_access": {
+        "preview_rows": 5,
+        "count": 2880,
+        "columns": [
+          "hospital_id",
+          "department_id",
+          "month",
+          "scheduled",
+          "completed",
+          "cancelled",
+          "no_shows",
+          "no_show_rate",
+          "avg_wait_minutes",
+          "avg_lead_days",
+          "same_day_pct",
+          "reschedule_rate"
+        ],
+        "parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\gold\\gold_patient_access.parquet"
+      },
+      "gold_bed_utilization": {
+        "preview_rows": 5,
+        "count": 960,
+        "columns": [
+          "hospital_id",
+          "ward",
+          "month",
+          "total_beds",
+          "occupied_bed_days",
+          "available_bed_days",
+          "blocked_bed_days",
+          "occupancy_rate",
+          "avg_los_days",
+          "bed_turnover",
+          "avg_boarding_hours"
+        ],
+        "parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\gold\\gold_bed_utilization.parquet"
+      },
+      "gold_financial_performance": {
+        "preview_rows": 5,
+        "count": 2880,
+        "columns": [
+          "hospital_id",
+          "department_id",
+          "month",
+          "gross_revenue",
+          "net_revenue",
+          "collections",
+          "outstanding_balance",
+          "collection_rate",
+          "avg_invoice_value",
+          "refunds",
+          "writeoffs",
+          "revenue_growth_pct"
+        ],
+        "parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\gold\\gold_financial_performance.parquet"
+      },
+      "gold_claim_performance": {
+        "preview_rows": 5,
+        "count": 1440,
+        "columns": [
+          "hospital_id",
+          "payer_id",
+          "payer_name",
+          "month",
+          "claims",
+          "approved",
+          "denied",
+          "denial_rate",
+          "claimed_amount",
+          "approved_amount",
+          "paid_amount",
+          "avg_processing_days",
+          "appeals",
+          "appeal_success_rate"
+        ],
+        "parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\gold\\gold_claim_performance.parquet"
+      },
+      "gold_lab_performance": {
+        "preview_rows": 5,
+        "count": 9120,
+        "columns": [
+          "hospital_id",
+          "test_code",
+          "test_name",
+          "month",
+          "orders",
+          "completed",
+          "pending",
+          "cancelled",
+          "avg_tat_minutes",
+          "median_tat_minutes",
+          "sla_rate",
+          "delayed",
+          "critical"
+        ],
+        "parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\gold\\gold_lab_performance.parquet"
+      },
+      "gold_workforce": {
+        "preview_rows": 5,
+        "count": 2880,
+        "columns": [
+          "hospital_id",
+          "department_id",
+          "month",
+          "headcount",
+          "scheduled_hours",
+          "worked_hours",
+          "overtime_hours",
+          "absence_rate",
+          "coverage_pct",
+          "workforce_cost"
+        ],
+        "parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\gold\\gold_workforce.parquet"
+      },
+      "gold_inventory": {
+        "preview_rows": 5,
+        "count": 960,
+        "columns": [
+          "hospital_id",
+          "category",
+          "month",
+          "inventory_value",
+          "stockouts",
+          "low_stock",
+          "expired_value",
+          "waste",
+          "turnover",
+          "purchase_orders",
+          "procurement_value",
+          "supplier_on_time_rate"
+        ],
+        "parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\gold\\gold_inventory.parquet"
+      },
+      "gold_patient_experience": {
+        "preview_rows": 5,
+        "count": 2880,
+        "columns": [
+          "hospital_id",
+          "department_id",
+          "month",
+          "feedback_count",
+          "avg_rating",
+          "satisfaction_pct",
+          "promoters",
+          "detractors",
+          "nps",
+          "complaints",
+          "complaint_resolution_days"
+        ],
+        "parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\gold\\gold_patient_experience.parquet"
+      },
+      "gold_quality_safety": {
+        "preview_rows": 5,
+        "count": 2880,
+        "columns": [
+          "hospital_id",
+          "department_id",
+          "month",
+          "incidents",
+          "incident_rate",
+          "falls",
+          "medication_incidents",
+          "infection_incidents",
+          "critical_incidents",
+          "investigation_completion_rate",
+          "avg_investigation_days",
+          "readmission_rate"
+        ],
+        "parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\gold\\gold_quality_safety.parquet"
+      },
+      "hospital_monthly_grid": {
+        "expected": 240,
+        "actual": 240,
+        "passed": true
+      }
+    }
+  },
+  "quarantine": {
+    "records": 1212,
+    "rows": 1212,
+    "parquet": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\quarantine\\quarantine_RUN_20261120_003.parquet",
+    "jsonl": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\quarantine\\quarantine_RUN_20261120_003.jsonl",
+    "by_rule": {
+      "DATE_ORDER_INVALID": 8,
+      "FK_ORPHAN": 1054,
+      "HOSPITAL_ID_INVALID": 40,
+      "NEGATIVE_AMOUNT": 30,
+      "PK_DUPLICATE": 40,
+      "REQUIRED_DATE_INVALID": 40
+    },
+    "by_table": {
+      "admissions": 21,
+      "appointments": 60,
+      "claim_events": 142,
+      "claim_lines": 78,
+      "claims": 43,
+      "dispensing": 73,
+      "encounters": 58,
+      "incidents": 8,
+      "invoice_lines": 108,
+      "invoices": 52,
+      "lab_orders": 158,
+      "lab_results": 172,
+      "patients": 40,
+      "payments": 97,
+      "prescriptions": 73,
+      "procedures": 25,
+      "transfers": 4
+    }
+  },
+  "duckdb_tables": {
+    "silver_dim_hospital": 10,
+    "silver_dim_specialty": 18,
+    "silver_dim_department": 120,
+    "silver_dim_doctor": 690,
+    "silver_dim_staff": 2980,
+    "silver_dim_payer": 6,
+    "silver_dim_diagnosis": 45,
+    "silver_dim_procedure": 44,
+    "silver_dim_medication": 52,
+    "silver_dim_lab_test": 38,
+    "silver_dim_service": 38,
+    "silver_dim_supplier": 20,
+    "silver_dim_inventory_item": 122,
+    "silver_dim_bed": 3450,
+    "silver_dim_date": 730,
+    "silver_dim_time": 1440,
+    "silver_patients": 15200,
+    "silver_appointments": 103940,
+    "silver_encounters": 81942,
+    "silver_admissions": 24783,
+    "silver_transfers": 3596,
+    "silver_bed_snapshots": 102000,
+    "silver_procedures": 30975,
+    "silver_lab_orders": 105882,
+    "silver_lab_results": 156420,
+    "silver_prescriptions": 52927,
+    "silver_dispensing": 52927,
+    "silver_invoices": 65948,
+    "silver_invoice_lines": 138621,
+    "silver_payments": 78787,
+    "silver_claims": 51957,
+    "silver_claim_lines": 103924,
+    "silver_claim_events": 179096,
+    "silver_shifts": 52000,
+    "silver_attendance": 52000,
+    "silver_inventory_movements": 52000,
+    "silver_purchase_orders": 5200,
+    "silver_feedback": 15600,
+    "silver_incidents": 4192,
+    "gold_network_daily": 730,
+    "gold_hospital_monthly": 240,
+    "gold_department_monthly": 2880,
+    "gold_patient_access": 2880,
+    "gold_bed_utilization": 960,
+    "gold_financial_performance": 2880,
+    "gold_claim_performance": 1440,
+    "gold_lab_performance": 9120,
+    "gold_workforce": 2880,
+    "gold_inventory": 960,
+    "gold_patient_experience": 2880,
+    "gold_quality_safety": 2880,
+    "dq_rules": 297,
+    "dq_failures": 1212,
+    "pipeline_runs": 3,
+    "lineage": 51
+  },
+  "totals": {
+    "source_records": 1540892,
+    "valid_records": 1539720,
+    "quarantined_records": 1172,
+    "tables_created": 56
+  },
+  "manifest_path": "C:\\Users\\KHfar\\HOSPITAL_360\\hospital360\\data\\manifests\\pipeline_RUN_20261120_003.json"
+}

@@ -216,7 +216,7 @@ def generate_encounters(seed: int, refs: ReferenceData, patients: pd.DataFrame,
 
     to_ward = np.empty(nt, dtype=object)
     wards_by_hospital = {
-        hid: np.array(sorted(set(refs.bed_ward[b] for b in refs.beds_by_hospital[hid])), dtype=object)
+        hid: np.array(sorted({refs.bed_ward[b] for b in refs.beds_by_hospital[hid]}), dtype=object)
         for hid in refs.hospital_ids
     }
     for hid in refs.hospital_ids:

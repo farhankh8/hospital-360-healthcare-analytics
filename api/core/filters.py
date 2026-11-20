@@ -6,6 +6,7 @@ parameters. User input can never become SQL text.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import date
 from typing import Any
 
 from fastapi import Request
@@ -75,9 +76,16 @@ def parse_filters(request: Request) -> Filters:
     sort_dir = (q.get("sort_dir", "asc") or "asc").lower()
     if sort_dir not in {"asc", "desc"}:
         sort_dir = "asc"
+    date_from = q.get("date_from") or DEFAULT_DATE_FROM
+    date_to = q.get("date_to") or DEFAULT_DATE_TO
+    for value in (date_from, date_to):
+        try:
+            date.fromisoformat(value)
+        except ValueError as exc:
+            raise ValueError(f"Invalid date '{value}'. Use YYYY-MM-DD.") from exc
     return Filters(
-        date_from=q.get("date_from") or DEFAULT_DATE_FROM,
-        date_to=q.get("date_to") or DEFAULT_DATE_TO,
+        date_from=date_from,
+        date_to=date_to,
         hospital_ids=[v for v in q.getlist("hospital_id") if v],
         department_id=q.get("department_id") or None,
         specialty_id=q.get("specialty_id") or None,
@@ -134,8 +142,8 @@ def build_where(
 
     if date_col in available_columns and date_col in ALLOWED_FILTER_COLUMNS["date_from_date"]:
         date_from, date_to = shift_period(f) if use_previous else (f.date_from, f.date_to)
-        clauses.append(f"CAST({date_col} AS DATE) >= CAST(:date_from AS DATE)")
-        clauses.append(f"CAST({date_col} AS DATE) <= CAST(:date_to AS DATE)")
+        clauses.append(f"CAST({date_col} AS DATE) >= CAST($date_from AS DATE)")
+        clauses.append(f"CAST({date_col} AS DATE) <= CAST($date_to AS DATE)")
         params["date_from"] = date_from
         params["date_to"] = date_to
 
@@ -143,7 +151,7 @@ def build_where(
         placeholders = []
         for i, hid in enumerate(f.hospital_ids):
             key = f"hospital_{i}"
-            placeholders.append(f":{key}")
+            placeholders.append(f"${key}")
             params[key] = hid
         clauses.append(f"{hospital_col} IN ({', '.join(placeholders)})")
 
@@ -159,8 +167,8 @@ def build_where(
             continue
         candidates = ALLOWED_FILTER_COLUMNS[name] & available_columns
         if candidates:
-            col = sorted(candidates)[0]
-            clauses.append(f"{col} = :{name}")
+            col = min(candidates)
+            clauses.append(f"{col} = ${name}")
             params[name] = value
 
     where = " WHERE " + " AND ".join(clauses) if clauses else ""

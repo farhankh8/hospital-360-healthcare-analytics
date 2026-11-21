@@ -46,16 +46,17 @@ export default function EChart({ option, height = 320, className, onClick, onDat
   useEffect(() => {
     const numericHeight = typeof height === 'number' ? height : parseInt(String(height), 10) || 320;
     const showToolbox = numericHeight > 80;
+    const isDark = document.documentElement.classList.contains('dark');
     const base: EChartsOption = {
       toolbox: showToolbox ? {
         show: true,
         right: 4,
         top: 0,
         itemSize: 13,
-        iconStyle: { borderColor: '#94A3B8' },
-        emphasis: { iconStyle: { borderColor: '#0E9384' } },
+        iconStyle: { borderColor: isDark ? '#64748B' : '#94A3B8' },
+        emphasis: { iconStyle: { borderColor: isDark ? '#2DD4BF' : '#0E9384' } },
         feature: {
-          saveAsImage: { title: 'Download image', pixelRatio: 2 },
+          saveAsImage: { title: 'Download image', pixelRatio: 2, backgroundColor: isDark ? '#1E293B' : '#FFFFFF' },
         },
       } : { show: false },
     };

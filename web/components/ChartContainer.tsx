@@ -6,6 +6,7 @@ import { Download, LockKeyhole } from 'lucide-react';
 import { buildChartOption } from '@/lib/chart';
 import { apiExportCsv, ApiError } from '@/lib/api';
 import { useFilters } from '@/lib/filters';
+import { useTheme } from './ThemeProvider';
 import { useDrilldown } from './DrilldownDrawer';
 import type { ChartConfig, TableRow } from '@/lib/types';
 import { Badge, Card, CardHeader, EmptyState, ErrorState, Skeleton } from './ui';
@@ -23,8 +24,9 @@ interface ChartContainerProps {
 export function ChartContainer({ config, data, loading, error, onRetry }: ChartContainerProps) {
   const { openDrilldown } = useDrilldown();
   const { filters, setFilter } = useFilters();
+  const { theme } = useTheme();
   const [exportError, setExportError] = useState('');
-  const built = useMemo(() => buildChartOption(config, data), [config, data]);
+  const built = useMemo(() => buildChartOption(config, data, theme === 'dark'), [config, data, theme]);
 
   const handleClick = (params: Record<string, unknown>) => {
     const raw = params.data;

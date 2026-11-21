@@ -172,7 +172,7 @@ export function Select({ label, options, placeholder, className, id, ...props }:
       <select
         id={selectId}
         aria-label={label ?? props['aria-label'] ?? props.name}
-        className="h-9 rounded-sm border border-line bg-surface px-2.5 text-xs text-ink outline-none transition focus:border-teal focus:ring-2 focus:ring-teal/15 disabled:bg-surface-alt disabled:text-slate-600 disabled:opacity-100"
+        className="h-9 rounded-sm border border-line bg-surface px-2.5 text-xs text-ink outline-none transition focus:border-teal focus:ring-2 focus:ring-teal/15 disabled:bg-surface-alt disabled:text-muted disabled:opacity-100"
         {...props}
       >
         {placeholder && <option value="">{placeholder}</option>}
@@ -213,7 +213,7 @@ export function Delta({
         'inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[11px] font-semibold tabular-nums',
         tone === 'positive' && 'bg-success-light text-success',
         tone === 'negative' && 'bg-critical-light text-critical',
-        tone === 'neutral' && 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300',
+        tone === 'neutral' && 'bg-slate-100 text-muted dark:bg-slate-700 dark:text-slate-300',
         className,
       )}
     >
@@ -470,7 +470,7 @@ export function MultiSelect({
         disabled={disabled}
         data-testid={testId}
         onClick={() => setOpen((v) => !v)}
-        className="flex h-9 w-full items-center justify-between gap-2 rounded-sm border border-line bg-surface px-2.5 text-xs text-ink transition hover:border-teal/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/30 disabled:cursor-not-allowed disabled:bg-surface-alt disabled:text-slate-600"
+        className="flex h-9 w-full items-center justify-between gap-2 rounded-sm border border-line bg-surface px-2.5 text-xs text-ink transition hover:border-teal/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/30 disabled:cursor-not-allowed disabled:bg-surface-alt disabled:text-muted"
       >
         <span className={cn('truncate', selectedLabels.length === 0 && 'text-muted-soft')}>{summary}</span>
         <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted" />

@@ -198,7 +198,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className={cn('transition-all', collapsed ? 'lg:pl-[72px]' : 'lg:pl-[260px]')}>
         <header className="sticky top-0 z-30 border-b border-line bg-surface/95 backdrop-blur">
           <div className="flex h-16 items-center gap-3 px-4 lg:px-6">
-            <button type="button" onClick={() => setMobileNavOpen(true)} className="rounded p-1.5 text-slate-500 hover:bg-canvas lg:hidden" aria-label="Open navigation">
+            <button type="button" onClick={() => setMobileNavOpen(true)} className="rounded p-1.5 text-muted hover:bg-canvas lg:hidden" aria-label="Open navigation">
               <Menu className="h-5 w-5" />
             </button>
 

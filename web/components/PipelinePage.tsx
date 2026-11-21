@@ -117,8 +117,8 @@ export function PipelinePage() {
 
       <section aria-label="Key performance indicators">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-600">Key indicators</h2>
-          <span className="text-[11px] text-slate-600">Values from /pipeline/summary</span>
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-muted">Key indicators</h2>
+          <span className="text-[11px] text-muted">Values from /pipeline/summary</span>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {summaryQuery.isLoading && PIPELINE_KPI_IDS.map((id) => <Skeleton key={id} className="h-[148px] w-full" />)}
@@ -154,20 +154,20 @@ export function PipelinePage() {
           <div className="mb-3 flex items-start justify-between gap-4">
             <div>
               <h3 className="text-sm font-semibold text-navy">Run detail: {displayValue(selectedDetail.run_id ?? selectedDetail.id)}</h3>
-              <p className="text-xs text-slate-600">Stage status, metadata, and error detail for the selected run.</p>
+              <p className="text-xs text-muted">Stage status, metadata, and error detail for the selected run.</p>
             </div>
             <div className="flex items-center gap-2">
-              <button type="button" onClick={() => toggleCompare(selectedDetail)} className="rounded-md border border-line px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:border-teal hover:text-teal">
+              <button type="button" onClick={() => toggleCompare(selectedDetail)} className="rounded-md border border-line px-2.5 py-1.5 text-xs font-medium text-muted hover:border-teal hover:text-teal">
                 {compareIds.includes(String(selectedDetail.run_id ?? selectedDetail.id)) ? 'Remove from compare' : 'Add to compare'}
               </button>
-              <button type="button" onClick={() => setSelected(null)} aria-label="Close run detail"><X className="h-4 w-4 text-slate-600" /></button>
+              <button type="button" onClick={() => setSelected(null)} aria-label="Close run detail"><X className="h-4 w-4 text-muted" /></button>
             </div>
           </div>
 
           <div className="mb-4 grid grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-8">
             {PIPELINE_STAGES.map((stage) => {
               const st = stageStatus(selectedDetail, stage);
-              const tone = st === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : st === 'failed' ? 'bg-rose-50 border-rose-200 text-rose-700' : st === 'pending' ? 'bg-amber-50 border-amber-200 text-amber-700' : 'bg-slate-50 border-slate-200 text-slate-600';
+              const tone = st === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : st === 'failed' ? 'bg-rose-50 border-rose-200 text-rose-700' : st === 'pending' ? 'bg-amber-50 border-amber-200 text-amber-700' : 'bg-slate-50 border-line text-muted';
               return <div key={stage} className={`rounded-md border px-2 py-2 text-center text-[11px] font-medium ${tone}`}>{stage}<div className="text-[10px] font-normal uppercase">{st}</div></div>;
             })}
           </div>
@@ -177,13 +177,13 @@ export function PipelinePage() {
               Error: {displayValue(selectedDetail.error_message)} <span className="ml-2 underline">Open error detail</span>
             </button>
           ) : (
-            <div className="mb-3 rounded-md border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">No errors for this run.</div>
+            <div className="mb-3 rounded-md border border-line bg-slate-50 p-3 text-xs text-muted">No errors for this run.</div>
           )}
 
           <dl className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-6">
             {Object.entries(selectedDetail).filter(([k]) => k !== 'stages').map(([key, value]) => (
               <div key={key} className="min-w-0 border-b border-line pb-2">
-                <dt className="truncate text-[10px] uppercase tracking-wide text-slate-600">{key.replace(/_/g, ' ')}</dt>
+                <dt className="truncate text-[10px] uppercase tracking-wide text-muted">{key.replace(/_/g, ' ')}</dt>
                 <dd className="mt-0.5 truncate text-xs font-medium text-ink">{typeof value === 'object' ? JSON.stringify(value) : displayValue(value)}</dd>
               </div>
             ))}
@@ -203,7 +203,7 @@ export function PipelinePage() {
           <div className="space-y-4">
             <div className="overflow-auto">
               <table className="w-full text-xs">
-                <thead><tr className="border-b border-line text-left text-[10px] uppercase tracking-wide text-slate-600"><th className="py-2">Metric</th><th className="py-2">{String((compareData.run_a as Record<string, unknown>)?.run_id ?? compareA)}</th><th className="py-2">{String((compareData.run_b as Record<string, unknown>)?.run_id ?? compareB)}</th><th className="py-2">Delta (B-A)</th></tr></thead>
+                <thead><tr className="border-b border-line text-left text-[10px] uppercase tracking-wide text-muted"><th className="py-2">Metric</th><th className="py-2">{String((compareData.run_a as Record<string, unknown>)?.run_id ?? compareA)}</th><th className="py-2">{String((compareData.run_b as Record<string, unknown>)?.run_id ?? compareB)}</th><th className="py-2">Delta (B-A)</th></tr></thead>
                 <tbody>
                   {Object.entries((compareData.deltas as Record<string, unknown>) ?? {}).map(([key, value]) => {
                     const num = typeof value === 'number' ? value : null;
@@ -216,7 +216,7 @@ export function PipelinePage() {
             <div className="h-72"><EChart option={compareChartOption as never} height={280} /></div>
             <div className="max-h-64 overflow-auto">
               <table className="w-full text-xs">
-                <thead><tr className="border-b border-line text-left text-[10px] uppercase tracking-wide text-slate-600"><th className="py-2">Table</th><th className="py-2">Valid A</th><th className="py-2">Valid B</th><th className="py-2">Delta</th><th className="py-2">Quar. delta</th></tr></thead>
+                <thead><tr className="border-b border-line text-left text-[10px] uppercase tracking-wide text-muted"><th className="py-2">Table</th><th className="py-2">Valid A</th><th className="py-2">Valid B</th><th className="py-2">Delta</th><th className="py-2">Quar. delta</th></tr></thead>
                 <tbody>{compareTables.slice(0, 50).map((t) => { const d = (t.delta as Record<string, unknown>) ?? {}; return <tr key={String(t.table)} className="border-b border-line/60"><td className="py-2">{String(t.table)}</td><td className="py-2">{displayValue((t.run_a as Record<string, unknown>)?.valid)}</td><td className="py-2">{displayValue((t.run_b as Record<string, unknown>)?.valid)}</td><td className="py-2">{displayValue(d.valid)}</td><td className="py-2">{displayValue(d.quarantined)}</td></tr>; })}</tbody>
               </table>
             </div>
@@ -228,13 +228,13 @@ export function PipelinePage() {
         <Card>
           <CardHeader title="Pipeline lineage" subtitle="From /pipeline/lineage" action={<GitBranch className="h-4 w-4 text-teal" />} />
           <div className="p-4">
-            <input value={lineageSearch} onChange={(event) => setLineageSearch(event.target.value)} placeholder="Filter by target table" data-testid="pipeline-lineage-search" className="mb-3 h-9 w-full rounded-md border border-line bg-white px-2.5 text-xs outline-none focus:border-teal" />
+            <input value={lineageSearch} onChange={(event) => setLineageSearch(event.target.value)} placeholder="Filter by target table" data-testid="pipeline-lineage-search" className="mb-3 h-9 w-full rounded-md border border-line bg-surface px-2.5 text-xs outline-none focus:border-teal" />
             <div className="max-h-80 overflow-auto">
               {visibleLineage.length === 0 ? <EmptyState message="No lineage rows match" /> : visibleLineage.map((row) => (
                 <button key={String(row.target_table)} type="button" onClick={() => openDrilldown({ ...row, endpoint: `/pipeline/lineage/${encodeURIComponent(String(row.target_table))}` }, `Lineage: ${String(row.target_table)}`)} className="mb-1 block w-full rounded border border-line px-2 py-2 text-left text-xs hover:border-teal hover:bg-teal-light/30">
                   <span className="font-medium text-navy">{displayValue(row.target_table)}</span>
-                  <span className="ml-2 text-slate-600">{displayValue(row.layer)}</span>
-                  <span className="mt-0.5 block truncate text-[10px] text-slate-600">{displayValue(row.source_tables)}</span>
+                  <span className="ml-2 text-muted">{displayValue(row.layer)}</span>
+                  <span className="mt-0.5 block truncate text-[10px] text-muted">{displayValue(row.source_tables)}</span>
                 </button>
               ))}
             </div>
@@ -248,7 +248,7 @@ export function PipelinePage() {
               <dl className="grid grid-cols-2 gap-3 p-4">
                 {Object.entries(manifestQuery.data.data as Record<string, unknown>).slice(0, 24).map(([key, value]) => (
                   <div key={key} className="min-w-0 border-b border-line pb-2">
-                    <dt className="truncate text-[10px] uppercase tracking-wide text-slate-600">{key.replace(/_/g, ' ')}</dt>
+                    <dt className="truncate text-[10px] uppercase tracking-wide text-muted">{key.replace(/_/g, ' ')}</dt>
                     <dd className="mt-0.5 truncate text-xs font-medium text-ink">{typeof value === 'object' ? JSON.stringify(value) : displayValue(value)}</dd>
                   </div>
                 ))}

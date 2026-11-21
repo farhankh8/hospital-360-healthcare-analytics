@@ -3,7 +3,7 @@
  *
  * The Next.js app and FastAPI backend must already be running (see README.md):
  *   npm run dev            # in web/       -> http://localhost:3000
- *   uvicorn api.main:app   # in hospital360 -> http://localhost:8000
+ *   uvicorn api.main:app   # in hospital360 -> http://localhost:8000/api/v1
  *
  * Run from the web/ directory:
  *   npx playwright test --config=e2e/playwright.config.ts
@@ -20,6 +20,9 @@ export default defineConfig({
   testMatch: '**/*.spec.ts',
   fullyParallel: false,
   retries: 0,
+  // Two workers keep the single API process stable on Windows while still
+  // covering both chromium and mobile projects in parallel.
+  workers: 2,
   reporter: [['list'], ['html', { outputFolder: 'playwright-report' }]],
   timeout: 60_000,
   expect: { timeout: 10_000 },

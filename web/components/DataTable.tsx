@@ -12,12 +12,12 @@ import {
   type VisibilityState,
 } from '@tanstack/react-table';
 import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Columns3, Search, X } from 'lucide-react';
-import { apiGet, useTableData, type QueryParamValue } from '@/lib/api';
+import { apiExportCsv, ApiError, useTableData, type QueryParamValue } from '@/lib/api';
 import { useDrilldown } from './DrilldownDrawer';
 import { useFilters } from '@/lib/filters';
 import { formatCell, inferColumnType, statusTone } from '@/lib/format';
 import type { ColumnType, FilterState, TableColumn, TableRow } from '@/lib/types';
-import { cn, displayValue, downloadCsv } from '@/lib/utils';
+import { cn, displayValue } from '@/lib/utils';
 import { Badge, Card, CardHeader, EmptyState, ErrorState, Skeleton, Spinner } from './ui';
 
 const EXPORT_LIMIT = 5000;
@@ -61,6 +61,7 @@ export function DataTable({ endpoint, columns, filters, params: extraParams, tit
   const [searchInput, setSearchInput] = useState(initialSearch);
   const [search, setSearch] = useState(initialSearch);
   const [showColumns, setShowColumns] = useState(false);
+  const [exportError, setExportError] = useState('');
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -91,13 +92,24 @@ export function DataTable({ endpoint, columns, filters, params: extraParams, tit
 
   const exportCsv = useCallback(async () => {
     if (!endpoint) return;
+    setExportError('');
     try {
-      const result = await apiGet<TableRow[]>(endpoint, filters, {
-        params: { ...extraParams, page: 1, page_size: EXPORT_LIMIT, search: search || undefined, sort_by: sorting[0]?.id, sort_dir: sorting[0]?.desc ? 'desc' : 'asc' },
-      });
-      const exported = Array.isArray(result.data) ? result.data.slice(0, EXPORT_LIMIT) : [];
-      downloadCsv(`${exportName}-filtered.csv`, exported);
+      await apiExportCsv(
+        endpoint,
+        filters,
+        {
+          ...extraParams,
+          page: 1,
+          page_size: EXPORT_LIMIT,
+          search: search || undefined,
+          sort_by: sorting[0]?.id,
+          sort_dir: sorting[0] ? (sorting[0].desc ? 'desc' : 'asc') : undefined,
+        },
+        `${exportName}-filtered`,
+      );
     } catch (error) {
+      const message = error instanceof ApiError ? error.message : 'Unable to export rows.';
+      setExportError(message);
       console.error('Export failed', error);
     }
   }, [endpoint, filters, extraParams, search, sorting, exportName]);
@@ -157,7 +169,7 @@ export function DataTable({ endpoint, columns, filters, params: extraParams, tit
     <Card className="overflow-hidden">
       <CardHeader
         title={title}
-        subtitle={`${totalRecords.toLocaleString('en-US')} records${search ? ` · search: ${search}` : ''}`}
+        subtitle={exportError ? `Export failed: ${exportError}` : `${totalRecords.toLocaleString('en-US')} records${search ? ` · search: ${search}` : ''}`}
         action={
           <div className="flex items-center gap-2">
             {query.isFetching && <Spinner className="text-teal" />}

@@ -51,6 +51,8 @@ const HIDDEN_CONTRACT_FIELDS = new Set([
   'alias_of', 'same_definition_as', 'api_endpoints', 'frontend_consumers',
 ]);
 
+const SNAPSHOT_KPIS = new Set(['hospitals_selected', 'total_beds', 'active_employees']);
+
 export function KpiGlossaryPage() {
   const [search, setSearch] = useState('');
   const query = useApiQuery<unknown>('glossary-page', '/kpis/glossary', NO_FILTERS);
@@ -83,7 +85,9 @@ export function KpiGlossaryPage() {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {filtered.map((row, index) => {
-          const title = displayValue(row.kpi_name ?? row.name ?? row.kpi_id ?? row.id ?? `KPI ${index + 1}`);
+          const kpiId = displayValue(row.kpi_id ?? row.id ?? '');
+          const title = displayValue(row.kpi_name ?? row.name ?? kpiId ?? `KPI ${index + 1}`);
+          const dateUnavailable = row.date_filter_available === false || SNAPSHOT_KPIS.has(kpiId);
           const fields = PREFERRED_ORDER.filter((key) => row[key] !== undefined && row[key] !== null && row[key] !== '')
             .map((key) => [key, row[key]] as [string, unknown]);
           Object.entries(row).forEach(([key, value]) => {
@@ -98,7 +102,11 @@ export function KpiGlossaryPage() {
           });
           return (
             <Card key={`${title}-${index}`} className="flex flex-col">
-              <CardHeader title={title} subtitle={displayValue(row.kpi_id ?? row.id)} action={<BookOpen className="h-4 w-4 text-teal" />} />
+              <CardHeader
+                title={title}
+                subtitle={kpiId}
+                action={dateUnavailable ? <Badge tone="warning">No date filter</Badge> : <BookOpen className="h-4 w-4 text-teal" />}
+              />
               <div className="flex-1 space-y-2 p-4">
                 {fields.length === 0 && <p className="text-xs text-slate-400">No definition fields returned by the API.</p>}
                 {fields.map(([key, value]) => (

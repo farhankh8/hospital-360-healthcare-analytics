@@ -390,11 +390,11 @@ JOIN silver_dim_hospital h ON h.hospital_id = g.hospital_id
 GROUP BY 1 ORDER BY 2 DESC
 """), methods=["GET"])
 router.add_api_route("/finance/specialty", custom("gold_department_monthly", "month", """
-SELECT specialty_name AS label, SUM(revenue) AS revenue
+SELECT specialty_name AS label, SUM(revenue) AS net_revenue
 FROM gold_department_monthly {where} GROUP BY 1 ORDER BY 2 DESC LIMIT 12
 """), methods=["GET"])
 router.add_api_route("/finance/service-category", custom("silver_invoices", "invoice_date", """
-SELECT l.service_category AS label, SUM(l.line_amount) AS amount
+SELECT l.service_category AS label, SUM(l.line_amount) AS gross_amount
 FROM (SELECT * FROM silver_invoices{where}) i
 JOIN silver_invoice_lines l ON l.invoice_id = i.invoice_id
 GROUP BY 1 ORDER BY 2 DESC LIMIT 12
@@ -407,7 +407,7 @@ JOIN silver_dim_hospital h ON h.hospital_id = g.hospital_id
 GROUP BY 1 ORDER BY 2 DESC
 """), methods=["GET"])
 router.add_api_route("/finance/payer-mix", custom("silver_invoices", "invoice_date", """
-SELECT COALESCE(p.payer_name, 'Self-pay') AS label, SUM(i.net_amount) AS amount
+SELECT COALESCE(p.payer_name, 'Self-pay') AS label, SUM(i.net_amount) AS net_revenue
 FROM (SELECT * FROM silver_invoices{where}) i
 LEFT JOIN silver_dim_payer p ON p.payer_id = i.payer_id
 GROUP BY 1 ORDER BY 2 DESC LIMIT 12

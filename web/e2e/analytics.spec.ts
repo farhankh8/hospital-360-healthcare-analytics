@@ -139,3 +139,32 @@ test('API failure shows a controlled error state', async ({ page }) => {
   await page.goto('/overview');
   await expect(page.getByText(/API failure test|KPIs could not be loaded/i).first()).toBeVisible();
 });
+
+test('structured API error message is shown to the user', async ({ page }) => {
+  await page.route('**/api/v1/overview/kpis*', (route) =>
+    route.fulfill({
+      status: 422,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Structured validation failure',
+          details: { parameter: 'page' },
+          generated_at: '2026-11-21T00:00:00Z',
+        },
+      }),
+    }),
+  );
+  await page.goto('/overview');
+  await expect(page.getByText('Structured validation failure').first()).toBeVisible();
+});
+
+test('snapshot KPIs are marked as date-filter-unavailable', async ({ page }) => {
+  await page.goto('/hospitals');
+  const beds = kpiCard(page, /total beds/i);
+  await expect(beds).toBeVisible();
+  await expect(beds.getByText(/no date filter/i)).toBeVisible();
+
+  await page.goto('/kpi-glossary');
+  await expect(page.getByText(/no date filter/i).first()).toBeVisible();
+});

@@ -121,6 +121,9 @@ def build_kpis(
             "sparkline": sparkline,
             "definition": spec.description,
         }
+        if not spec.date_col:
+            card["date_filter_available"] = False
+            card["date_filter_note"] = "Date filter unavailable: this is a snapshot KPI with no date field."
         for key in (spec.id, *spec.aliases):
             result[key] = {"id": key, **card}
     return result

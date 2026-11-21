@@ -226,8 +226,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                 type="button"
                 onClick={toggleTheme}
                 className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-line bg-surface text-muted transition hover:bg-surface-hover hover:text-ink"
-                aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-                title={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+                aria-label={theme === 'dark' ? 'Use light mode' : 'Use dark mode'}
+                title={theme === 'dark' ? 'Use light mode' : 'Use dark mode'}
               >
                 {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </button>

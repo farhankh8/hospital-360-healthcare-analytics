@@ -167,10 +167,11 @@ interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'chi
 export function Select({ label, options, placeholder, className, id, ...props }: SelectProps) {
   const selectId = id || (label ? label.toLowerCase().replace(/[^a-z0-9]+/g, '-') : undefined);
   return (
-    <label className={cn('flex flex-col gap-1', className)}>
+    <label className={cn('flex flex-col gap-1', className)} htmlFor={selectId}>
       {label && <span className="text-[11px] font-medium uppercase tracking-wide text-muted">{label}</span>}
       <select
         id={selectId}
+        aria-label={label}
         className="h-9 rounded-sm border border-line bg-surface px-2.5 text-xs text-ink outline-none transition focus:border-teal focus:ring-2 focus:ring-teal/15 disabled:bg-surface-alt disabled:text-muted"
         {...props}
       >

@@ -494,6 +494,273 @@ def explorer_schema(dataset: str, request: Request):
 
 
 # ---------------------------------------------------------------------------
+# Patient Journey (Phase 4)
+# ---------------------------------------------------------------------------
+
+def _json_safe(value: Any) -> Any:
+    if hasattr(value, "isoformat"):
+        return value.isoformat()
+    if isinstance(value, (bytes, bytearray)):
+        return value.decode("utf-8", errors="replace")
+    return value
+
+
+def _safe_row(row: dict[str, Any]) -> dict[str, Any]:
+    return {k: _json_safe(v) for k, v in row.items()}
+
+
+def _resolve_journey_patient(conn, patient_id: str | None, encounter_id: str | None, admission_id: str | None) -> str:
+    if patient_id:
+        row = query_rows(conn, "SELECT patient_id FROM silver_patients WHERE patient_id = $pid LIMIT 1", {"pid": patient_id})
+        if not row:
+            raise HTTPException(404, f"Patient not found: {patient_id}")
+        return str(row[0]["patient_id"])
+    if encounter_id:
+        row = query_rows(conn, "SELECT patient_id FROM silver_encounters WHERE encounter_id = $eid LIMIT 1", {"eid": encounter_id})
+        if not row:
+            raise HTTPException(404, f"Encounter not found: {encounter_id}")
+        return str(row[0]["patient_id"])
+    if admission_id:
+        row = query_rows(conn, "SELECT patient_id FROM silver_admissions WHERE admission_id = $aid LIMIT 1", {"aid": admission_id})
+        if not row:
+            raise HTTPException(404, f"Admission not found: {admission_id}")
+        return str(row[0]["patient_id"])
+    raise FilterValidationError("Provide patient_id, encounter_id, or admission_id.", {"parameter": "patient_id"})
+
+
+_JOURNEY_EVENT_SOURCES: list[dict[str, Any]] = [
+    {"type": "registration", "table": "silver_patients", "date_col": "registration_date", "id_col": "patient_id", "label": "Patient registration"},
+    {"type": "appointment", "table": "silver_appointments", "date_col": "appointment_date", "id_col": "appointment_id", "label": "Appointment"},
+    {"type": "encounter", "table": "silver_encounters", "date_col": "arrival_datetime", "id_col": "encounter_id", "label": "Encounter"},
+    {"type": "admission", "table": "silver_admissions", "date_col": "admission_datetime", "id_col": "admission_id", "label": "Admission"},
+    {"type": "transfer", "table": "silver_transfers", "date_col": "transfer_datetime", "id_col": "transfer_id", "label": "Transfer"},
+    {"type": "procedure", "table": "silver_procedures", "date_col": "scheduled_start", "id_col": "procedure_id", "label": "Procedure"},
+    {"type": "lab_order", "table": "silver_lab_orders", "date_col": "ordered_at", "id_col": "lab_order_id", "label": "Lab order"},
+    {"type": "lab_result", "table": "silver_lab_results", "date_col": "result_at", "id_col": "result_id", "label": "Lab result"},
+    {"type": "prescription", "table": "silver_prescriptions", "date_col": "prescribed_date", "id_col": "prescription_id", "label": "Prescription"},
+    {"type": "dispensing", "table": "silver_dispensing", "date_col": "dispensed_date", "id_col": "dispensing_id", "label": "Dispensing"},
+    {"type": "invoice", "table": "silver_invoices", "date_col": "invoice_date", "id_col": "invoice_id", "label": "Invoice"},
+    {"type": "payment", "table": "silver_payments", "date_col": "payment_date", "id_col": "payment_id", "label": "Payment"},
+    {"type": "claim", "table": "silver_claims", "date_col": "claim_date", "id_col": "claim_id", "label": "Claim"},
+    {"type": "claim_event", "table": "silver_claim_events", "date_col": "event_date", "id_col": "event_id", "label": "Claim event"},
+    {"type": "feedback", "table": "silver_feedback", "date_col": "visit_date", "id_col": "feedback_id", "label": "Feedback"},
+]
+
+
+def _journey_events(conn, patient_id: str, event_type: str | None, date_from: str | None, date_to: str | None) -> list[dict[str, Any]]:
+    events: list[dict[str, Any]] = []
+    allowed_types = {s["type"] for s in _JOURNEY_EVENT_SOURCES}
+    if event_type and event_type not in allowed_types:
+        raise FilterValidationError(f"Unknown event_type: {event_type}", {"parameter": "event_type", "allowed": sorted(allowed_types)})
+    for src in _JOURNEY_EVENT_SOURCES:
+        if event_type and src["type"] != event_type:
+            continue
+        table = src["table"]
+        if not table_exists(table):
+            continue
+        cols = set(columns(conn, table))
+        if "patient_id" not in cols:
+            continue
+        date_col = src["date_col"] if src["date_col"] in cols else None
+        where = ["patient_id = $pid"]
+        params: dict[str, Any] = {"pid": patient_id}
+        if date_col and date_from:
+            where.append(f"CAST({date_col} AS DATE) >= CAST($df AS DATE)")
+            params["df"] = date_from
+        if date_col and date_to:
+            where.append(f"CAST({date_col} AS DATE) <= CAST($dt AS DATE)")
+            params["dt"] = date_to
+        sql = f"SELECT * FROM {table} WHERE {' AND '.join(where)}"
+        if date_col:
+            sql += f" ORDER BY {date_col} ASC"
+        sql += " LIMIT 500"
+        try:
+            rows = query_rows(conn, sql, params)
+        except Exception:  # noqa: BLE001, S112 - skip tables with unexpected shape
+            continue
+        for r in rows:
+            sr = _safe_row(r)
+            dt_val = sr.get(src["date_col"])
+            events.append({
+                "event_type": src["type"],
+                "event_label": src["label"],
+                "event_date": dt_val,
+                "event_id": sr.get(src["id_col"]),
+                "table": table,
+                "detail": sr,
+            })
+    events.sort(key=lambda e: str(e.get("event_date") or ""))
+    return events
+
+
+@router.get("/journey/sample-patient")
+def journey_sample_patient(request: Request):
+    with get_conn() as conn:
+        row = query_rows(conn, """
+            SELECT patient_id, COUNT(*) AS n FROM (
+              SELECT patient_id FROM silver_appointments
+              UNION ALL SELECT patient_id FROM silver_encounters
+              UNION ALL SELECT patient_id FROM silver_admissions
+              UNION ALL SELECT patient_id FROM silver_invoices
+              UNION ALL SELECT patient_id FROM silver_lab_orders
+            ) t GROUP BY patient_id ORDER BY n DESC, patient_id ASC LIMIT 1
+        """)
+    pid = str(row[0]["patient_id"]) if row else None
+    return _empty({"patient_id": pid}, request)
+
+
+@router.get("/journey")
+def patient_journey(request: Request):
+    f = parse_filters(request)
+    patient_id = request.query_params.get("patient_id")
+    encounter_id = request.query_params.get("encounter_id")
+    admission_id = request.query_params.get("admission_id")
+    event_type = request.query_params.get("event_type")
+    date_from = request.query_params.get("date_from") or f.date_from
+    date_to = request.query_params.get("date_to") or f.date_to
+
+    with get_conn() as conn:
+        pid = _resolve_journey_patient(conn, patient_id, encounter_id, admission_id)
+        patient_rows = query_rows(conn, "SELECT * FROM silver_patients WHERE patient_id = $pid LIMIT 1", {"pid": pid})
+        patient = _safe_row(patient_rows[0]) if patient_rows else {"patient_id": pid}
+
+        # Encounters summary
+        enc_rows = query_rows(conn, """
+            SELECT COUNT(*) AS encounter_count,
+                   COUNT(DISTINCT hospital_id) AS hospitals_visited,
+                   MIN(arrival_datetime) AS first_encounter,
+                   MAX(arrival_datetime) AS last_encounter
+            FROM silver_encounters WHERE patient_id = $pid
+        """, {"pid": pid})
+        enc_summary = _safe_row(enc_rows[0]) if enc_rows else {}
+
+        # Admissions summary
+        adm_rows = query_rows(conn, """
+            SELECT COUNT(*) AS admission_count,
+                   COALESCE(SUM(los_days),0) AS total_los_days,
+                   COALESCE(SUM(CASE WHEN readmission_flag THEN 1 ELSE 0 END),0) AS readmissions
+            FROM silver_admissions WHERE patient_id = $pid
+        """, {"pid": pid})
+        adm_summary = _safe_row(adm_rows[0]) if adm_rows else {}
+
+        # Billing summary
+        bill_rows = query_rows(conn, """
+            SELECT COUNT(*) AS invoice_count,
+                   COALESCE(SUM(gross_amount),0) AS gross_amount,
+                   COALESCE(SUM(net_amount),0) AS net_amount,
+                   COALESCE(SUM(paid_amount),0) AS paid_amount,
+                   COALESCE(SUM(balance_amount),0) AS balance_amount
+            FROM silver_invoices WHERE patient_id = $pid
+        """, {"pid": pid})
+        billing_summary = _safe_row(bill_rows[0]) if bill_rows else {}
+
+        claim_rows = query_rows(conn, """
+            SELECT COUNT(*) AS claim_count,
+                   COALESCE(SUM(claim_amount),0) AS claim_amount,
+                   COALESCE(SUM(approved_amount),0) AS approved_amount,
+                   COALESCE(SUM(paid_amount),0) AS claim_paid_amount
+            FROM silver_claims WHERE patient_id = $pid
+        """, {"pid": pid})
+        claim_summary = _safe_row(claim_rows[0]) if claim_rows else {}
+
+        # Feedback summary
+        fb_rows = query_rows(conn, """
+            SELECT COUNT(*) AS feedback_count,
+                   AVG(rating) AS avg_rating,
+                   COALESCE(SUM(CASE WHEN complaint_flag THEN 1 ELSE 0 END),0) AS complaints
+            FROM silver_feedback WHERE patient_id = $pid
+        """, {"pid": pid})
+        feedback_summary = _safe_row(fb_rows[0]) if fb_rows else {}
+
+        events = _journey_events(conn, pid, event_type, date_from, date_to)
+
+        # Section records (for the UI panels) - limited
+        def section(table: str, date_col: str | None = None, limit: int = 100) -> list[dict[str, Any]]:
+            if not table_exists(table):
+                return []
+            cols = set(columns(conn, table))
+            if "patient_id" not in cols:
+                return []
+            q = f"SELECT * FROM {table} WHERE patient_id = $pid"
+            p: dict[str, Any] = {"pid": pid}
+            if date_col and date_col in cols:
+                q += f" ORDER BY {date_col} DESC"
+            q += f" LIMIT {int(limit)}"
+            try:
+                return [_safe_row(r) for r in query_rows(conn, q, p)]
+            except Exception:  # noqa: BLE001
+                return []
+
+        diagnoses: list[dict[str, Any]] = []
+        diagnoses_note = "No diagnosis fact table in this synthetic dataset; diagnosis dimension exists (dim_diagnosis)."
+
+        payload = {
+            "patient": patient,
+            "encounter_summary": enc_summary,
+            "admission_summary": adm_summary,
+            "billing_summary": billing_summary,
+            "claim_summary": claim_summary,
+            "feedback_summary": feedback_summary,
+            "appointments": section("silver_appointments", "appointment_date"),
+            "encounters": section("silver_encounters", "arrival_datetime"),
+            "admissions": section("silver_admissions", "admission_datetime"),
+            "transfers": section("silver_transfers", "transfer_datetime"),
+            "procedures": section("silver_procedures", "scheduled_start"),
+            "lab_orders": section("silver_lab_orders", "ordered_at"),
+            "lab_results": section("silver_lab_results", "result_at"),
+            "prescriptions": section("silver_prescriptions", "prescribed_date"),
+            "dispensing": section("silver_dispensing", "dispensed_date"),
+            "diagnoses": diagnoses,
+            "diagnoses_note": diagnoses_note,
+            "billing_claims": section("silver_claims", "claim_date"),
+            "invoices": section("silver_invoices", "invoice_date"),
+            "payments": section("silver_payments", "payment_date"),
+            "feedback": section("silver_feedback", "visit_date"),
+            "timeline": events,
+            "event_types": sorted({e["event_type"] for e in events}),
+            "synthetic_notice": "Synthetic data only. No real patient identities, no clinical recommendations.",
+        }
+    return _empty(payload, request)
+
+
+@router.get("/journey/events")
+def patient_journey_events(request: Request):
+    f = parse_filters(request)
+    patient_id = request.query_params.get("patient_id")
+    encounter_id = request.query_params.get("encounter_id")
+    admission_id = request.query_params.get("admission_id")
+    event_type = request.query_params.get("event_type")
+    date_from = request.query_params.get("date_from") or f.date_from
+    date_to = request.query_params.get("date_to") or f.date_to
+    with get_conn() as conn:
+        pid = _resolve_journey_patient(conn, patient_id, encounter_id, admission_id)
+        events = _journey_events(conn, pid, event_type, date_from, date_to)
+    # flatten for table/export
+    rows = []
+    for e in events:
+        detail = e.get("detail") or {}
+        row = {
+            "patient_id": pid,
+            "event_type": e.get("event_type"),
+            "event_label": e.get("event_label"),
+            "event_date": e.get("event_date"),
+            "event_id": e.get("event_id"),
+            "table": e.get("table"),
+        }
+        # include a few detail keys
+        for k, v in list(detail.items())[:12]:
+            if k not in row:
+                row[f"detail_{k}"] = v
+        rows.append(row)
+    total = len(rows)
+    # manual pagination
+    start = (f.page - 1) * f.page_size
+    end = start + f.page_size
+    page_rows = rows[start:end]
+    return table_envelope(page_rows, total, f.page, f.page_size, f.applied(), dataset="journey_events", patient_id=pid)
+
+
+# ---------------------------------------------------------------------------
 # Server-side exports
 # ---------------------------------------------------------------------------
 @router.get(

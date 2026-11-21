@@ -455,3 +455,42 @@ def test_pipeline_lineage_by_table(client, duckdb_path) -> None:
     assert "downstream_tables" in body
     bad = _get(client, "/api/v1/pipeline/lineage/__not_a_table__")
     assert bad.status_code == 422
+
+def test_journey_sample_patient(client, duckdb_path) -> None:
+    resp = _get(client, "/api/v1/journey/sample-patient")
+    assert resp.status_code == 200, resp.text
+    pid = resp.json()["data"].get("patient_id")
+    assert pid
+
+
+def test_patient_journey_endpoint(client, duckdb_path) -> None:
+    sample = _get(client, "/api/v1/journey/sample-patient").json()["data"]["patient_id"]
+    resp = _get(client, f"/api/v1/journey?patient_id={sample}")
+    assert resp.status_code == 200, resp.text
+    body = resp.json()["data"]
+    assert body["patient"]["patient_id"] == sample
+    assert "timeline" in body and isinstance(body["timeline"], list)
+    assert "billing_summary" in body
+    assert "feedback_summary" in body
+    assert "synthetic_notice" in body
+    # event type filter
+    timeline = body["timeline"]
+    if timeline:
+        et = timeline[0]["event_type"]
+        filtered = _get(client, f"/api/v1/journey?patient_id={sample}&event_type={et}")
+        assert filtered.status_code == 200
+        for ev in filtered.json()["data"]["timeline"]:
+            assert ev["event_type"] == et
+
+
+def test_patient_journey_events_export_shape(client, duckdb_path) -> None:
+    sample = _get(client, "/api/v1/journey/sample-patient").json()["data"]["patient_id"]
+    resp = _get(client, f"/api/v1/journey/events?patient_id={sample}&page=1&page_size=25")
+    assert resp.status_code == 200, resp.text
+    payload = resp.json()
+    assert "data" in payload and "pagination" in payload
+    assert payload["pagination"]["total_records"] >= 0
+    bad = _get(client, "/api/v1/journey?patient_id=PAT_DOES_NOT_EXIST")
+    assert bad.status_code == 404
+    missing = _get(client, "/api/v1/journey")
+    assert missing.status_code in (400, 422)

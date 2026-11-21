@@ -12,6 +12,7 @@ from typing import Any
 from fastapi import Request
 
 from api.core.config import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE
+from api.core.errors import FilterValidationError
 
 DEFAULT_DATE_FROM = "2025-01-01"
 DEFAULT_DATE_TO = "2026-12-31"
@@ -84,6 +85,22 @@ PAGE_FILTER_COLUMNS: dict[str, tuple[str, ...]] = {
 }
 
 NUMERIC_FILTER_TYPES = ("INTEGER", "BIGINT", "DOUBLE", "FLOAT", "DECIMAL", "HUGEINT", "REAL")
+# Page-scoped filters whose values are always numeric regardless of table schema.
+NUMERIC_PAGE_FILTERS = {"rating"}
+
+# Query keys recognised by the shared filter contract. Route-specific keys are
+# listed separately so that, for example, ``?by=department`` is not rejected.
+SUPPORTED_QUERY_PARAMS = {
+    "date_from", "date_to", "hospital_id", "department_id", "specialty_id",
+    "payer_id", "encounter_type", "patient_type", "page", "page_size", "search",
+    "sort_by", "sort_dir", "previous", "numeric_column", "numeric_min",
+    "numeric_max", *PAGE_FILTER_COLUMNS,
+}
+ROUTE_QUERY_PARAMS = {"by", "metric"}
+BOOLEAN_VALUES = {
+    "1": True, "true": True, "yes": True,
+    "0": False, "false": False, "no": False,
+}
 
 
 @dataclass
@@ -126,50 +143,155 @@ class Filters:
 
 
 def parse_filters(request: Request) -> Filters:
+    """Parse and validate all supported query parameters.
+
+    Invalid or unsupported parameters raise ``FilterValidationError`` so the
+    global handler returns the structured ``VALIDATION_ERROR`` envelope with a
+    stable machine-readable code instead of silently coercing the request.
+    """
     q = request.query_params
-    page = _positive_int(q.get("page"), 1)
-    page_size = _positive_int(q.get("page_size"), DEFAULT_PAGE_SIZE)
-    page_size = min(page_size, MAX_PAGE_SIZE)
-    sort_dir = (q.get("sort_dir", "asc") or "asc").lower()
+    allowed = SUPPORTED_QUERY_PARAMS | ROUTE_QUERY_PARAMS
+    unsupported = sorted(set(q.keys()) - allowed)
+    if unsupported:
+        raise FilterValidationError(
+            f"Unsupported query parameter(s): {', '.join(unsupported)}",
+            {"parameters": unsupported},
+        )
+
+    page = _positive_int(q.get("page"), 1, "page")
+    page_size = _positive_int(q.get("page_size"), DEFAULT_PAGE_SIZE, "page_size")
+    if page_size > MAX_PAGE_SIZE:
+        raise FilterValidationError(
+            f"page_size must be between 1 and {MAX_PAGE_SIZE}",
+            {"parameter": "page_size", "value": q.get("page_size"), "maximum": MAX_PAGE_SIZE},
+        )
+
+    sort_dir = (q.get("sort_dir") or "asc").lower()
     if sort_dir not in {"asc", "desc"}:
-        sort_dir = "asc"
+        raise FilterValidationError(
+            "sort_dir must be 'asc' or 'desc'",
+            {"parameter": "sort_dir", "value": q.get("sort_dir")},
+        )
+
     date_from = q.get("date_from") or DEFAULT_DATE_FROM
     date_to = q.get("date_to") or DEFAULT_DATE_TO
-    for value in (date_from, date_to):
-        try:
-            date.fromisoformat(value)
-        except ValueError as exc:
-            raise ValueError(f"Invalid date '{value}'. Use YYYY-MM-DD.") from exc
+    _date(date_from, "date_from")
+    _date(date_to, "date_to")
+    if date_from > date_to:
+        raise FilterValidationError(
+            "date_from must not be later than date_to",
+            {"parameter": "date_from", "value": date_from, "date_to": date_to},
+        )
+
+    hospital_ids = [_text(v, "hospital_id") for v in q.getlist("hospital_id") if v]
+    previous = _boolean(q.get("previous"), "previous")
+
+    numeric_column = q.get("numeric_column") or None
+    if numeric_column is not None:
+        _identifier(numeric_column, "numeric_column")
+    numeric_min = _number(q.get("numeric_min"), "numeric_min")
+    numeric_max = _number(q.get("numeric_max"), "numeric_max")
+    if (
+        numeric_min is not None
+        and numeric_max is not None
+        and float(numeric_min) > float(numeric_max)
+    ):
+        raise FilterValidationError(
+            "numeric_min must not be greater than numeric_max",
+            {"parameter": "numeric_min", "value": numeric_min, "numeric_max": numeric_max},
+        )
+
+    page_filters: dict[str, str] = {}
+    for name in PAGE_FILTER_COLUMNS:
+        value = q.get(name)
+        if value is None or value == "":
+            continue
+        checked = _text(value, name)
+        assert checked is not None
+        if name in NUMERIC_PAGE_FILTERS:
+            _number(checked, name)
+        page_filters[name] = checked
+
     return Filters(
         date_from=date_from,
         date_to=date_to,
-        hospital_ids=[v for v in q.getlist("hospital_id") if v],
-        department_id=q.get("department_id") or None,
-        specialty_id=q.get("specialty_id") or None,
-        payer_id=q.get("payer_id") or None,
-        encounter_type=q.get("encounter_type") or None,
-        patient_type=q.get("patient_type") or None,
+        hospital_ids=hospital_ids,
+        department_id=_text(q.get("department_id"), "department_id"),
+        specialty_id=_text(q.get("specialty_id"), "specialty_id"),
+        payer_id=_text(q.get("payer_id"), "payer_id"),
+        encounter_type=_text(q.get("encounter_type"), "encounter_type"),
+        patient_type=_text(q.get("patient_type"), "patient_type"),
         page=page,
         page_size=page_size,
-        search=q.get("search") or None,
-        sort_by=q.get("sort_by") or None,
+        search=_text(q.get("search"), "search"),
+        sort_by=_identifier(q.get("sort_by"), "sort_by"),
         sort_dir=sort_dir,
-        previous=(q.get("previous") or "").lower() in {"1", "true", "yes"},
-        page_filters={
-            name: value for name in PAGE_FILTER_COLUMNS if (value := q.get(name))
-        },
-        numeric_column=q.get("numeric_column") or None,
-        numeric_min=q.get("numeric_min") or None,
-        numeric_max=q.get("numeric_max") or None,
+        previous=previous,
+        page_filters=page_filters,
+        numeric_column=numeric_column,
+        numeric_min=numeric_min,
+        numeric_max=numeric_max,
     )
 
 
-def _positive_int(value: str | None, default: int) -> int:
-    try:
-        parsed = int(value) if value is not None else default
-    except (TypeError, ValueError):
+def _invalid(parameter: str, value: Any, reason: str) -> FilterValidationError:
+    return FilterValidationError(
+        f"Invalid {parameter}: {reason}",
+        {"parameter": parameter, "value": value, "reason": reason},
+    )
+
+
+def _positive_int(value: str | None, default: int, parameter: str) -> int:
+    if value is None or value == "":
         return default
-    return parsed if parsed > 0 else default
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError) as exc:
+        raise _invalid(parameter, value, "must be a whole number") from exc
+    if parsed < 1:
+        raise _invalid(parameter, value, "must be greater than zero")
+    return parsed
+
+
+def _date(value: str, parameter: str) -> date:
+    try:
+        return date.fromisoformat(value)
+    except ValueError as exc:
+        raise _invalid(parameter, value, "must use YYYY-MM-DD") from exc
+
+
+def _boolean(value: str | None, parameter: str) -> bool:
+    if value is None or value == "":
+        return False
+    parsed = BOOLEAN_VALUES.get(value.lower())
+    if parsed is None:
+        raise _invalid(parameter, value, "must be true or false")
+    return parsed
+
+
+def _text(value: str | None, parameter: str) -> str | None:
+    if value is None or value == "":
+        return None
+    if len(value) > 200 or any(ord(ch) < 32 for ch in value):
+        raise _invalid(parameter, value, "must be at most 200 characters without control characters")
+    return value
+
+
+def _identifier(value: str | None, parameter: str) -> str | None:
+    value = _text(value, parameter)
+    if value and not value.replace("_", "").isalnum():
+        raise _invalid(parameter, value, "must contain only letters, digits and underscores")
+    return value
+
+
+def _number(value: str | None, parameter: str) -> str | None:
+    if value is None or value == "":
+        return None
+    try:
+        float(value)
+    except (TypeError, ValueError) as exc:
+        raise _invalid(parameter, value, "must be a number") from exc
+    return value
 
 
 def shift_period(f: Filters) -> tuple[str, str]:

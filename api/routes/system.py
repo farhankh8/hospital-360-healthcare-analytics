@@ -8,11 +8,20 @@ from fastapi import APIRouter, HTTPException, Request
 
 from api.core.config import DATA_PATH, ROOT
 from api.core.db import get_conn, table_exists
+from api.core.errors import FilterValidationError
 from api.core.filters import parse_filters
 from api.core.responses import envelope, table_envelope
+from api.services.exports import (
+    csv_response,
+    export_rows,
+    invoke_export_route,
+    resolve_export_route,
+)
 from api.services.query import columns, paginated_rows, query_rows
 
 router = APIRouter(tags=["system"])
+
+SNAPSHOT_KPI_IDS = {"hospitals_selected", "total_beds", "active_employees"}
 
 EXPLORER_DATASETS = {
     "patients": "silver_patients",
@@ -355,6 +364,28 @@ def explorer_schema(dataset: str, request: Request):
 
 
 # ---------------------------------------------------------------------------
+# Server-side exports
+# ---------------------------------------------------------------------------
+@router.get("/exports/csv")
+def export_csv(request: Request, path: str, filename: str = "export"):
+    """Export rows from any registered GET data endpoint under the contract cap.
+
+    The source endpoint is reused, so filters, sorting, KPI formulas and SQL all
+    stay identical to the on-screen response. Pagination cannot be used to
+    bypass the cap because the source total is checked before serialisation.
+    """
+    try:
+        route, path_params = resolve_export_route(request, path)
+    except ValueError as exc:
+        raise FilterValidationError(str(exc), {"parameter": "path", "value": path}) from exc
+    except LookupError as exc:
+        raise HTTPException(404, str(exc)) from exc
+    payload = invoke_export_route(request, route, path_params)
+    rows = export_rows(payload)
+    return csv_response(rows, filename)
+
+
+# ---------------------------------------------------------------------------
 # KPI glossary
 # ---------------------------------------------------------------------------
 @router.get("/kpis/glossary")
@@ -368,4 +399,8 @@ def kpi_glossary(request: Request):
         payload = []
     if isinstance(payload, dict):
         payload = payload.get("kpis", [])
+    for item in payload:
+        if isinstance(item, dict) and item.get("id") in SNAPSHOT_KPI_IDS:
+            item["date_filter_available"] = False
+            item["date_filter_note"] = "Date filter unavailable: this is a snapshot KPI with no date field."
     return _empty(payload, request)

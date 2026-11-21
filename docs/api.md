@@ -25,7 +25,8 @@ FastAPI at `/docs` (ReDoc at `/redoc`) when the app is running.
 }
 ```
 
-**Table responses** additionally include `pagination`:
+**Table responses** include `pagination` at the top level. The same object is also kept
+under `metadata.pagination` for backward compatibility with pre-Phase-3 clients:
 
 ```json
 {
@@ -34,22 +35,35 @@ FastAPI at `/docs` (ReDoc at `/redoc`) when the app is running.
     "page_size": 50,
     "total_records": 0,
     "total_pages": 0
+  },
+  "metadata": {
+    "pagination": {
+      "page": 1,
+      "page_size": 50,
+      "total_records": 0,
+      "total_pages": 0
+    }
   }
 }
 ```
 
-**Errors** use a consistent shape:
+**Errors** use one structured shape for validation, missing resources, export limits and
+internal failures. `code` is a stable machine-readable string; `message` is human-readable:
 
 ```json
 {
   "error": {
-    "code": "bad_request",
+    "code": "VALIDATION_ERROR",
     "message": "Human-readable explanation",
-    "details": null,
+    "details": { "parameter": "page", "value": "0" },
     "generated_at": "2026-11-20T00:00:00Z"
   }
 }
 ```
+
+Stable codes include `VALIDATION_ERROR` (422), `NOT_FOUND` (404),
+`EXPORT_LIMIT_EXCEEDED` (413), `BAD_REQUEST` (400), `INTERNAL_ERROR` (500) and
+`DATABASE_NOT_READY` (503). Responses never include stack traces.
 
 ## Common query parameters
 
@@ -59,13 +73,20 @@ FastAPI at `/docs` (ReDoc at `/redoc`) when the app is running.
 | `hospital_id` | repeatable string | `?hospital_id=H01&hospital_id=H03` |
 | `department_id`, `specialty_id`, `payer_id` | string | Context-sensitive; ignored if the target table lacks the column |
 | `encounter_type`, `patient_type` | string | Allowlisted values |
-| `page`, `page_size` | int | Default 1 / 50; page size capped (5,000) |
+| `page`, `page_size` | int | Default 1 / 50; each must be a positive integer and page size may not exceed 5,000 |
 | `search` | string | Applied only to allowlisted searchable text columns |
-| `sort_by`, `sort_dir` | string | `sort_dir` is `asc` or `desc`; invalid values fall back to `asc` |
-| `previous` | bool | Compare with the immediately preceding equal-length period |
+| `sort_by`, `sort_dir` | string | `sort_dir` must be `asc` or `desc`; `sort_by` must be an identifier |
+| `previous` | bool | `true`/`false`, `1`/`0` or `yes`/`no`; compares with the preceding equal-length period |
+| `numeric_column`, `numeric_min`, `numeric_max` | string/number | Explorer range filter; column must be allowlisted and numeric |
 
-Filter columns are allowlisted and all values are passed as bound SQL parameters. Arbitrary
-SQL in any parameter is rejected or ignored; it is never executed.
+All supported parameters are validated. Unknown keys, malformed dates, reversed date ranges,
+invalid integers/booleans/numbers, oversized `page_size`, invalid sort directions and malformed
+identifiers return `VALIDATION_ERROR` (422) with the offending `details`. Filter columns are
+allowlisted and all values are passed as bound SQL parameters; arbitrary SQL is never executed.
+
+Snapshot KPIs (`hospitals_selected`, `total_beds`, `active_employees`) have no date field. They
+remain active and report `date_filter_available: false` with an explanatory note instead of
+silently ignoring the date range.
 
 `kpis` endpoints return an object keyed by KPI id:
 
@@ -257,6 +278,18 @@ SQL in any parameter is rejected or ignored; it is never executed.
 | GET | `/api/v1/explorer/datasets` | Allowed datasets and row counts |
 | GET | `/api/v1/explorer/{dataset}/records` | Paginated, filterable records |
 | GET | `/api/v1/explorer/{dataset}/schema` | Column names, dtypes, descriptions |
+
+### Exports
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/v1/exports/csv?path=<endpoint>&filename=<name>` | Server-side CSV export of any registered GET data endpoint |
+
+Exports reuse the source endpoint, so the same filters, sorting, SQL and KPI formulas apply.
+The server enforces `MAX_EXPORT_ROWS = 5000` on both the source total and the exported row
+count. A filtered result above the cap returns `EXPORT_LIMIT_EXCEEDED` (413); pagination cannot
+be used to bypass it. Clients must show the returned `error.message` rather than silently
+truncating rows.
 
 ### Glossary
 

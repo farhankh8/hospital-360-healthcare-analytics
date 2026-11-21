@@ -29,6 +29,15 @@ const STATS = [
   { value: '24/24', label: 'Static build pages', note: 'Measured Next.js production build' },
 ];
 
+const DATA_SCALE = [
+  { value: '10', label: 'Hospitals', note: 'Synthetic multi-hospital network in dim_hospital' },
+  { value: '15,200', label: 'Patients', note: 'Patient records in the generated dataset' },
+  { value: '82,000', label: 'Encounters', note: 'Outpatient, inpatient, and emergency encounters' },
+  { value: '136,800', label: 'Appointments', note: 'Scheduled appointment records' },
+  { value: '1.59M', label: 'Bronze rows', note: '1,588,637 total rows ingested across 41 bronze tables' },
+  { value: '12', label: 'Gold tables', note: 'Analytics-ready marts for dashboard consumption' },
+];
+
 const MODULES = [
   { icon: LayoutDashboard, name: 'Executive Overview', group: 'Executive', detail: 'System-wide KPIs, trends, and drill-down entry points.' },
   { icon: Building2, name: 'Hospital Comparison', group: 'Executive', detail: 'Cross-hospital benchmarks, rankings, and profile views.' },
@@ -90,6 +99,7 @@ export default function LandingPage() {
           </div>
           <nav className="hidden items-center gap-5 md:flex">
             <a href="#modules" className="text-xs font-medium text-muted transition hover:text-ink">Modules</a>
+            <a href="#data" className="text-xs font-medium text-muted transition hover:text-ink">Data</a>
             <a href="#flow" className="text-xs font-medium text-muted transition hover:text-ink">How it works</a>
             <a href="#evidence" className="text-xs font-medium text-muted transition hover:text-ink">Evidence</a>
           </nav>
@@ -211,8 +221,37 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="flow" className="border-y border-line bg-surface">
-          <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
+        <section id="data" className="border-y border-line bg-surface">
+          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div className="max-w-3xl">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">Data scale</p>
+                <h2 className="mt-2 text-2xl font-semibold tracking-tight text-ink-strong sm:text-3xl">Synthetic data, measured at pipeline scale</h2>
+                <p className="mt-3 text-sm leading-7 text-muted">
+                  The dashboard runs on generated healthcare data. Counts below are measured from the latest pipeline manifest
+                  (<span className="font-medium text-ink">RUN_20261121_001</span>), not estimates.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {DATA_SCALE.map((item) => (
+                <div key={item.label} className="rounded-xl border border-line bg-canvas p-5">
+                  <p className="text-3xl font-semibold tracking-tight text-ink-strong tabular-nums">{item.value}</p>
+                  <p className="mt-2 text-sm font-medium text-ink">{item.label}</p>
+                  <p className="mt-2 text-xs leading-5 text-muted">{item.note}</p>
+                </div>
+              ))}
+            </div>
+
+            <p className="mt-4 text-[11px] leading-5 text-muted">
+              Additional measured volumes from the same manifest include 690 doctors, 2,980 staff, 3,450 beds, 24,804 admissions, 106,000 lab orders, 66,000 invoices, and 52,000 claims.
+            </p>
+          </div>
+        </section>
+
+        <section id="flow" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr]">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">How it works</p>
               <h2 className="mt-2 text-2xl font-semibold tracking-tight text-ink-strong sm:text-3xl">From pipeline to decision-ready views</h2>

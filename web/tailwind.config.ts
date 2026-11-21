@@ -1,6 +1,9 @@
 import type { Config } from 'tailwindcss';
 
+const withAlpha = (variable: string) => `rgb(var(${variable}) / <alpha-value>)`;
+
 const config: Config = {
+  darkMode: 'class',
   content: [
     './app/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -10,33 +13,53 @@ const config: Config = {
     extend: {
       colors: {
         navy: {
-          DEFAULT: '#0B2545',
-          light: '#123B63',
+          DEFAULT: withAlpha('--color-navy'),
+          light: withAlpha('--color-navy-light'),
           darker: '#071A31',
         },
         teal: {
-          DEFAULT: '#0E9384',
-          light: '#E6F4F2',
-          dark: '#0A6E63',
+          DEFAULT: withAlpha('--color-teal'),
+          light: withAlpha('--color-teal-soft'),
+          dark: withAlpha('--color-teal-dark'),
         },
         success: {
-          DEFAULT: '#16803C',
-          light: '#E8F5EC',
+          DEFAULT: withAlpha('--color-success'),
+          light: withAlpha('--color-success-soft'),
         },
         warning: {
-          DEFAULT: '#D97706',
-          light: '#FEF3E2',
+          DEFAULT: withAlpha('--color-warning'),
+          light: withAlpha('--color-warning-soft'),
         },
         critical: {
-          DEFAULT: '#C0392B',
-          light: '#FCECEA',
+          DEFAULT: withAlpha('--color-critical'),
+          light: withAlpha('--color-critical-soft'),
         },
-        canvas: '#F4F7FA',
-        ink: '#1E293B',
-        line: '#E2E8F0',
+        info: {
+          DEFAULT: withAlpha('--color-info'),
+          light: withAlpha('--color-info-soft'),
+        },
+        canvas: withAlpha('--color-canvas'),
+        surface: {
+          DEFAULT: withAlpha('--color-surface'),
+          alt: withAlpha('--color-surface-alt'),
+          hover: withAlpha('--color-surface-hover'),
+        },
+        ink: {
+          DEFAULT: withAlpha('--color-ink'),
+          strong: withAlpha('--color-ink-strong'),
+        },
+        muted: {
+          DEFAULT: withAlpha('--color-muted'),
+          soft: withAlpha('--color-muted-soft'),
+        },
+        line: {
+          DEFAULT: withAlpha('--color-line'),
+          strong: withAlpha('--color-line-strong'),
+        },
       },
       fontFamily: {
         sans: [
+          'var(--font-inter)',
           'Inter',
           'ui-sans-serif',
           'system-ui',
@@ -49,12 +72,26 @@ const config: Config = {
           'sans-serif',
         ],
       },
+      fontSize: {
+        kpi: ['30px', { lineHeight: '1.15', fontWeight: '700', letterSpacing: '-0.02em' }],
+        'kpi-sm': ['24px', { lineHeight: '1.2', fontWeight: '650', letterSpacing: '-0.01em' }],
+      },
       boxShadow: {
-        card: '0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.03)',
-        drawer: '-8px 0 28px rgba(11, 37, 69, 0.12)',
+        card: 'var(--shadow-card)',
+        pop: 'var(--shadow-pop)',
       },
       borderRadius: {
-        lg: '0.625rem',
+        DEFAULT: '8px',
+        sm: '6px',
+        md: '10px',
+        lg: '14px',
+      },
+      zIndex: {
+        dropdown: '30',
+        sticky: '40',
+        overlay: '50',
+        modal: '60',
+        toast: '70',
       },
     },
   },

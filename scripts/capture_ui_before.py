@@ -1,6 +1,9 @@
 """Capture Phase 0 BEFORE screenshots for UI redesign audit."""
+
 from __future__ import annotations
+
 from pathlib import Path
+
 from playwright.sync_api import sync_playwright
 
 BASE = "http://127.0.0.1:3000"
@@ -35,8 +38,8 @@ def main() -> int:
                     path = out / f"{name}-{label}.png"
                     page.screenshot(path=str(path), full_page=True)
                     print(f"ok {path}")
-                except Exception as e:
-                    print(f"fail {name} {label}: {e}")
+                except Exception as exc:  # noqa: BLE001
+                    print(f"fail {name} {label}: {exc}")
             context.close()
         browser.close()
     return 0

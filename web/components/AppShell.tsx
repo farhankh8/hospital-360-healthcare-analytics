@@ -19,6 +19,7 @@ import {
   Info,
   LayoutDashboard,
   Menu,
+  Moon,
   Package,
   Pill,
   Route as RouteIcon,
@@ -26,6 +27,7 @@ import {
   ShieldAlert,
   ShieldCheck,
   Siren,
+  Sun,
   UserRound,
   UsersRound,
   WalletCards,
@@ -33,6 +35,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { useFilters } from '@/lib/filters';
+import { useTheme } from '@/components/ThemeProvider';
 import { type PageSlug } from '@/lib/page-configs';
 import { pages } from '@/lib/page-configs';
 import { NAV_GROUPS, type PageConfig } from '@/lib/types';
@@ -73,6 +76,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { filters, hospitals, compare, drawerOpen, setDrawerOpen } = useFilters();
+  const { theme, toggleTheme } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -181,7 +185,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {mobileNavOpen && (
         <div className="fixed inset-0 z-50 flex lg:hidden">
-          <button type="button" className="absolute inset-0 bg-navy/40" onClick={() => setMobileNavOpen(false)} aria-label="Close navigation" />
+          <button type="button" className="absolute inset-0 bg-slate-900/40" onClick={() => setMobileNavOpen(false)} aria-label="Close navigation" />
           <aside className="relative h-full w-[270px] bg-navy shadow-drawer">
             <button type="button" onClick={() => setMobileNavOpen(false)} className="absolute right-2 top-4 z-10 rounded p-1 text-slate-300" aria-label="Close navigation">
               <X className="h-5 w-5" />
@@ -192,7 +196,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       )}
 
       <div className={cn('transition-all', collapsed ? 'lg:pl-[72px]' : 'lg:pl-[260px]')}>
-        <header className="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur">
+        <header className="sticky top-0 z-30 border-b border-line bg-surface/95 backdrop-blur">
           <div className="flex h-16 items-center gap-3 px-4 lg:px-6">
             <button type="button" onClick={() => setMobileNavOpen(true)} className="rounded p-1.5 text-slate-500 hover:bg-canvas lg:hidden" aria-label="Open navigation">
               <Menu className="h-5 w-5" />
@@ -218,6 +222,15 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Building2 className="h-3.5 w-3.5 text-teal" />
                 <span className="max-w-[140px] truncate">{hospitalLabel}</span>
               </div>
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-line bg-surface text-muted transition hover:bg-surface-hover hover:text-ink"
+                aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+                title={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+              >
+                {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </button>
               {compare && <Badge tone="info">Compare</Badge>}
               <div className="relative" ref={profileRef}>
                 <button
@@ -252,8 +265,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {drawerOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <button type="button" className="absolute inset-0 bg-navy/40" onClick={() => setDrawerOpen(false)} aria-label="Close filters" />
-          <div className="absolute inset-y-0 right-0 w-full max-w-sm overflow-y-auto bg-white p-5 shadow-drawer">
+          <button type="button" className="absolute inset-0 bg-slate-900/40" onClick={() => setDrawerOpen(false)} aria-label="Close filters" />
+          <div className="absolute inset-y-0 right-0 w-full max-w-sm overflow-y-auto bg-surface p-5 shadow-pop">
             <p className="mb-4 text-sm font-semibold text-navy">Global filters</p>
             <FilterBar inDrawer />
           </div>

@@ -24,7 +24,7 @@ def generate_inventory(seed: int, refs: ReferenceData,
     supplier_ids = np.array([supplier_of_item[i] for i in item_ids], dtype=object)
     unit_cost = np.array([cost_of_item[i] for i in item_ids], dtype=float)
 
-    movement_date_day = sample_event_days(rng, n_movements)
+    movement_date_day = np.minimum(sample_event_days(rng, n_movements), MAX_DAY)
     movement_type = rng.choice(MOVEMENT_TYPES, size=n_movements, p=MOVEMENT_PROBS)
     positive = (movement_type == "Receipt") | (movement_type == "Return")
     quantity = np.where(
@@ -57,7 +57,7 @@ def generate_inventory(seed: int, refs: ReferenceData,
     po_supplier = sup["supplier_id"].to_numpy()[po_supplier_pos]
     lead_days = np.array([lead[s] for s in po_supplier], dtype=np.int64)
     rel = np.array([reliability[s] for s in po_supplier], dtype=float)
-    order_day = sample_event_days(rng, n_orders)
+    order_day = np.minimum(sample_event_days(rng, n_orders), MAX_DAY)
     expected_day = np.minimum(order_day + lead_days, MAX_DAY)
 
     on_time = rng.random(n_orders) < rel

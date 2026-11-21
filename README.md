@@ -268,7 +268,7 @@ Python suites skip gracefully until generation and ETL have produced the DuckDB 
 - Ephemeral hosting filesystems do not preserve the DuckDB data across restarts; use persistent storage or regenerate during deployment ([docs/deployment.md](docs/deployment.md)).
 - The quality module is an operational monitoring demo, not clinical decision support.
 - **npm audit (deferred, no `--force`):** `echarts <6.1.0` (moderate XSS, direct prod) and `next/postcss` chain (moderate/high, direct/transitive prod) require semver-major upgrades. Next 14→16 is a migration risk for 22 passing Playwright tests; ECharts 6 is smaller but deferred. Portfolio project uses synthetic data; tracked for a separate upgrade branch.
-- **DATE_ORDER_INVALID generator defect:** 26 quarantined rows (18 `purchase_orders`, 8 `incidents`) at 2026-12-30/31 are caused by `MAX_DAY` clipping in generators vs. `sample_event_days` window end. Not regenerated; smallest fix is shared `MAX_DAY = N_DAYS-1` and `max(source, min(source+offset, MAX_DAY))` in a planned seed-42 regeneration.
+- **DATE_ORDER_INVALID generator defect (fixed):** 26 rows (18 `purchase_orders`, 8 `incidents`) were caused by derived dates being clipped below unclipped sampled start days near window end. Fixed in seed-42 regeneration by clipping sampled event start days to `MAX_DAY` before deriving end dates in `generator/inventory.py` and `generator/feedback.py`; regression test added.
 - **DQ score is post-quarantine:** “Post-quarantine DQ rule score” means silver/gold rules pass after invalid rows are quarantined; detections at ingestion are shown in quarantine charts and are not raw-data perfection.
 
 ## 16. Project status
@@ -281,7 +281,7 @@ Measured from a local end-to-end run of `python -m generator.generate`,
 - Hospitals / patients: **10** / **15,200 unique** (15,240 source rows include 40 injected duplicates)
 - Coverage window achieved: **2025-01-01 → 2026-12-31 (24 months)**
 - Gold tables loaded in DuckDB: **12** (76 tables total; `gold_hospital_monthly` = 240 rows)
-- Automated data-quality score: **100.00 / 100** (304 rules, 0 failed rules, 2,819 quarantined rows / 2,859 rule-failure records)
+- Automated data-quality score: **100.00 / 100** (304 rules, 0 failed rules, 2,793 quarantined rows / 2,833 rule-failure records)
 - API: **206 / 206 GET endpoints registered**; all **118 chart-data endpoints** returned HTTP 200 with non-empty data; verifier PASS for bronze, manifest, DuckDB and API
 - pytest result (passed / skipped / failed): **87 / 0 / 0**
 - Frontend: `npm run build` succeeded (21 routes + hospital profile); `tsc --noEmit` and `npm run lint` clean

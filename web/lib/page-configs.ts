@@ -220,6 +220,14 @@ export const pages: Record<PageSlug, PageConfig> = {
     ],
     profileEndpoint: '/hospitals/{id}/profile',
     filters: CORE,
+    tabs: [
+      { id: 'overview', label: 'Overview', chartTitles: ['Monthly patient volume', 'Comparison to network average'], showTable: false },
+      { id: 'departments', label: 'Departments', chartTitles: ['Department performance'], showTable: true },
+      { id: 'operations', label: 'Operations', chartTitles: ['Bed occupancy trend', 'Appointment performance'], showTable: false },
+      { id: 'finance', label: 'Finance', chartTitles: ['Revenue trend'], showTable: false },
+      { id: 'workforce', label: 'Workforce', chartTitles: ['Doctor performance'], showTable: false },
+      { id: 'experience', label: 'Experience', chartTitles: ['Patient mix'], showTable: false },
+    ],
   },
 
   appointments: {

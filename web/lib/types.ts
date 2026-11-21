@@ -136,6 +136,15 @@ export interface PageFilterDef {
   placeholder?: string;
 }
 
+export interface PageTab {
+  id: string;
+  label: string;
+  /** Chart titles to show in this tab. If omitted, all charts are shown. */
+  chartTitles?: string[];
+  showTable?: boolean;
+  showKpis?: boolean;
+}
+
 export interface PageConfig {
   slug: string;
   path: string;
@@ -151,6 +160,7 @@ export interface PageConfig {
   pageFilters?: PageFilterDef[];
   profileEndpoint?: string;
   special?: boolean;
+  tabs?: PageTab[];
 }
 
 export interface SelectOption {

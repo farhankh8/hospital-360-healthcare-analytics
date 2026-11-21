@@ -494,3 +494,15 @@ def test_patient_journey_events_export_shape(client, duckdb_path) -> None:
     assert bad.status_code == 404
     missing = _get(client, "/api/v1/journey")
     assert missing.status_code in (400, 422)
+
+def test_kpi_glossary_required_fields(client, duckdb_path) -> None:
+    resp = _get(client, "/api/v1/kpis/glossary")
+    assert resp.status_code == 200, resp.text
+    data = resp.json()["data"]
+    items = data.get("kpis", data) if isinstance(data, dict) else data
+    assert isinstance(items, list) and len(items) > 50
+    required = {"name", "business_definition", "formula", "numerator", "denominator", "unit", "grain", "date_field", "exclusions", "source_tables", "dimensions", "caveat", "validation_test"}
+    missing = [k for k in required if k not in items[0]]
+    assert not missing, f"missing keys: {missing}"
+    # spot check a few items have business_definition
+    assert any(i.get("business_definition") for i in items)

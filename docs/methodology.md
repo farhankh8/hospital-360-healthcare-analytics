@@ -74,6 +74,8 @@ facts. They exist so that hospital comparison charts show plausible differences.
 
 ## 2. KPI definitions
 
+The KPI Glossary page (`/kpi-glossary`) and `/api/v1/kpis/glossary` expose the full catalog from `analytics/kpi_definitions/kpis.json`. Each KPI definition includes: KPI name, business definition, formula, numerator, denominator, unit, data grain, date logic, exclusions, source table, supported dimensions, caveats, and validation test. The UI supports search, category filter, table/card views, and a detail drawer.
+
 Every KPI has a documented ID, business definition, formula, numerator, denominator, grain,
 date field, exclusions, source, dimensions, target, caveat and validation. See
 [kpi_glossary.md](kpi_glossary.md) and `analytics/kpi_definitions/kpis.json`.

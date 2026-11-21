@@ -613,7 +613,7 @@
     "numerator": "Selected hospitals",
     "denominator": null,
     "grain": "comparison x period",
-    "date_field": "",
+    "date_field": "N/A (snapshot KPI)",
     "exclusions": "No additional exclusions; global date and hospital filters apply.",
     "source_tables": [
       "dim_hospital"
@@ -662,7 +662,7 @@
     "numerator": "dim_hospital.beds",
     "denominator": null,
     "grain": "hospital x month",
-    "date_field": "",
+    "date_field": "N/A (snapshot KPI)",
     "exclusions": "No additional exclusions; global date and hospital filters apply.",
     "source_tables": [
       "dim_hospital"
@@ -5615,7 +5615,7 @@
     "numerator": "Active staff",
     "denominator": null,
     "grain": "hospital x month",
-    "date_field": "",
+    "date_field": "N/A (snapshot KPI)",
     "exclusions": "No additional exclusions; global date and hospital filters apply.",
     "source_tables": [
       "dim_staff"

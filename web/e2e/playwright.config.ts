@@ -20,6 +20,9 @@ export default defineConfig({
   testMatch: '**/*.spec.ts',
   fullyParallel: false,
   retries: 0,
+  // Two workers keep the single API process stable on Windows while still
+  // covering both chromium and mobile projects in parallel.
+  workers: 2,
   reporter: [['list'], ['html', { outputFolder: 'playwright-report' }]],
   timeout: 60_000,
   expect: { timeout: 10_000 },

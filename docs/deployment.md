@@ -1,5 +1,7 @@
 # HOSPITAL 360 - Deployment
 
+> **Status: deployment preparation only.** No live deployment or cloud accounts were created in this phase. The artifacts below are prepared for Docker/self-hosted or Vercel+Python-host deployment.
+
 ## Deployment architecture
 
 ```mermaid

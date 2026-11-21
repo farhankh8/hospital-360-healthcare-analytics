@@ -176,7 +176,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-canvas text-ink">
-      <aside className={cn('fixed inset-y-0 left-0 z-40 hidden bg-navy transition-all lg:block', collapsed ? 'w-[72px]' : 'w-[260px]')}>{sidebar}</aside>
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-md focus:bg-teal focus:px-3 focus:py-2 focus:text-sm focus:text-white">Skip to main content</a>
+      <aside aria-label="Primary navigation" className={cn('fixed inset-y-0 left-0 z-40 hidden bg-navy transition-all lg:block', collapsed ? 'w-[72px]' : 'w-[260px]')}>{sidebar}</aside>
 
       {mobileNavOpen && (
         <div className="fixed inset-0 z-50 flex lg:hidden">
@@ -243,7 +244,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-[1600px] px-4 py-6 lg:px-6">{children}</main>
+        <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-[1600px] px-4 py-6 outline-none lg:px-6">{children}</main>
         <footer className="border-t border-line px-4 py-4 text-center text-[11px] text-slate-400 lg:px-6">
           HOSPITAL 360 · Educational analytics project using entirely synthetic data · Not for clinical use
         </footer>

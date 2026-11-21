@@ -160,13 +160,16 @@ export function AnalyticsPage({ config }: { config: PageConfig }) {
       {config.profileEndpoint && <ProfileHeader endpoint={config.profileEndpoint} params={pageParams} />}
 
       {config.tabs && config.tabs.length > 0 && (
-        <div className="flex flex-wrap gap-2 border-b border-line pb-2" data-testid="profile-tabs">
+        <div className="inline-flex flex-wrap gap-1 rounded-lg border border-line bg-surface-alt p-1" data-testid="profile-tabs">
           {config.tabs.map((tab) => (
             <button
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={cn('rounded-md px-3 py-1.5 text-xs font-medium', activeTab === tab.id ? 'bg-teal-light/40 text-teal-dark' : 'text-muted hover:text-navy')}
+              className={cn(
+                'rounded-md px-3 py-1.5 text-xs font-medium transition',
+                activeTab === tab.id ? 'bg-surface text-ink-strong shadow-sm' : 'text-muted hover:text-ink',
+              )}
               data-testid={`tab-${tab.id}`}
             >
               {tab.label}

@@ -120,10 +120,10 @@ export function KpiCard({ kpiId, item, loading, error, definition, route, onRetr
         <span className="text-[10px] uppercase tracking-wide text-muted-soft">{unit || 'value'}</span>
       </div>
 
-      <div className="mt-3 flex items-end gap-3 pl-2">
-        <div className="min-w-0">
-          <p data-testid="metric-value" className="truncate text-kpi-sm font-semibold tracking-tight text-ink-strong tabular-nums">{formatValue(item.value, unit)}</p>
-          <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px]">
+      <div className="mt-4 flex items-end justify-between gap-3 pl-2">
+        <div className="min-w-0 flex-1">
+          <p data-testid="metric-value" className="truncate text-[28px] font-semibold leading-none tracking-tight text-ink-strong tabular-nums">{formatValue(item.value, unit)}</p>
+          <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px]">
             <Delta
               tone={tone}
               value={`${tone === 'positive' ? '↑' : tone === 'negative' ? '↓' : '→'} ${formatChange(item.change_pct)}`}
@@ -136,15 +136,15 @@ export function KpiCard({ kpiId, item, loading, error, definition, route, onRetr
               const sign = delta > 0 ? '+' : delta < 0 ? '-' : '';
               return <span className="text-muted tabular-nums">{sign}{formatValue(Math.abs(delta), unit)} abs</span>;
             })()}
-            <span className="text-muted">vs previous</span>
+            <span className="text-muted">vs prev</span>
             {item.previous !== undefined && item.previous !== null && (
               <span className="text-muted tabular-nums">({formatValue(item.previous, unit)})</span>
             )}
           </div>
         </div>
         {Array.isArray(item.sparkline) && item.sparkline.length > 1 && (
-          <div className="ml-auto h-10 w-24 shrink-0 opacity-90">
-            <EChart option={sparkOption} height={40} />
+          <div className="ml-auto h-11 w-24 shrink-0 opacity-90">
+            <EChart option={sparkOption} height={44} />
           </div>
         )}
       </div>

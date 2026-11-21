@@ -116,6 +116,12 @@ export function AppShell({ children }: { children: ReactNode }) {
     router.push(`/explorer?search=${encodeURIComponent(search.trim())}`);
   };
 
+  const isAuthPage = pathname === '/';
+
+  if (isAuthPage) {
+    return <div className="min-h-screen bg-canvas text-ink">{children}</div>;
+  }
+
   const sidebar = (
     <nav className="flex h-full flex-col">
       <div className={cn('flex h-16 items-center gap-2 border-b border-white/10 px-4', collapsed && 'justify-center px-2')}>

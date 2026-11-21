@@ -95,7 +95,7 @@ export function ChartContainer({ config, data, loading, error, onRetry }: ChartC
         title={config.title}
         subtitle={exportError ? `Export failed: ${exportError}` : config.description}
         action={
-          <>
+          <div className="flex items-center gap-2">
             {config.unfilteredBenchmark && (
               <Badge tone="warning">
                 <LockKeyhole className="mr-1 h-3 w-3" /> Unfiltered benchmark
@@ -106,14 +106,14 @@ export function ChartContainer({ config, data, loading, error, onRetry }: ChartC
               onClick={download}
               disabled={!built.rows.length}
               title="Download chart data as CSV"
-              className="inline-flex h-7 w-7 items-center justify-center rounded border border-line text-muted transition hover:border-teal hover:text-teal disabled:opacity-40"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-line text-muted transition hover:border-teal/40 hover:bg-surface-hover hover:text-teal disabled:opacity-40"
             >
               <Download className="h-3.5 w-3.5" />
             </button>
-          </>
+          </div>
         }
       />
-      <div className="min-h-[280px] flex-1">{body}</div>
+      <div className="min-h-[280px] flex-1 p-2 pt-0">{body}</div>
     </Card>
   );
 }

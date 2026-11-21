@@ -38,6 +38,18 @@ const DATA_SCALE = [
   { value: '12', label: 'Gold tables', note: 'Analytics-ready marts for dashboard consumption' },
 ];
 
+const TOUR_STEPS = [
+  { step: '1', title: 'Start at Executive Overview', detail: 'Review system KPIs, trends, and compare periods.', href: '/overview', cta: 'Open overview' },
+  { step: '2', title: 'Filter and drill down', detail: 'Use global filters, open a module, and drill into charts/tables for detail.', href: '/hospitals', cta: 'Explore hospitals' },
+  { step: '3', title: 'Check governance', detail: 'Inspect data quality, KPI definitions, and methodology behind the metrics.', href: '/data-quality', cta: 'View data quality' },
+];
+
+const STACK_GROUPS = [
+  { title: 'Frontend', items: ['Next.js 15', 'React 19', 'TypeScript', 'Tailwind CSS', 'ECharts', 'TanStack Query', 'TanStack Table'] },
+  { title: 'Backend & Data', items: ['FastAPI', 'DuckDB', 'Parquet', 'Python data pipeline', 'SQL-style analytics'] },
+  { title: 'Quality & Testing', items: ['Pytest', 'Ruff', 'ESLint', 'TypeScript checks', 'Playwright + axe'] },
+];
+
 const MODULES = [
   { icon: LayoutDashboard, name: 'Executive Overview', group: 'Executive', detail: 'System-wide KPIs, trends, and drill-down entry points.' },
   { icon: Building2, name: 'Hospital Comparison', group: 'Executive', detail: 'Cross-hospital benchmarks, rankings, and profile views.' },
@@ -285,26 +297,76 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="evidence" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div className="max-w-2xl">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">Evidence</p>
-              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-ink-strong sm:text-3xl">Measured checks, visible in the repo</h2>
+        <section id="tour" className="border-y border-line bg-surface">
+          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+            <div className="max-w-3xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">Quick tour</p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-ink-strong sm:text-3xl">Explore the platform in three steps</h2>
               <p className="mt-3 text-sm leading-7 text-muted">
-                The project includes automated backend, lint/type/build, and Playwright checks. Counts below are measured from project runs.
+                Follow the main analyst flow from executive KPIs to module drill-downs and governance checks.
               </p>
             </div>
-            <Link href="/methodology" className="text-sm font-medium text-teal hover:text-teal-dark">Read methodology</Link>
+            <div className="mt-8 grid gap-4 md:grid-cols-3">
+              {TOUR_STEPS.map((item) => (
+                <article key={item.step} className="flex flex-col rounded-xl border border-line bg-canvas p-5">
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-teal-light text-xs font-semibold text-teal-dark">{item.step}</span>
+                  <h3 className="mt-4 text-sm font-semibold text-ink-strong">{item.title}</h3>
+                  <p className="mt-2 flex-1 text-sm leading-6 text-muted">{item.detail}</p>
+                  <Link href={item.href} className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-teal hover:text-teal-dark">
+                    {item.cta} <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                  </Link>
+                </article>
+              ))}
+            </div>
           </div>
+        </section>
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {STATS.map((stat) => (
-              <div key={stat.label} className="rounded-xl border border-line bg-surface p-5 shadow-card">
-                <p className="text-3xl font-semibold tracking-tight text-ink-strong tabular-nums">{stat.value}</p>
-                <p className="mt-2 text-sm font-medium text-ink">{stat.label}</p>
-                <p className="mt-2 text-xs leading-5 text-muted">{stat.note}</p>
+        <section id="stack" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="max-w-3xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">Tech stack</p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-ink-strong sm:text-3xl">Built with a data analytics web stack</h2>
+            <p className="mt-3 text-sm leading-7 text-muted">
+              The platform combines a modern frontend, API/data layer, and automated quality checks.
+            </p>
+          </div>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {STACK_GROUPS.map((group) => (
+              <div key={group.title} className="rounded-xl border border-line bg-surface p-5 shadow-card">
+                <h3 className="text-sm font-semibold text-ink-strong">{group.title}</h3>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {group.items.map((item) => (
+                    <span key={item} className="rounded-md border border-line bg-surface-alt px-2.5 py-1 text-[11px] font-medium text-muted">
+                      {item}
+                    </span>
+                  ))}
+                </div>
               </div>
             ))}
+          </div>
+        </section>
+
+        <section id="evidence" className="border-y border-line bg-surface">
+          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div className="max-w-2xl">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">Evidence</p>
+                <h2 className="mt-2 text-2xl font-semibold tracking-tight text-ink-strong sm:text-3xl">Measured checks, visible in the repo</h2>
+                <p className="mt-3 text-sm leading-7 text-muted">
+                  The project includes automated backend, lint/type/build, and Playwright checks. Counts below are measured from project runs.
+                </p>
+              </div>
+              <Link href="/methodology" className="text-sm font-medium text-teal hover:text-teal-dark">Read methodology</Link>
+            </div>
+
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {STATS.map((stat) => (
+                <div key={stat.label} className="rounded-xl border border-line bg-surface p-5 shadow-card">
+                  <p className="text-3xl font-semibold tracking-tight text-ink-strong tabular-nums">{stat.value}</p>
+                  <p className="mt-2 text-sm font-medium text-ink">{stat.label}</p>
+                  <p className="mt-2 text-xs leading-5 text-muted">{stat.note}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 

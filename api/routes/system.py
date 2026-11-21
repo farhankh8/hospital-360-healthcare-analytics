@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Query, Request
 
 from api.core.config import DATA_PATH, ROOT
 from api.core.db import get_conn, table_exists
@@ -12,6 +12,7 @@ from api.core.errors import FilterValidationError
 from api.core.filters import parse_filters
 from api.core.responses import envelope, table_envelope
 from api.services.exports import (
+    MAX_EXPORT_ROWS,
     csv_response,
     export_rows,
     invoke_export_route,
@@ -225,7 +226,7 @@ def dq_failures(request: Request):
             conn,
             "SELECT failure_id AS validation_id, table_name AS dataset, record_id, rule_id, "
             "failure_reason, severity, detected_at, pipeline_run_id AS run_id, 'Open' AS resolution_status "
-            "FROM dq_failures ORDER BY detected_at DESC LIMIT $limit OFFSET $offset",
+            "FROM dq_failures ORDER BY detected_at DESC, failure_id ASC LIMIT $limit OFFSET $offset",
             {"limit": f.page_size, "offset": (f.page - 1) * f.page_size},
         )
     return table_envelope(rows, total, f.page, f.page_size, f.applied())
@@ -366,14 +367,23 @@ def explorer_schema(dataset: str, request: Request):
 # ---------------------------------------------------------------------------
 # Server-side exports
 # ---------------------------------------------------------------------------
-@router.get("/exports/csv")
-def export_csv(request: Request, path: str, filename: str = "export"):
-    """Export rows from any registered GET data endpoint under the contract cap.
-
-    The source endpoint is reused, so filters, sorting, KPI formulas and SQL all
-    stay identical to the on-screen response. Pagination cannot be used to
-    bypass the cap because the source total is checked before serialisation.
-    """
+@router.get(
+    "/exports/csv",
+    description=(
+        "Export rows from any registered GET data endpoint as CSV. "
+        f"Parameters: `path` (required, API-relative endpoint path such as `/overview/kpis` or `/api/v1/overview/kpis`), "
+        "`filename` (optional, download name without extension). "
+        "All other query params are forwarded to the source endpoint as filters/sort. "
+        f"Row limit: exports are rejected with 413 `EXPORT_LIMIT_EXCEEDED` when the filtered result set exceeds {MAX_EXPORT_ROWS:,} rows. "
+        "The source endpoint is reused so filters, sorting, KPI formulas and SQL stay identical to the on-screen response."
+    ),
+)
+def export_csv(
+    request: Request,
+    path: str = Query(..., description="API-relative GET endpoint path to export, with or without /api/v1 prefix."),
+    filename: str = Query("export", description="Download filename without extension."),
+):
+    """Export rows from any registered GET data endpoint under the contract cap."""
     try:
         route, path_params = resolve_export_route(request, path)
     except ValueError as exc:

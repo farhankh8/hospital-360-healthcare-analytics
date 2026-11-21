@@ -22,8 +22,11 @@ class ErrorEnvelope(BaseModel):
 
 
 class Pagination(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
     page: int
     page_size: int
+    max_page_size: int | None = None
     total_records: int
     total_pages: int
 

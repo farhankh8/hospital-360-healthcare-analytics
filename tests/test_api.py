@@ -54,6 +54,7 @@ def test_table_envelope_pagination_shape() -> None:
     expected = {
         "page": 2,
         "page_size": 50,
+        "max_page_size": 5000,
         "total_records": 120,
         "total_pages": 3,
     }
@@ -299,3 +300,115 @@ def test_snapshot_kpis_mark_date_filter_unavailable(client, duckdb_path) -> None
     glossary = _get(client, "/api/v1/kpis/glossary").json()["data"]
     total_beds = next(item for item in glossary if item.get("id") == "total_beds")
     assert total_beds["date_filter_available"] is False
+
+
+RECORD_ENDPOINTS = [
+    "/api/v1/appointments/records",
+    "/api/v1/emergency/records",
+    "/api/v1/inpatient/admissions",
+    "/api/v1/finance/invoices",
+    "/api/v1/claims/records",
+    "/api/v1/procedures/records",
+    "/api/v1/data-quality/failures",
+]
+
+
+@pytest.mark.parametrize("endpoint", RECORD_ENDPOINTS)
+def test_records_pagination_is_stable_and_respected(client, duckdb_path, endpoint: str) -> None:
+    r1 = _get(client, f"{endpoint}?page=1&page_size=5")
+    r2 = _get(client, f"{endpoint}?page=2&page_size=5")
+    assert r1.status_code == 200, r1.text
+    assert r2.status_code == 200, r2.text
+    b1 = r1.json()
+    b2 = r2.json()
+    assert b1["pagination"]["page"] == 1
+    assert b2["pagination"]["page"] == 2
+    assert b1["pagination"]["page_size"] == 5
+    assert b2["pagination"]["page_size"] == 5
+    assert b1["pagination"]["total_records"] == b2["pagination"]["total_records"]
+    assert b1["pagination"]["max_page_size"] == 5000
+    assert len(b1["data"]) <= 5
+    assert len(b2["data"]) <= 5
+    # If there are enough rows, page 2 should differ from page 1.
+    if b1["pagination"]["total_records"] > 5:
+        assert b1["data"] != b2["data"]
+
+
+def test_explorer_records_pagination_differs(client, duckdb_path) -> None:
+    r1 = _get(client, "/api/v1/explorer/patients/records?page=1&page_size=5")
+    r2 = _get(client, "/api/v1/explorer/patients/records?page=2&page_size=5")
+    assert r1.status_code == 200
+    assert r2.status_code == 200
+    b1, b2 = r1.json(), r2.json()
+    assert b1["pagination"]["total_records"] == b2["pagination"]["total_records"]
+    assert b1["data"] != b2["data"]
+
+
+@pytest.mark.parametrize("endpoint", RECORD_ENDPOINTS[:5])
+def test_records_oversized_page_size_returns_422(client, duckdb_path, endpoint: str) -> None:
+    response = _get(client, f"{endpoint}?page_size=999999")
+    assert response.status_code == 422
+    body = response.json()
+    assert body["error"]["code"] == "VALIDATION_ERROR"
+
+
+@pytest.mark.parametrize(
+    "query,parameter",
+    [
+        ("hospital_id=BAD", "hospital_id"),
+        ("department_id=BAD", "department_id"),
+        ("specialty_id=BAD", "specialty_id"),
+        ("payer_id=BAD", "payer_id"),
+        ("doctor_id=BAD", "doctor_id"),
+        ("supplier_id=BAD", "supplier_id"),
+        ("item_id=BAD", "item_id"),
+    ],
+)
+def test_invalid_id_filters_return_422(client, duckdb_path, query: str, parameter: str) -> None:
+    response = _get(client, f"/api/v1/overview/kpis?{query}")
+    assert response.status_code == 422, response.text
+    body = response.json()
+    assert body["error"]["code"] == "VALIDATION_ERROR"
+    assert parameter in json.dumps(body["error"]["details"])
+
+
+def test_date_from_after_date_to_returns_422(client, duckdb_path) -> None:
+    response = _get(client, "/api/v1/overview/kpis?date_from=2026-06-01&date_to=2026-01-01")
+    assert response.status_code == 422
+    body = response.json()
+    assert body["error"]["code"] == "VALIDATION_ERROR"
+    assert "date_from" in json.dumps(body["error"]["details"])
+
+
+def test_dq_validity_chart_returns_non_empty(client, duckdb_path) -> None:
+    response = _get(client, "/api/v1/charts/dq/validity")
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert isinstance(body["data"], list)
+    assert len(body["data"]) > 0
+    assert {"label", "failures"}.issubset(body["data"][0].keys())
+
+
+def test_dq_quarantine_charts_return_data(client, duckdb_path) -> None:
+    for endpoint, value_key in (
+        ("/api/v1/charts/dq/quarantine-by-rule", "quarantined"),
+        ("/api/v1/charts/dq/quarantine-by-dataset", "quarantined"),
+    ):
+        response = _get(client, endpoint)
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert isinstance(body["data"], list)
+        assert len(body["data"]) > 0
+        assert {"label", value_key}.issubset(body["data"][0].keys())
+
+
+def test_dq_injected_vs_detected_chart(client, duckdb_path) -> None:
+    response = _get(client, "/api/v1/charts/dq/injected-vs-detected")
+    assert response.status_code == 200, response.text
+    body = response.json()
+    rows = body["data"]
+    assert isinstance(rows, list)
+    assert len(rows) > 0
+    assert {"issue_type", "injected", "detected", "rule_id", "table"}.issubset(rows[0].keys())
+    assert body["metadata"]["total_injected"] >= 0
+    assert body["metadata"]["total_quarantine_rule_failures"] >= 0

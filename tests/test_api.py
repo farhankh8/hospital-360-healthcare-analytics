@@ -412,3 +412,46 @@ def test_dq_injected_vs_detected_chart(client, duckdb_path) -> None:
     assert {"issue_type", "injected", "detected", "rule_id", "table"}.issubset(rows[0].keys())
     assert body["metadata"]["total_injected"] >= 0
     assert body["metadata"]["total_quarantine_rule_failures"] >= 0
+
+
+def test_pipeline_runs_compare_endpoint(client, duckdb_path) -> None:
+    runs_resp = _get(client, "/api/v1/pipeline/runs")
+    assert runs_resp.status_code == 200, runs_resp.text
+    runs = runs_resp.json()["data"]
+    if len(runs) < 2:
+        pytest.skip("need at least two pipeline runs for compare test")
+    run_a = runs[-1]["run_id"]
+    run_b = runs[0]["run_id"]
+    resp = _get(client, f"/api/v1/pipeline/runs/compare?run_a={run_a}&run_b={run_b}")
+    assert resp.status_code == 200, resp.text
+    body = resp.json()["data"]
+    assert body["run_a"]["run_id"] == run_a
+    assert body["run_b"]["run_id"] == run_b
+    assert "deltas" in body and "tables" in body
+    assert {"duration_seconds", "source_records", "valid_records", "quarantined_records", "dq_score"}.issubset(body["deltas"].keys())
+
+
+def test_pipeline_runs_compare_rejects_unknown_run(client, duckdb_path) -> None:
+    runs_resp = _get(client, "/api/v1/pipeline/runs")
+    runs = runs_resp.json()["data"]
+    if not runs:
+        pytest.skip("no pipeline runs")
+    run_a = runs[0]["run_id"]
+    resp = _get(client, f"/api/v1/pipeline/runs/compare?run_a={run_a}&run_b=RUN_DOES_NOT_EXIST")
+    assert resp.status_code == 422
+
+
+def test_pipeline_lineage_by_table(client, duckdb_path) -> None:
+    lineage_resp = _get(client, "/api/v1/pipeline/lineage")
+    assert lineage_resp.status_code == 200
+    rows = lineage_resp.json()["data"]
+    if not rows:
+        pytest.skip("no lineage rows")
+    table = rows[0]["target_table"]
+    resp = _get(client, f"/api/v1/pipeline/lineage/{table}")
+    assert resp.status_code == 200, resp.text
+    body = resp.json()["data"]
+    assert body["target_table"] == table
+    assert "downstream_tables" in body
+    bad = _get(client, "/api/v1/pipeline/lineage/__not_a_table__")
+    assert bad.status_code == 422

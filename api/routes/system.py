@@ -292,13 +292,114 @@ def pipeline_summary(request: Request):
     return _empty(kpis, request)
 
 
+def _load_pipeline_manifest(run_id: str) -> dict[str, Any] | None:
+    manifest_dir = DATA_PATH / "manifests"
+    if not manifest_dir.exists():
+        return None
+    # Direct match first, then scan.
+    direct = manifest_dir / f"pipeline_{run_id}.json"
+    candidates = [direct] if direct.exists() else sorted(manifest_dir.glob("pipeline_*.json"))
+    for path in candidates:
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            continue
+        if str(payload.get("run_id") or "") == run_id:
+            payload["_manifest_file"] = path.name
+            return payload
+    return None
+
+
+def _run_table_counts(manifest: dict[str, Any]) -> dict[str, dict[str, int]]:
+    counts: dict[str, dict[str, int]] = {}
+    for name, info in ((manifest.get("bronze") or {}).get("tables") or {}).items():
+        row = counts.setdefault(str(name), {"source": 0, "bronze": 0, "silver": 0, "gold": 0, "quarantined": 0, "valid": 0})
+        row["bronze"] = int((info or {}).get("row_count") or 0)
+        row["source"] = max(row["source"], row["bronze"])
+    for report in ((manifest.get("silver") or {}).get("reports") or []):
+        name = str((report or {}).get("table") or "")
+        if not name:
+            continue
+        row = counts.setdefault(name, {"source": 0, "bronze": 0, "silver": 0, "gold": 0, "quarantined": 0, "valid": 0})
+        row["source"] = max(row["source"], int((report or {}).get("input_rows") or 0))
+        row["silver"] = int((report or {}).get("output_rows") or 0)
+        row["valid"] = row["silver"]
+        row["quarantined"] = int((report or {}).get("quarantined_rows") or 0)
+    for name, value in (((manifest.get("gold") or {}).get("row_counts") or {}).items()):
+        row = counts.setdefault(str(name), {"source": 0, "bronze": 0, "silver": 0, "gold": 0, "quarantined": 0, "valid": 0})
+        row["gold"] = int(value or 0)
+    return counts
+
+
+@router.get("/pipeline/runs/compare")
+def pipeline_runs_compare(request: Request, run_a: str = Query(...), run_b: str = Query(...)):
+    with get_conn() as conn:
+        if not table_exists("pipeline_runs"):
+            raise HTTPException(404, "pipeline_runs not available")
+        run_rows = query_rows(conn, "SELECT run_id, status, duration_seconds, source_records, valid_records, quarantined_records FROM pipeline_runs WHERE run_id IN ($a, $b)", {"a": run_a, "b": run_b})
+    by_id = {str(r.get("run_id")): r for r in run_rows}
+    missing = [rid for rid in [run_a, run_b] if rid not in by_id]
+    if missing:
+        raise HTTPException(422, f"Unknown run ID(s): {', '.join(missing)}")
+
+    manifest_a = _load_pipeline_manifest(run_a) or {}
+    manifest_b = _load_pipeline_manifest(run_b) or {}
+    counts_a = _run_table_counts(manifest_a)
+    counts_b = _run_table_counts(manifest_b)
+    table_names = sorted(set(counts_a) | set(counts_b))
+    table_deltas = []
+    for name in table_names:
+        a = counts_a.get(name, {"source": 0, "bronze": 0, "silver": 0, "gold": 0, "quarantined": 0, "valid": 0})
+        b = counts_b.get(name, {"source": 0, "bronze": 0, "silver": 0, "gold": 0, "quarantined": 0, "valid": 0})
+        delta = {k: int(b.get(k, 0)) - int(a.get(k, 0)) for k in ["source", "bronze", "silver", "gold", "quarantined", "valid"]}
+        table_deltas.append({"table": name, "run_a": a, "run_b": b, "delta": delta})
+
+    def _dq_score(manifest: dict[str, Any]) -> float | None:
+        q = manifest.get("quality") or {}
+        val = q.get("dq_score")
+        try:
+            return float(val) if val is not None else None
+        except (TypeError, ValueError):
+            return None
+
+    run_a_row, run_b_row = by_id[run_a], by_id[run_b]
+    dq_a, dq_b = _dq_score(manifest_a), _dq_score(manifest_b)
+    payload = {
+        "run_a": {"run_id": run_a, "status": run_a_row.get("status"), "duration_seconds": run_a_row.get("duration_seconds"), "source_records": run_a_row.get("source_records"), "valid_records": run_a_row.get("valid_records"), "quarantined_records": run_a_row.get("quarantined_records"), "dq_score": dq_a},
+        "run_b": {"run_id": run_b, "status": run_b_row.get("status"), "duration_seconds": run_b_row.get("duration_seconds"), "source_records": run_b_row.get("source_records"), "valid_records": run_b_row.get("valid_records"), "quarantined_records": run_b_row.get("quarantined_records"), "dq_score": dq_b},
+        "deltas": {
+            "duration_seconds": (float(run_b_row.get("duration_seconds") or 0) - float(run_a_row.get("duration_seconds") or 0)),
+            "source_records": int(run_b_row.get("source_records") or 0) - int(run_a_row.get("source_records") or 0),
+            "valid_records": int(run_b_row.get("valid_records") or 0) - int(run_a_row.get("valid_records") or 0),
+            "quarantined_records": int(run_b_row.get("quarantined_records") or 0) - int(run_a_row.get("quarantined_records") or 0),
+            "dq_score": (None if dq_a is None or dq_b is None else round(dq_b - dq_a, 4)),
+        },
+        "tables": table_deltas,
+    }
+    return _empty(payload, request)
+
+
 @router.get("/pipeline/runs/{run_id}")
 def pipeline_run(run_id: str, request: Request):
     with get_conn() as conn:
         rows = query_rows(conn, "SELECT * FROM pipeline_runs WHERE run_id = $run_id", {"run_id": run_id}) if table_exists("pipeline_runs") else []
     if not rows:
         raise HTTPException(404, f"Run {run_id} not found")
-    return _empty(rows[0], request)
+    row = dict(rows[0])
+    manifest = _load_pipeline_manifest(run_id)
+    if manifest:
+        stages = []
+        for stage_name in ["bronze", "silver", "quality", "gold"]:
+            stage = manifest.get(stage_name)
+            if isinstance(stage, dict):
+                stages.append({"stage": stage_name, "status": "success" if stage else "unknown", "details": {k: v for k, v in stage.items() if k in ("source_rows", "valid_rows", "quarantined_rows", "row_counts", "dq_score", "tables", "reports")}})
+            else:
+                stages.append({"stage": stage_name, "status": "missing", "details": {}})
+        row["stages"] = stages
+        row["manifest_file"] = manifest.get("_manifest_file")
+        row["dq_score"] = (manifest.get("quality") or {}).get("dq_score")
+        row["has_errors"] = bool(row.get("error_message"))
+    return _empty(row, request)
 
 
 @router.get("/pipeline/manifest")
@@ -319,6 +420,34 @@ def pipeline_lineage(request: Request):
     with get_conn() as conn:
         rows = query_rows(conn, "SELECT * FROM lineage ORDER BY target_table") if table_exists("lineage") else []
     return _empty(rows, request)
+
+
+@router.get("/pipeline/lineage/{table_name}")
+def pipeline_lineage_table(table_name: str, request: Request):
+    with get_conn() as conn:
+        if not table_exists("lineage"):
+            raise HTTPException(404, "lineage not available")
+        allowed = {str(r["target_table"]) for r in query_rows(conn, "SELECT DISTINCT target_table FROM lineage")}
+        if table_name not in allowed:
+            raise HTTPException(422, f"Unknown table_name: {table_name}")
+        rows = query_rows(conn, "SELECT * FROM lineage WHERE target_table = $t", {"t": table_name})
+        all_rows = query_rows(conn, "SELECT target_table, source_tables, layer FROM lineage")
+    if not rows:
+        raise HTTPException(404, f"No lineage for {table_name}")
+    row = dict(rows[0])
+    # Downstream: any lineage row whose source_tables references this table.
+    downstream = []
+    for r in all_rows:
+        src = str(r.get("source_tables") or "")
+        if table_name in src:
+            downstream.append({"target_table": r.get("target_table"), "layer": r.get("layer")})
+    row["downstream_tables"] = downstream
+    # normalize source_tables to list when possible
+    try:
+        row["source_tables_list"] = json.loads(row.get("source_tables") or "[]")
+    except (json.JSONDecodeError, TypeError):
+        row["source_tables_list"] = [s.strip() for s in str(row.get("source_tables") or "").split(",") if s.strip()]
+    return _empty(row, request)
 
 
 # ---------------------------------------------------------------------------

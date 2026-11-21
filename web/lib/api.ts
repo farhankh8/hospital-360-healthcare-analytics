@@ -73,7 +73,8 @@ export interface ApiGetOptions {
 
 export async function apiGet<T>(path: string, filters: FilterState, options: ApiGetOptions = {}): Promise<ApiEnvelope<T>> {
   const query = buildQueryString(filters, options.params);
-  const response = await fetch(`${API_BASE}${path}${query ? `?${query}` : ''}`, {
+  const separator = path.includes('?') ? '&' : '?';
+  const response = await fetch(`${API_BASE}${path}${query ? `${separator}${query}` : ''}`, {
     method: 'GET',
     headers: { Accept: 'application/json' },
     signal: options.signal,

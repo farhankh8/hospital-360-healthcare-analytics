@@ -792,6 +792,46 @@ def export_csv(
 
 
 # ---------------------------------------------------------------------------
+# Filter options
+# ---------------------------------------------------------------------------
+@router.get("/filters/departments")
+def filter_departments(request: Request, hospital_id: str | None = Query(default=None)):
+    """Department options for global filter. If hospital_id provided, narrow to that hospital."""
+    f = parse_filters(request)
+    hid = hospital_id or (f.hospital_ids[0] if f.hospital_ids else None)
+    with get_conn() as conn:
+        if hid:
+            rows = query_rows(
+                conn,
+                "SELECT d.department_id, d.department_name, d.specialty_id, s.specialty_name, d.hospital_id "
+                "FROM dim_department d LEFT JOIN dim_specialty s ON s.specialty_id = d.specialty_id "
+                "WHERE d.hospital_id = $hospital_id ORDER BY d.department_name",
+                {"hospital_id": hid},
+            )
+            if not rows:
+                rows = query_rows(
+                    conn,
+                    "SELECT department_id, department_name, specialty_id, specialty_id AS specialty_name, hospital_id "
+                    "FROM silver_dim_department WHERE hospital_id = $hospital_id ORDER BY department_name",
+                    {"hospital_id": hid},
+                )
+        else:
+            rows = query_rows(
+                conn,
+                "SELECT DISTINCT d.department_id, d.department_name, d.specialty_id, s.specialty_name "
+                "FROM dim_department d LEFT JOIN dim_specialty s ON s.specialty_id = d.specialty_id "
+                "ORDER BY d.department_name",
+            )
+            if not rows:
+                rows = query_rows(
+                    conn,
+                    "SELECT DISTINCT department_id, department_name, specialty_id, specialty_id AS specialty_name "
+                    "FROM silver_dim_department ORDER BY department_name",
+                )
+    return envelope(rows, f.date_from, f.date_to, [hid] if hid else [])
+
+
+# ---------------------------------------------------------------------------
 # KPI glossary
 # ---------------------------------------------------------------------------
 @router.get("/kpis/glossary")

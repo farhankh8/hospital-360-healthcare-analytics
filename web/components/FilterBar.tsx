@@ -133,8 +133,7 @@ export function FilterBar({ inDrawer = false }: { inDrawer?: boolean }) {
             value={filters.department_id}
             onChange={(event) => setFilter('department_id', event.target.value)}
             options={departments}
-            placeholder={filters.hospital_ids.length ? 'All departments' : 'Select a hospital first'}
-            disabled={!filters.hospital_ids.length}
+            placeholder="All departments"
           />
         </div>
       )}

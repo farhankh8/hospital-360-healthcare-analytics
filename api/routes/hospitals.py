@@ -40,7 +40,7 @@ def hospital_departments(hospital_id: str, request: Request):
     with get_conn() as conn:
         rows = query_rows(
             conn,
-            "SELECT d.department_id, d.department_name, s.specialty_name "
+            "SELECT d.department_id, d.department_name, d.specialty_id, s.specialty_name "
             "FROM dim_department d LEFT JOIN dim_specialty s ON s.specialty_id = d.specialty_id "
             "WHERE d.hospital_id = $hospital_id ORDER BY d.department_name",
             {"hospital_id": hospital_id},
@@ -48,7 +48,7 @@ def hospital_departments(hospital_id: str, request: Request):
         if not rows:
             rows = query_rows(
                 conn,
-                "SELECT department_id, department_name, specialty_id AS specialty_name "
+                "SELECT department_id, department_name, specialty_id, specialty_id AS specialty_name "
                 "FROM silver_dim_department WHERE hospital_id = $hospital_id ORDER BY department_name",
                 {"hospital_id": hospital_id},
             )

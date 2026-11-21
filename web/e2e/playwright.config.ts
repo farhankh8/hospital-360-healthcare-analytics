@@ -3,7 +3,7 @@
  *
  * The Next.js app and FastAPI backend must already be running (see README.md):
  *   npm run dev            # in web/       -> http://localhost:3000
- *   uvicorn api.main:app   # in hospital360 -> http://localhost:8000
+ *   uvicorn api.main:app   # in hospital360 -> http://localhost:8000/api/v1
  *
  * Run from the web/ directory:
  *   npx playwright test --config=e2e/playwright.config.ts

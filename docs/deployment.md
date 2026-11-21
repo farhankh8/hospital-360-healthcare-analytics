@@ -26,7 +26,7 @@ database directly.
 | `CORS_ORIGINS` | API | `http://localhost:3000,http://127.0.0.1:3000` | Comma-separated browser origins |
 | `APP_ENV` | API | `development` | `development` / `staging` / `production` |
 | `LOG_LEVEL` | API | `INFO` | Logging verbosity (no sensitive values logged) |
-| `NEXT_PUBLIC_API_URL` | Frontend | `http://localhost:8000` | Public API base URL, baked at build time |
+| `NEXT_PUBLIC_API_URL` | Frontend | `http://localhost:8000/api/v1` | Public API base URL, baked at build time |
 | `H360_SEED` | Generator | `42` | Reproducibility seed |
 
 Never place secret credentials in `NEXT_PUBLIC_*` variables: they are embedded in the client
@@ -36,6 +36,7 @@ bundle. This project requires no API secrets.
 
 ```bash
 cd hospital360
+cp .env.example .env   # keeps NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
 # 1. Generate data and build the analytical database once on the host,
 #    or run the same commands inside a container that mounts ./data.
 python -m pip install -r requirements.txt
@@ -47,6 +48,7 @@ docker compose up --build -d
 
 # 3. Check health and open the app.
 curl http://localhost:8000/api/v1/health
+curl http://localhost:8000/openapi.json | python -c "import json,sys; s=json.load(sys.stdin); print('/api/v1/exports/csv' in s['paths'])"
 # http://localhost:3000
 ```
 
@@ -65,8 +67,8 @@ for the API healthcheck before starting.
    Configure `DATA_PATH`, `DATABASE_PATH`, `CORS_ORIGINS`, `APP_ENV` and `LOG_LEVEL`.
    Mount or restore `data/` so the DuckDB file is available at `DATABASE_PATH`.
 2. **Frontend.** Import the `web/` directory into Vercel (Next.js preset). Set
-   `NEXT_PUBLIC_API_URL` to the public backend base URL (e.g.
-   `https://api.example.com`) and rebuild. Ensure the backend CORS allowlist includes the
+   `NEXT_PUBLIC_API_URL` to the public versioned API base URL (e.g.
+   `https://api.example.com/api/v1`) and rebuild. Ensure the backend CORS allowlist includes the
    Vercel domain.
 3. **Verify.** Open the deployed `/overview`, confirm cards render API values, and check
    `/api/v1/health` returns `{"status":"ok","version":"1.0.0"}`.

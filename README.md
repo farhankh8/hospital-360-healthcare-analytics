@@ -195,7 +195,7 @@ python -m generator.generate
 # 2. Build silver + gold Parquet, DuckDB database and quarantine records
 python -m etl.pipeline
 
-# 3. Start the API (http://localhost:8000, docs at /docs)
+# 3. Start the API (base URL http://localhost:8000/api/v1, docs at /docs)
 uvicorn api.main:app --reload --port 8000
 ```
 

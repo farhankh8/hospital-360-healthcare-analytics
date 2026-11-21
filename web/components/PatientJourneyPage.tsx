@@ -123,9 +123,9 @@ export function PatientJourneyPage() {
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <form onSubmit={submit} className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-end">
             <div className="flex-1">
-              <label htmlFor="journey-id" className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-400">Patient / Encounter / Admission ID</label>
+              <label htmlFor="journey-id" className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Patient / Encounter / Admission ID</label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-600" />
                 <input
                   id="journey-id"
                   value={input}
@@ -147,7 +147,7 @@ export function PatientJourneyPage() {
             </button>
           </div>
         </div>
-        <p className="mt-3 text-[11px] text-slate-400">{String(payload?.synthetic_notice || 'Synthetic data only. No real patient identities, no clinical recommendations.')}</p>
+        <p className="mt-3 text-[11px] text-slate-600">{String(payload?.synthetic_notice || 'Synthetic data only. No real patient identities, no clinical recommendations.')}</p>
       </Card>
 
       {!idParam && <Card><EmptyState message="Enter a synthetic ID" hint="Search by patient_id, encounter_id, or admission_id. All identities are synthetic." /></Card>}
@@ -157,10 +157,10 @@ export function PatientJourneyPage() {
       {idParam && !isLoading && !hasError && payload && (
         <>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Card className="p-4" data-testid="journey-card-patient"><p className="text-[10px] uppercase tracking-wide text-slate-400">Patient</p><p className="mt-1 text-sm font-semibold text-navy">{String(patient?.patient_id || idParam)}</p><p className="text-[11px] text-slate-500">{String(patient?.gender || '')} {patient?.age_group ? `• ${patient.age_group}` : ''} {patient?.patient_type ? `• ${patient.patient_type}` : ''}</p></Card>
-            <Card className="p-4"><p className="text-[10px] uppercase tracking-wide text-slate-400">Encounters / Admissions</p><p className="mt-1 text-lg font-semibold text-navy">{displayValue(payload.encounter_summary?.encounter_count)} / {displayValue(payload.admission_summary?.admission_count)}</p><p className="text-[11px] text-slate-500">Readmissions: {displayValue(payload.admission_summary?.readmissions)}</p></Card>
-            <Card className="p-4"><p className="text-[10px] uppercase tracking-wide text-slate-400">Billed / Paid</p><p className="mt-1 text-lg font-semibold text-navy">{fmtMoney(payload.billing_summary?.net_amount)} / {fmtMoney(payload.billing_summary?.paid_amount)}</p><p className="text-[11px] text-slate-500">Balance: {fmtMoney(payload.billing_summary?.balance_amount)}</p></Card>
-            <Card className="p-4"><p className="text-[10px] uppercase tracking-wide text-slate-400">Claims / Feedback</p><p className="mt-1 text-lg font-semibold text-navy">{displayValue(payload.claim_summary?.claim_count)} / {displayValue(payload.feedback_summary?.feedback_count)}</p><p className="text-[11px] text-slate-500">Avg rating: {displayValue(payload.feedback_summary?.avg_rating)}</p></Card>
+            <Card className="p-4" data-testid="journey-card-patient"><p className="text-[10px] uppercase tracking-wide text-slate-600">Patient</p><p className="mt-1 text-sm font-semibold text-navy">{String(patient?.patient_id || idParam)}</p><p className="text-[11px] text-slate-600">{String(patient?.gender || '')} {patient?.age_group ? `• ${patient.age_group}` : ''} {patient?.patient_type ? `• ${patient.patient_type}` : ''}</p></Card>
+            <Card className="p-4"><p className="text-[10px] uppercase tracking-wide text-slate-600">Encounters / Admissions</p><p className="mt-1 text-lg font-semibold text-navy">{displayValue(payload.encounter_summary?.encounter_count)} / {displayValue(payload.admission_summary?.admission_count)}</p><p className="text-[11px] text-slate-600">Readmissions: {displayValue(payload.admission_summary?.readmissions)}</p></Card>
+            <Card className="p-4"><p className="text-[10px] uppercase tracking-wide text-slate-600">Billed / Paid</p><p className="mt-1 text-lg font-semibold text-navy">{fmtMoney(payload.billing_summary?.net_amount)} / {fmtMoney(payload.billing_summary?.paid_amount)}</p><p className="text-[11px] text-slate-600">Balance: {fmtMoney(payload.billing_summary?.balance_amount)}</p></Card>
+            <Card className="p-4"><p className="text-[10px] uppercase tracking-wide text-slate-600">Claims / Feedback</p><p className="mt-1 text-lg font-semibold text-navy">{displayValue(payload.claim_summary?.claim_count)} / {displayValue(payload.feedback_summary?.feedback_count)}</p><p className="text-[11px] text-slate-600">Avg rating: {displayValue(payload.feedback_summary?.avg_rating)}</p></Card>
           </div>
 
           <Card>
@@ -187,9 +187,9 @@ export function PatientJourneyPage() {
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="text-xs font-semibold text-navy">{String(event.event_date || 'No date')}</span>
                           <Badge tone="info">{event.event_label}</Badge>
-                          <span className="text-[10px] text-slate-400">{String(event.event_id || '')}</span>
+                          <span className="text-[10px] text-slate-600">{String(event.event_id || '')}</span>
                         </div>
-                        <p className="mt-1 text-[11px] text-slate-500">
+                        <p className="mt-1 text-[11px] text-slate-600">
                           {Object.entries((event.detail as TableRow) || {})
                             .filter(([k, v]) => v !== null && v !== undefined && v !== '' && !['patient_id'].includes(k))
                             .slice(0, 6)
@@ -208,7 +208,7 @@ export function PatientJourneyPage() {
                 <CardHeader title="Summary" subtitle="Synthetic patient overview" action={<UserRound className="h-4 w-4 text-teal" />} />
                 <div className="space-y-2 p-4 text-xs text-slate-600">
                   {Object.entries(patient || {}).slice(0, 12).map(([k, v]) => (
-                    <div key={k} className="flex justify-between gap-3 border-b border-line/60 pb-1"><span className="text-slate-400">{k}</span><span className="text-right font-medium text-slate-700">{displayValue(v)}</span></div>
+                    <div key={k} className="flex justify-between gap-3 border-b border-line/60 pb-1"><span className="text-slate-600">{k}</span><span className="text-right font-medium text-slate-700">{displayValue(v)}</span></div>
                   ))}
                 </div>
               </Card>
@@ -226,7 +226,7 @@ export function PatientJourneyPage() {
                       <span className="font-semibold text-navy">{Array.isArray(arr) ? arr.length : 0}</span>
                     </div>
                   ))}
-                  {payload.diagnoses_note ? <p className="text-[10px] text-slate-400">{payload.diagnoses_note}</p> : null}
+                  {payload.diagnoses_note ? <p className="text-[10px] text-slate-600">{payload.diagnoses_note}</p> : null}
                 </div>
               </Card>
             </div>

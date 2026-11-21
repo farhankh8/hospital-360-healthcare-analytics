@@ -28,7 +28,7 @@ export function CardHeader({
     <div className={cn('flex flex-wrap items-start justify-between gap-3 border-b border-line px-5 py-4', className)}>
       <div className="min-w-0">
         <h3 className="text-sm font-semibold text-ink">{title}</h3>
-        {subtitle && <p className="mt-1 text-xs text-slate-500">{subtitle}</p>}
+        {subtitle && <p className="mt-1 text-xs text-slate-600">{subtitle}</p>}
       </div>
       {action && <div className="flex shrink-0 items-center gap-2">{action}</div>}
     </div>
@@ -60,9 +60,9 @@ export function Spinner({ className }: { className?: string }) {
 export function EmptyState({ message = 'No data available', hint, className }: { message?: string; hint?: string; className?: string }) {
   return (
     <div className={cn('flex min-h-[120px] flex-col items-center justify-center gap-2 px-4 py-8 text-center', className)}>
-      <Inbox className="h-6 w-6 text-slate-300" aria-hidden="true" />
-      <p className="text-sm font-medium text-slate-500">{message}</p>
-      {hint && <p className="max-w-sm text-xs text-slate-400">{hint}</p>}
+      <Inbox className="h-6 w-6 text-slate-600" aria-hidden="true" />
+      <p className="text-sm font-medium text-slate-600">{message}</p>
+      {hint && <p className="max-w-sm text-xs text-slate-600">{hint}</p>}
     </div>
   );
 }
@@ -95,8 +95,10 @@ export function Select({
   className,
   ...props
 }: SelectHTMLAttributes<HTMLSelectElement> & { options: SelectOption[]; placeholder?: string }) {
+  const ariaLabel = props['aria-label'] ?? props['aria-labelledby'] ? undefined : (placeholder || 'Select option');
   return (
     <select
+      aria-label={ariaLabel}
       {...props}
       className={cn(
         'h-9 w-full rounded-md border border-line bg-white px-2.5 text-xs text-ink outline-none transition focus:border-teal focus:ring-2 focus:ring-teal/15 disabled:cursor-not-allowed disabled:bg-slate-50',
@@ -131,7 +133,7 @@ export function DateRangePicker({
   return (
     <div className={cn('flex items-center gap-2', className)}>
       <input type="date" aria-label="Date from" value={from} max={to || undefined} onChange={(event) => onFromChange(event.target.value)} className={inputClass} />
-      <span className="text-xs text-slate-400">to</span>
+      <span className="text-xs text-slate-600">to</span>
       <input type="date" aria-label="Date to" value={to} min={from || undefined} onChange={(event) => onToChange(event.target.value)} className={inputClass} />
     </div>
   );
@@ -143,7 +145,7 @@ export function IconButton({ className, children, ...props }: ButtonHTMLAttribut
       type="button"
       {...props}
       className={cn(
-        'inline-flex h-8 w-8 items-center justify-center rounded-md border border-line bg-white text-slate-500 transition hover:border-teal hover:text-teal disabled:opacity-50',
+        'inline-flex h-8 w-8 items-center justify-center rounded-md border border-line bg-white text-slate-600 transition hover:border-teal hover:text-teal disabled:opacity-50',
         className,
       )}
     >
@@ -160,7 +162,7 @@ export function PageHeading({ title, description, badge }: { title: string; desc
           <h1 className="text-xl font-semibold tracking-tight text-navy">{title}</h1>
           {badge}
         </div>
-        {description && <p className="mt-1 max-w-3xl text-sm text-slate-500">{description}</p>}
+        {description && <p className="mt-1 max-w-3xl text-sm text-slate-600">{description}</p>}
       </div>
     </div>
   );

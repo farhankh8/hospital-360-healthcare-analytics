@@ -75,14 +75,14 @@ function ProfileHeader({ endpoint, params }: { endpoint: string; params: Record<
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h2 className="text-lg font-semibold text-navy">{title}</h2>
-          <p className="mt-0.5 text-xs text-slate-500">Synthetic hospital record from the API</p>
+          <p className="mt-0.5 text-xs text-slate-600">Synthetic hospital record from the API</p>
         </div>
         {status && <Badge tone="info">{status}</Badge>}
       </div>
       <dl className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-7">
         {fields.map(([label, value]) => (
           <div key={label}>
-            <dt className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">{label}</dt>
+            <dt className="text-[10px] font-semibold uppercase tracking-wide text-slate-600">{label}</dt>
             <dd className="mt-1 truncate text-xs font-medium text-ink">{displayValue(value)}</dd>
           </div>
         ))}
@@ -99,7 +99,7 @@ function ComparisonControls() {
     <Card className="p-4" data-testid="comparison-controls">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <div>
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-400">Comparison metric</label>
+          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Comparison metric</label>
           <select value={metric} onChange={(e) => setPageParam('metric', e.target.value)} className="h-9 rounded-md border border-line px-3 text-xs" data-testid="comparison-metric">
             <option value="revenue">Revenue</option>
             <option value="patient_volume">Patient volume</option>
@@ -110,13 +110,13 @@ function ComparisonControls() {
           </select>
         </div>
         <div>
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-400">Ranking sort</label>
+          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Ranking sort</label>
           <select value={rankSort} onChange={(e) => setPageParam('rank_sort', e.target.value)} className="h-9 rounded-md border border-line px-3 text-xs" data-testid="comparison-sort">
             <option value="desc">Highest first</option>
             <option value="asc">Lowest first</option>
           </select>
         </div>
-        <p className="text-[11px] text-slate-400">Use global hospital filters to select up to 10 hospitals for comparison. Click a hospital row to open its profile.</p>
+        <p className="text-[11px] text-slate-600">Use global hospital filters to select up to 10 hospitals for comparison. Click a hospital row to open its profile.</p>
       </div>
     </Card>
   );
@@ -166,7 +166,7 @@ export function AnalyticsPage({ config }: { config: PageConfig }) {
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={cn('rounded-md px-3 py-1.5 text-xs font-medium', activeTab === tab.id ? 'bg-teal-light/40 text-teal-dark' : 'text-slate-500 hover:text-navy')}
+              className={cn('rounded-md px-3 py-1.5 text-xs font-medium', activeTab === tab.id ? 'bg-teal-light/40 text-teal-dark' : 'text-slate-600 hover:text-navy')}
               data-testid={`tab-${tab.id}`}
             >
               {tab.label}
@@ -180,8 +180,8 @@ export function AnalyticsPage({ config }: { config: PageConfig }) {
       {config.kpiEndpoint && showKpis && (
         <section aria-label="Key performance indicators">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">Key indicators</h2>
-            <span className="text-[11px] text-slate-400">Values from {config.kpiEndpoint}</span>
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-600">Key indicators</h2>
+            <span className="text-[11px] text-slate-600">Values from {config.kpiEndpoint}</span>
           </div>
           {kpiQuery.isError ? (
             <Card><ErrorState message={kpiQuery.error?.message || 'KPIs could not be loaded.'} onRetry={() => kpiQuery.refetch()} /></Card>
@@ -206,8 +206,8 @@ export function AnalyticsPage({ config }: { config: PageConfig }) {
       {visibleCharts.length > 0 && (
         <section aria-label="Charts">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">Analytics</h2>
-            <span className="text-[11px] text-slate-400">Hover for detail, click a point to drill down</span>
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-600">Analytics</h2>
+            <span className="text-[11px] text-slate-600">Hover for detail, click a point to drill down</span>
           </div>
           <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
             {visibleCharts.map((chartConfig) => (

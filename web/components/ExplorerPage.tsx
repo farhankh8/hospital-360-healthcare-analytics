@@ -82,11 +82,11 @@ export function ExplorerPage() {
       <Card className="p-5">
         <div className="flex flex-wrap items-end gap-4">
           <div className="w-64">
-            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-400">Dataset</label>
+            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Dataset</label>
             <Select value={selected} onChange={(event) => selectDataset(event.target.value)} options={datasets} placeholder="Select a dataset" disabled={datasetsQuery.isLoading} data-testid="explorer-dataset-select" />
           </div>
           <div className="w-52">
-            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-400">Numeric column</label>
+            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Numeric column</label>
             <Select
               value={pageParams.numeric_column ?? ''}
               onChange={(event) => setPageParam('numeric_column', event.target.value)}
@@ -96,14 +96,14 @@ export function ExplorerPage() {
             />
           </div>
           <div className="w-32">
-            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-400">Minimum</label>
+            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Minimum</label>
             <input value={pageParams.numeric_min ?? ''} onChange={(event) => setPageParam('numeric_min', event.target.value)} placeholder="Min" data-testid="explorer-numeric-min" className="h-9 w-full rounded-md border border-line bg-white px-2.5 text-xs outline-none focus:border-teal" />
           </div>
           <div className="w-32">
-            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-400">Maximum</label>
+            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Maximum</label>
             <input value={pageParams.numeric_max ?? ''} onChange={(event) => setPageParam('numeric_max', event.target.value)} placeholder="Max" data-testid="explorer-numeric-max" className="h-9 w-full rounded-md border border-line bg-white px-2.5 text-xs outline-none focus:border-teal" />
           </div>
-          <p className="pb-2 text-xs text-slate-500">{datasets.length} datasets · server-side pagination · maximum page size enforced by the API</p>
+          <p className="pb-2 text-xs text-slate-600">{datasets.length} datasets · server-side pagination · maximum page size enforced by the API</p>
         </div>
         {datasetsQuery.isError && <p className="mt-3 text-xs text-critical">Datasets could not be loaded: {datasetsQuery.error?.message}</p>}
       </Card>
@@ -122,12 +122,12 @@ export function ExplorerPage() {
             ) : schemaQuery.isError ? <ErrorState message="Schema unavailable" /> : schema.length === 0 ? <EmptyState message="No schema returned" /> : (
               <div className="max-h-[420px] overflow-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-canvas text-[10px] uppercase tracking-wide text-slate-400"><tr><th className="px-4 py-2">Column</th><th className="px-4 py-2">Type</th></tr></thead>
+                  <thead className="bg-canvas text-[10px] uppercase tracking-wide text-slate-600"><tr><th className="px-4 py-2">Column</th><th className="px-4 py-2">Type</th></tr></thead>
                   <tbody className="divide-y divide-line">
                     {schema.map((row, index) => (
                       <tr key={index} className="cursor-pointer hover:bg-teal-light/30" onClick={() => setPageParam('numeric_column', String(row.column_name))}>
                         <td className="px-4 py-2 font-medium text-ink">{displayValue(row.column_name ?? row.name ?? row.column)}</td>
-                        <td className="px-4 py-2 text-slate-500">{displayValue(row.column_type ?? row.data_type ?? row.type)}</td>
+                        <td className="px-4 py-2 text-slate-600">{displayValue(row.column_type ?? row.data_type ?? row.type)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -142,8 +142,8 @@ export function ExplorerPage() {
                 {lineageRows.length === 0 ? <EmptyState message="No lineage rows for this dataset" /> : lineageRows.map((row, index) => (
                   <div key={index} className="rounded border border-line p-2 text-[11px]">
                     <p className="font-medium text-navy">{displayValue(row.target_table)}</p>
-                    <p className="mt-0.5 text-slate-500">{displayValue(row.source_tables)}</p>
-                    <p className="mt-0.5 text-slate-400">{displayValue(row.transformations)}</p>
+                    <p className="mt-0.5 text-slate-600">{displayValue(row.source_tables)}</p>
+                    <p className="mt-0.5 text-slate-600">{displayValue(row.transformations)}</p>
                   </div>
                 ))}
               </div>

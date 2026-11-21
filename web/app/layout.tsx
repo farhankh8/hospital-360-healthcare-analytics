@@ -18,7 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <QueryProvider>
           <Suspense
             fallback={
-              <div className="flex min-h-screen items-center justify-center bg-canvas text-sm text-slate-500">
+              <div className="flex min-h-screen items-center justify-center bg-canvas text-sm text-slate-600">
                 Loading HOSPITAL 360…
               </div>
             }

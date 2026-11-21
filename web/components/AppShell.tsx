@@ -135,7 +135,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="flex-1 overflow-y-auto px-2 py-4">
         {grouped.map(({ group, items }) => (
           <div key={group} className="mb-5">
-            {!collapsed && <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-wider text-slate-500">{group}</p>}
+            {!collapsed && <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-wider text-slate-300">{group}</p>}
             {collapsed && <div className="mx-auto mb-2 h-px w-8 bg-white/10" />}
             <ul className="space-y-0.5">
               {items.map((page) => {
@@ -166,7 +166,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {!collapsed && (
         <div className="border-t border-white/10 p-4">
-          <p className="text-[10px] leading-relaxed text-slate-500">
+          <p className="text-[10px] leading-relaxed text-slate-400">
             Synthetic data only. Not a clinical system.
           </p>
         </div>
@@ -245,7 +245,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </header>
 
         <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-[1600px] px-4 py-6 outline-none lg:px-6">{children}</main>
-        <footer className="border-t border-line px-4 py-4 text-center text-[11px] text-slate-400 lg:px-6">
+        <footer className="border-t border-line px-4 py-4 text-center text-[11px] text-slate-600 lg:px-6">
           HOSPITAL 360 · Educational analytics project using entirely synthetic data · Not for clinical use
         </footer>
       </div>

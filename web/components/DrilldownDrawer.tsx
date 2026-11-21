@@ -101,18 +101,18 @@ export function DrilldownDrawer() {
             <p className="text-[10px] font-semibold uppercase tracking-wider text-teal">Drill-down</p>
             <h2 className="mt-0.5 text-base font-semibold text-navy">{title}</h2>
           </div>
-          <button type="button" onClick={closeDrilldown} className="rounded p-1 text-slate-400 hover:bg-canvas hover:text-ink" aria-label="Close">
+          <button type="button" onClick={closeDrilldown} className="rounded p-1 text-slate-600 hover:bg-canvas hover:text-ink" aria-label="Close">
             <X className="h-5 w-5" />
           </button>
         </div>
 
         <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
           <section>
-            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Record details</h3>
+            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-600">Record details</h3>
             <dl className="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">
               {details.map(([key, value]) => (
                 <div key={key} className="min-w-0 border-b border-line pb-2">
-                  <dt className="truncate text-[10px] uppercase tracking-wide text-slate-400">{key.replace(/_/g, ' ')}</dt>
+                  <dt className="truncate text-[10px] uppercase tracking-wide text-slate-600">{key.replace(/_/g, ' ')}</dt>
                   <dd className="mt-0.5 break-words text-xs font-medium text-ink">{formatCell(value, inferColumnType(key, value))}</dd>
                 </div>
               ))}
@@ -121,13 +121,13 @@ export function DrilldownDrawer() {
 
           {timeline.length > 0 && (
             <section>
-              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Timeline</h3>
+              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-600">Timeline</h3>
               <ol className="relative ml-2 border-l border-line pl-5">
                 {timeline.map(([key, value]) => (
                   <li key={key} className="relative mb-3 last:mb-0">
                     <span className="absolute -left-[26px] top-1 h-2.5 w-2.5 rounded-full border-2 border-white bg-teal" />
                     <p className="text-[11px] font-semibold text-ink">{displayValue(value)}</p>
-                    <p className="text-[10px] uppercase tracking-wide text-slate-400">{key.replace(/_/g, ' ')}</p>
+                    <p className="text-[10px] uppercase tracking-wide text-slate-600">{key.replace(/_/g, ' ')}</p>
                   </li>
                 ))}
               </ol>
@@ -136,11 +136,11 @@ export function DrilldownDrawer() {
 
           <section>
             <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">Related records</h3>
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-600">Related records</h3>
               {recordId && <Badge tone="info">Search: {recordId}</Badge>}
             </div>
             {!recordId && <EmptyState message="No identifier available" hint="This record does not expose a searchable identifier." />}
-            {recordId && relatedQuery.isLoading && <div className="flex items-center gap-2 text-xs text-slate-400"><Spinner /> Loading related records…</div>}
+            {recordId && relatedQuery.isLoading && <div className="flex items-center gap-2 text-xs text-slate-600"><Spinner /> Loading related records…</div>}
             {recordId && relatedQuery.isError && <p className="text-xs text-critical">Related records could not be loaded.</p>}
             {recordId && !relatedQuery.isLoading && !relatedQuery.isError && relatedRows.length === 0 && <EmptyState message="No related records found" />}
             <div className="space-y-2">
@@ -154,7 +154,7 @@ export function DrilldownDrawer() {
                   <span className="line-clamp-1 font-medium text-ink">
                     {displayValue(row[Object.keys(row).find((key) => key.endsWith('_id')) || Object.keys(row)[0]])}
                   </span>
-                  <span className="mt-0.5 block truncate text-[10px] text-slate-400">
+                  <span className="mt-0.5 block truncate text-[10px] text-slate-600">
                     {Object.entries(row)
                       .slice(0, 4)
                       .map(([key, value]) => `${key}: ${displayValue(value)}`)

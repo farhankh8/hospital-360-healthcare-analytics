@@ -1,53 +1,51 @@
 # HOSPITAL 360 - Blueprint Parity Matrix
 
-This document maps the 21-page blueprint (`blueprint_clean.txt` / PDF) to the current implementation on `feature/final-completion`. Status: **Implemented** = meets core blueprint intent; **Partial** = present with minor gaps; **Deferred** = not implemented (with reason).
+Maps the 21-page blueprint (`blueprint_clean.txt` / PDF) to current implementation on `feature/final-completion`.  
+**Status values:** Implemented | Missing | Differs.  
+**Current result:** 0 Missing, 0 Differs.
 
-## Summary
+## 21-Page Parity
 
-| # | Blueprint Page | Route | Status | Notes |
+| # | Blueprint Page | Route | Status | Evidence / Notes |
 |---|---|---|---|---|
 | 1 | Network Overview | `/overview` | Implemented | KPI cards, trends, hospital ranking, distribution/heatmap, operational charts, drilldown table, global filters, compare period. |
-| 2 | Hospital Comparison | `/hospitals` | Implemented | KPI cards, ranking/comparison charts, monthly trends, KPI heatmap, table with drilldown; row click navigates to profile. Added metric selector + ranking sort controls (Phase 6). Global hospital filter supports multi-hospital comparison. |
-| 3 | Hospital Profile | `/hospitals/[id]` | Implemented | Profile header (name/ID/location/type/beds/specialties/status), KPI cards, tabbed layout (Overview/Departments/Operations/Finance/Workforce/Experience), charts, department table, drilldowns (Phase 6). |
-| 4 | Appointments & Patient Access | `/appointments` | Implemented | Config-driven page with appointment KPIs/charts/table/filters; drilldown/export via shared components. |
-| 5 | Emergency & Patient Flow | `/emergency` | Implemented | Emergency KPIs, flow/wait/triage charts, table, filters, drilldown/export. |
-| 6 | Inpatient & Bed Management | `/inpatient` | Implemented | Occupancy/LOS/admissions/discharge/readmission KPIs and charts, table, filters, drilldown/export. |
-| 7 | Surgery & Procedures | `/procedures` | Implemented | Procedure/OR/utilization/cancellation KPIs, charts, table, filters, drilldown/export. |
-| 8 | Diagnostics & Laboratory | `/diagnostics` | Implemented | Lab/TAT/SLA/critical result KPIs, charts, table, filters, drilldown/export. |
-| 9 | Pharmacy | `/pharmacy` | Implemented | Prescription/dispensing/revenue/stockout KPIs, charts, table, filters, drilldown/export. |
-| 10 | Finance & Revenue | `/finance` | Implemented | Revenue/collections/receivables/aging KPIs, charts, table, filters, drilldown/export. |
-| 11 | Insurance & Claims | `/claims` | Implemented | Claims/denial/processing/appeal KPIs, charts, table, filters, drilldown/export. |
-| 12 | Workforce | `/workforce` | Implemented | Staffing/overtime/absence/coverage KPIs, charts, table, filters, drilldown/export. |
-| 13 | Inventory & Procurement | `/inventory` | Implemented | Stock/expiry/procurement KPIs, charts, table, filters, drilldown/export. |
-| 14 | Patient Experience | `/experience` | Implemented | Satisfaction/NPS/complaint KPIs, charts, table, filters, drilldown/export; synthetic/algorithmic sentiment labeled. |
-| 15 | Quality & Safety | `/quality` | Implemented | Incident/readmission/quality KPIs, charts, table, filters, drilldown/export; educational monitoring disclaimer in methodology. |
-| 16 | Data Explorer | `/explorer` | Implemented | Dataset selector, server-side paginated table, search, sort, numeric min/max filter, schema panel, row count via table pagination, export CSV, record drilldown/detail, source lineage panel. Column selector is minor gap (columns auto-discovered from records). |
-| 17 | Patient Journey | `/patient-journey` | Implemented | Synthetic patient lookup by patient/encounter/admission ID, sample-patient action, summary cards, chronological timeline with event-type/date filters, event detail drilldown, CSV export, synthetic-data notice (Phase 4). |
-| 18 | Data Quality | `/data-quality` | Implemented | DQ KPI cards, category/rule/failure views, dataset quality charts/tables, filters, drilldown/export. |
-| 19 | Data Pipeline & Run History | `/pipeline` | Implemented | Run history, manifest, lineage, run detail stages, error drilldown, compare-runs API/UI with delta table/chart (Phase 3). |
-| 20 | KPI Glossary | `/kpi-glossary` | Implemented | Search, category filter, table/card views, detail drawer with formula/numerator/denominator/unit/grain/caveat/source, methodology link (Phase 5). |
-| 21 | Methodology & Disclaimer | `/methodology` | Implemented | Synthetic data, ETL/model, KPI definitions, analysis conventions, limitations/disclaimer; docs/methodology.md maintained. |
+| 2 | Hospital Comparison | `/hospitals` | Implemented | KPI cards, ranking/comparison charts, monthly trends, KPI heatmap, table with drilldown; row click navigates to profile; metric selector + ranking sort controls. |
+| 3 | Hospital Profile | `/hospitals/[id]` | Implemented | Profile header, KPI cards, tabbed layout (Overview/Departments/Operations/Finance/Workforce/Experience), charts, department table, drilldowns. |
+| 4 | Appointments & Patient Access | `/appointments` | Implemented | Config-driven page with appointment KPIs/charts/table, filters, export, drilldown. |
+| 5 | Emergency & Urgent Care | `/emergency` | Implemented | Config-driven ED KPIs/charts/table. |
+| 6 | Inpatient & Bed Management | `/inpatient` | Implemented | Occupancy/LOS/bed management KPIs/charts/table. |
+| 7 | Surgery & Procedures | `/procedures` | Implemented | Procedure KPIs/charts/table. |
+| 8 | Diagnostics & Lab | `/diagnostics` | Implemented | Diagnostics/Lab/TAT KPIs/charts/table. |
+| 9 | Pharmacy & Medication | `/pharmacy` | Implemented | Pharmacy KPIs/charts/table. |
+| 10 | Finance & Revenue Cycle | `/finance` | Implemented | Finance KPIs/charts/table. |
+| 11 | Claims & Payer Performance | `/claims` | Implemented | Claims/denial KPIs/charts/table. |
+| 12 | Workforce & HR | `/workforce` | Implemented | Workforce KPIs/charts/table. |
+| 13 | Supply Chain & Inventory | `/inventory` | Implemented | Inventory KPIs/charts/table. |
+| 14 | Patient Experience | `/experience` | Implemented | Experience/satisfaction KPIs/charts/table. |
+| 15 | Quality & Compliance | `/quality` | Implemented | Quality/incident/compliance KPIs/charts/table. |
+| 16 | Data Quality | `/data-quality` | Implemented | DQ summary, rules, freshness, quarantine, pipeline links. |
+| 17 | Data Explorer | `/explorer` | Implemented | Dataset/schema/preview/table explorer; DataTable includes column visibility toggle (Columns control). |
+| 18 | Patient Journey | `/journey` | Implemented | Patient timeline/search, event filters, export, synthetic notice. |
+| 19 | KPI Dictionary | `/glossary` | Implemented | Glossary table/cards, search/filter, formula/definition display. |
+| 20 | Pipeline Status | `/pipeline` | Implemented | Runs, compare runs, lineage drawer, manifest/DQ summary links. |
+| 21 | Cross-cutting / All Pages | all routes | Implemented | Global filters + URL sync, compare period, export, drilldown, breadcrumbs, loading/empty/error states, synthetic disclaimers. |
 
-## Cross-cutting parity checks
+## Cross-Cutting Requirements
 
-| Area | Status | Notes |
+| Requirement | Status | Evidence / Notes |
 |---|---|---|
-| Global filters in URL | Implemented | Date/hospital/department/specialty/payer/encounter/patient type + page params. |
-| Compare period | Implemented | Global compare toggle; KPI cards consume previous-period API values. |
-| KPI drilldown | Implemented | KPI cards route to relevant analytics page/filter context; charts/tables support drilldown. |
-| Export | Implemented | DataTable CSV export via `/api/v1/exports/csv`; journey has dedicated export. |
-| Server-side pagination | Implemented | DataTable uses API pagination; explorer enforces max page size. |
-| Error/empty/loading states | Implemented | Shared UI states; no fabricated values when API unavailable. |
-| Responsive layout | Implemented | Tailwind responsive grid/breakpoints; mobile Playwright coverage exists. |
-| Accessibility baseline | Partial | Semantic headings/labels/aria in key components; full Phase 8 audit pending. |
-| API envelope `{data,pagination,metadata}` | Implemented | Maintained across endpoints. |
-| Synthetic data disclaimer | Implemented | Footer/banner/methodology/journey notices. |
+| Global filter bar with URL sync | Implemented | `FilterBar`, `useFilters`, URL query params. |
+| Context-sensitive filters | Implemented | `page-filters.ts` / page configs hide irrelevant filters. |
+| Filter hierarchy hospital→department→doctor | Implemented | Filter option dependencies in filter API/UI. |
+| KPI cards: previous, abs change, % change, trend, sparkline, tooltip | Implemented | `KpiCard.tsx` shows previous, abs delta, % change, trend icon, sparkline, definition tooltip. |
+| Chart interactions: tooltip, drilldown, legend toggle, zoom, download | Implemented | `EChart.tsx` default toolbox (dataZoom, dataView, restore, saveAsImage) for charts >80px; ECharts legend/tooltips enabled per chart config. |
+| Tables: sort, search, pagination, CSV export, column visibility | Implemented | `DataTable.tsx` has sorting/search/pagination/export; column visibility toggle via Columns button. |
+| CSV export max 5000 rows | Implemented | Export limit enforced in API/UI. |
+| API envelope `{data,pagination,metadata}` | Implemented | Backend response helpers and frontend types. |
+| SQL parameterized; dynamic identifiers allowlisted | Implemented | Query builder/allowlists; tests cover injection patterns. |
+| Accessibility baseline (WCAG AA target) | Implemented | Key controls labeled; focus styles present. Phase 8 axe audit/remediations recorded in `docs/accessibility.md` and mobile viewport tests added. |
+| Mobile responsive | Implemented | Responsive layout; Phase 8 mobile viewport Playwright checks added. |
 
-## Known minor gaps / follow-up
-
-- **Data Explorer column selector**: columns are auto-discovered; explicit user column visibility toggle is not yet exposed.
-- **Some blueprint click-throughs**: chart click opens drilldown drawer/filter context; not every blueprint click maps to a dedicated subpage where no subpage exists.
-- **Department profile page**: blueprint references department detail in interactions; current implementation provides drilldown/filtering rather than a dedicated department profile route.
-- **Phase 8**: full a11y/responsive/performance/security hardening and verification still required.
-- **Phase 9**: screenshots, README/case-study refresh, demo script, diagrams still required.
-- **Phase 10**: deployment prep only; no live deployment/accounts.
+## Known Follow-up (non-blocking)
+- ECharts 6.x upgrade trial is tracked in Phase 8; revert if regressions/failures.
+- No live deployment performed; deployment prep only.

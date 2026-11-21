@@ -84,7 +84,7 @@ export function KpiGlossaryPage() {
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-1 flex-col gap-3 sm:flex-row">
             <div className="relative max-w-sm flex-1">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-600" />
               <input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
@@ -105,12 +105,12 @@ export function KpiGlossaryPage() {
           <div className="flex items-center gap-2">
             <a href="/methodology" className="text-xs font-medium text-teal hover:underline">Methodology</a>
             <div className="flex rounded-md border border-line">
-              <button type="button" onClick={() => setView('table')} className={`px-2 py-1.5 ${view === 'table' ? 'bg-teal-light/40 text-teal-dark' : 'text-slate-500'}`} aria-label="Table view"><List className="h-4 w-4" /></button>
-              <button type="button" onClick={() => setView('cards')} className={`px-2 py-1.5 ${view === 'cards' ? 'bg-teal-light/40 text-teal-dark' : 'text-slate-500'}`} aria-label="Card view"><LayoutGrid className="h-4 w-4" /></button>
+              <button type="button" onClick={() => setView('table')} className={`px-2 py-1.5 ${view === 'table' ? 'bg-teal-light/40 text-teal-dark' : 'text-slate-600'}`} aria-label="Table view"><List className="h-4 w-4" /></button>
+              <button type="button" onClick={() => setView('cards')} className={`px-2 py-1.5 ${view === 'cards' ? 'bg-teal-light/40 text-teal-dark' : 'text-slate-600'}`} aria-label="Card view"><LayoutGrid className="h-4 w-4" /></button>
             </div>
           </div>
         </div>
-        <p className="mt-3 text-[11px] text-slate-400">{filtered.length} of {rows.length} KPIs. Click a row/card for full definition.</p>
+        <p className="mt-3 text-[11px] text-slate-600">{filtered.length} of {rows.length} KPIs. Click a row/card for full definition.</p>
       </Card>
 
       {query.isLoading && <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">{Array.from({ length: 6 }).map((_item, index) => <Skeleton key={index} className="h-48 w-full" />)}</div>}
@@ -121,7 +121,7 @@ export function KpiGlossaryPage() {
         <Card>
           <div className="overflow-x-auto">
             <table className="min-w-full text-xs" data-testid="glossary-table">
-              <thead className="border-b border-line bg-surface-alt text-left text-slate-500">
+              <thead className="border-b border-line bg-surface-alt text-left text-slate-600">
                 <tr>
                   <th className="px-4 py-3">KPI</th>
                   <th className="px-4 py-3">Category</th>
@@ -137,11 +137,11 @@ export function KpiGlossaryPage() {
                   const dateUnavailable = row.date_filter_available === false || SNAPSHOT_KPIS.has(kpiId);
                   return (
                     <tr key={`${kpiId}-${index}`} className="cursor-pointer border-b border-line/60 hover:bg-teal-light/10" onClick={() => openDetail(row)} data-testid="glossary-row">
-                      <td className="px-4 py-3 font-medium text-navy">{title}<div className="text-[10px] text-slate-400">{kpiId}</div></td>
+                      <td className="px-4 py-3 font-medium text-navy">{title}<div className="text-[10px] text-slate-600">{kpiId}</div></td>
                       <td className="px-4 py-3"><Badge tone="neutral">{String(row.category || 'Other')}</Badge></td>
                       <td className="px-4 py-3 text-slate-600">{String(row.business_definition || row.definition || '').slice(0, 120)}</td>
                       <td className="px-4 py-3">{displayValue(row.unit)}</td>
-                      <td className="px-4 py-3">{dateUnavailable ? <Badge tone="warning">No date filter</Badge> : <span className="text-slate-500">{String(row.date_field || '').slice(0, 40)}</span>}</td>
+                      <td className="px-4 py-3">{dateUnavailable ? <Badge tone="warning">No date filter</Badge> : <span className="text-slate-600">{String(row.date_field || '').slice(0, 40)}</span>}</td>
                     </tr>
                   );
                 })}

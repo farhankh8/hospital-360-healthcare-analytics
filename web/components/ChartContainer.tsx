@@ -1,13 +1,13 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Download, LockKeyhole } from 'lucide-react';
 import { buildChartOption } from '@/lib/chart';
+import { apiExportCsv, ApiError } from '@/lib/api';
 import { useFilters } from '@/lib/filters';
 import { useDrilldown } from './DrilldownDrawer';
 import type { ChartConfig, TableRow } from '@/lib/types';
-import { downloadCsv } from '@/lib/utils';
 import { Badge, Card, CardHeader, EmptyState, ErrorState, Skeleton } from './ui';
 
 const EChart = dynamic(() => import('./EChart'), { ssr: false, loading: () => <Skeleton className="h-full w-full" /> });
@@ -22,7 +22,8 @@ interface ChartContainerProps {
 
 export function ChartContainer({ config, data, loading, error, onRetry }: ChartContainerProps) {
   const { openDrilldown } = useDrilldown();
-  const { setFilter } = useFilters();
+  const { filters, setFilter } = useFilters();
+  const [exportError, setExportError] = useState('');
   const built = useMemo(() => buildChartOption(config, data), [config, data]);
 
   const handleClick = (params: Record<string, unknown>) => {
@@ -57,14 +58,20 @@ export function ChartContainer({ config, data, loading, error, onRetry }: ChartC
     }
   };
 
-  const download = () => {
-    const rows = built.rows.map((row) =>
-      Object.keys(row).reduce<TableRow>((accumulator, key) => {
-        accumulator[key] = row[key];
-        return accumulator;
-      }, {}),
-    );
-    downloadCsv(`${config.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.csv`, rows);
+  const download = async () => {
+    setExportError('');
+    try {
+      await apiExportCsv(
+        config.endpoint,
+        filters,
+        {},
+        config.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      );
+    } catch (error) {
+      const message = error instanceof ApiError ? error.message : 'Unable to export chart data.';
+      setExportError(message);
+      console.error('Chart export failed', error);
+    }
   };
 
   const body = loading ? (
@@ -84,7 +91,7 @@ export function ChartContainer({ config, data, loading, error, onRetry }: ChartC
     <Card className="flex h-full flex-col overflow-hidden">
       <CardHeader
         title={config.title}
-        subtitle={config.description}
+        subtitle={exportError ? `Export failed: ${exportError}` : config.description}
         action={
           <>
             {config.unfilteredBenchmark && (

@@ -50,7 +50,7 @@ service exposes validated KPIs and drill-downs; and a Next.js application presen
   journey, data quality, pipeline, KPI glossary and methodology.
 - Global URL-based filters, KPI cards with comparison/sparkline/definition, ECharts charts,
   sortable tables, drill-down drawers and CSV export.
-- Automated pytest suites (generator, silver, gold, KPI edge cases, API) and 18 Playwright
+- Automated pytest suites (generator, silver, gold, KPI edge cases, API) and 30 Playwright
   end-to-end tests covering the §28 journey, all additional cases and all 21 routes.
 - Chart click-through drills into the page's underlying records; KPI clicks preserve filters.
 - Docker Compose, GitHub Actions CI, deployment documentation and a full data dictionary.
@@ -290,9 +290,9 @@ Measured from a local end-to-end run of `python -m generator.generate`,
 - Blueprint chart coverage: every layout page now renders its full §14 chart list, including 9 data-quality charts and 8 hospital-profile charts
 - Live deployment URL: **not deployed** (local stack via `docker-compose.yml`)
 
-See [docs/project_roadmap.md](docs/project_roadmap.md) for the 16-phase status overview and
-the blueprint's acceptance checklist, and [docs/portfolio.md](docs/portfolio.md) for risks,
-presentation and demonstration notes.
+See [docs/project_roadmap.md](docs/project_roadmap.md) for the 16-phase status overview,
+[docs/blueprint_parity.md](docs/blueprint_parity.md) for the page parity matrix,
+[docs/portfolio.md](docs/portfolio.md) for risks/presentation, [docs/case_study.md](docs/case_study.md) for the case study, and [docs/demo_script.md](docs/demo_script.md) for the demo script.
 
 ---
 

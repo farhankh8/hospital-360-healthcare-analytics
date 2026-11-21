@@ -99,8 +99,8 @@ function ComparisonControls() {
     <Card className="p-4" data-testid="comparison-controls">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <div>
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Comparison metric</label>
-          <select value={metric} onChange={(e) => setPageParam('metric', e.target.value)} className="h-9 rounded-md border border-line px-3 text-xs" data-testid="comparison-metric">
+          <label htmlFor="comparison-metric-select" className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Comparison metric</label>
+          <select id="comparison-metric-select" aria-label="Comparison metric" value={metric} onChange={(e) => setPageParam('metric', e.target.value)} className="h-9 rounded-md border border-line px-3 text-xs" data-testid="comparison-metric">
             <option value="revenue">Revenue</option>
             <option value="patient_volume">Patient volume</option>
             <option value="occupancy">Occupancy</option>
@@ -110,8 +110,8 @@ function ComparisonControls() {
           </select>
         </div>
         <div>
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Ranking sort</label>
-          <select value={rankSort} onChange={(e) => setPageParam('rank_sort', e.target.value)} className="h-9 rounded-md border border-line px-3 text-xs" data-testid="comparison-sort">
+          <label htmlFor="comparison-sort-select" className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Ranking sort</label>
+          <select id="comparison-sort-select" aria-label="Ranking sort" value={rankSort} onChange={(e) => setPageParam('rank_sort', e.target.value)} className="h-9 rounded-md border border-line px-3 text-xs" data-testid="comparison-sort">
             <option value="desc">Highest first</option>
             <option value="asc">Lowest first</option>
           </select>

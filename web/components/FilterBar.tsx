@@ -128,8 +128,8 @@ export function FilterBar({ inDrawer = false }: { inDrawer?: boolean }) {
       )}
       {show('department_id') && (
         <div className="w-44">
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Department</label>
           <Select
+            label="Department"
             value={filters.department_id}
             onChange={(event) => setFilter('department_id', event.target.value)}
             options={departments}
@@ -139,8 +139,8 @@ export function FilterBar({ inDrawer = false }: { inDrawer?: boolean }) {
       )}
       {show('specialty_id') && (
         <div className="w-40">
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Specialty</label>
           <Select
+            label="Specialty"
             value={filters.specialty_id}
             onChange={(event) => setFilter('specialty_id', event.target.value)}
             options={specialties}
@@ -151,8 +151,10 @@ export function FilterBar({ inDrawer = false }: { inDrawer?: boolean }) {
       )}
       {show('payer_id') && (
         <div className="w-36">
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Payer ID</label>
+          <label htmlFor="filter-payer-id" className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Payer ID</label>
           <input
+            id="filter-payer-id"
+            aria-label="Payer ID"
             value={filters.payer_id}
             onChange={(event) => setFilter('payer_id', event.target.value.trim())}
             placeholder="e.g. PAY01"
@@ -162,14 +164,12 @@ export function FilterBar({ inDrawer = false }: { inDrawer?: boolean }) {
       )}
       {show('encounter_type') && (
         <div className="w-36">
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Encounter</label>
-          <Select value={filters.encounter_type} onChange={(event) => setFilter('encounter_type', event.target.value)} options={ENCOUNTER_TYPES} placeholder="All types" />
+          <Select label="Encounter" value={filters.encounter_type} onChange={(event) => setFilter('encounter_type', event.target.value)} options={ENCOUNTER_TYPES} placeholder="All types" />
         </div>
       )}
       {show('patient_type') && (
         <div className="w-32">
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Patient</label>
-          <Select value={filters.patient_type} onChange={(event) => setFilter('patient_type', event.target.value)} options={PATIENT_TYPES} placeholder="All patients" />
+          <Select label="Patient" value={filters.patient_type} onChange={(event) => setFilter('patient_type', event.target.value)} options={PATIENT_TYPES} placeholder="All patients" />
         </div>
       )}
 

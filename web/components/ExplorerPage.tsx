@@ -82,12 +82,11 @@ export function ExplorerPage() {
       <Card className="p-5">
         <div className="flex flex-wrap items-end gap-4">
           <div className="w-64">
-            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Dataset</label>
-            <Select value={selected} onChange={(event) => selectDataset(event.target.value)} options={datasets} placeholder="Select a dataset" disabled={datasetsQuery.isLoading} data-testid="explorer-dataset-select" />
+            <Select label="Dataset" value={selected} onChange={(event) => selectDataset(event.target.value)} options={datasets} placeholder="Select a dataset" disabled={datasetsQuery.isLoading} data-testid="explorer-dataset-select" />
           </div>
           <div className="w-52">
-            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Numeric column</label>
             <Select
+              label="Numeric column"
               value={pageParams.numeric_column ?? ''}
               onChange={(event) => setPageParam('numeric_column', event.target.value)}
               options={numericColumns.map((row) => ({ value: String(row.column_name), label: String(row.column_name) }))}
@@ -96,12 +95,12 @@ export function ExplorerPage() {
             />
           </div>
           <div className="w-32">
-            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Minimum</label>
-            <input value={pageParams.numeric_min ?? ''} onChange={(event) => setPageParam('numeric_min', event.target.value)} placeholder="Min" data-testid="explorer-numeric-min" className="h-9 w-full rounded-md border border-line bg-white px-2.5 text-xs outline-none focus:border-teal" />
+            <label htmlFor="explorer-numeric-min" className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Minimum</label>
+            <input id="explorer-numeric-min" aria-label="Minimum" value={pageParams.numeric_min ?? ''} onChange={(event) => setPageParam('numeric_min', event.target.value)} placeholder="Min" data-testid="explorer-numeric-min" className="h-9 w-full rounded-md border border-line bg-white px-2.5 text-xs outline-none focus:border-teal" />
           </div>
           <div className="w-32">
-            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Maximum</label>
-            <input value={pageParams.numeric_max ?? ''} onChange={(event) => setPageParam('numeric_max', event.target.value)} placeholder="Max" data-testid="explorer-numeric-max" className="h-9 w-full rounded-md border border-line bg-white px-2.5 text-xs outline-none focus:border-teal" />
+            <label htmlFor="explorer-numeric-max" className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Maximum</label>
+            <input id="explorer-numeric-max" aria-label="Maximum" value={pageParams.numeric_max ?? ''} onChange={(event) => setPageParam('numeric_max', event.target.value)} placeholder="Max" data-testid="explorer-numeric-max" className="h-9 w-full rounded-md border border-line bg-white px-2.5 text-xs outline-none focus:border-teal" />
           </div>
           <p className="pb-2 text-xs text-slate-600">{datasets.length} datasets · server-side pagination · maximum page size enforced by the API</p>
         </div>

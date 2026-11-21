@@ -94,6 +94,7 @@ export function KpiGlossaryPage() {
               />
             </div>
             <select
+              aria-label="Category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               data-testid="glossary-category"

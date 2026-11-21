@@ -171,8 +171,8 @@ export function Select({ label, options, placeholder, className, id, ...props }:
       {label && <span className="text-[11px] font-medium uppercase tracking-wide text-muted">{label}</span>}
       <select
         id={selectId}
-        aria-label={label}
-        className="h-9 rounded-sm border border-line bg-surface px-2.5 text-xs text-ink outline-none transition focus:border-teal focus:ring-2 focus:ring-teal/15 disabled:bg-surface-alt disabled:text-muted"
+        aria-label={label ?? props['aria-label'] ?? props.name}
+        className="h-9 rounded-sm border border-line bg-surface px-2.5 text-xs text-ink outline-none transition focus:border-teal focus:ring-2 focus:ring-teal/15 disabled:bg-surface-alt disabled:text-slate-600 disabled:opacity-100"
         {...props}
       >
         {placeholder && <option value="">{placeholder}</option>}

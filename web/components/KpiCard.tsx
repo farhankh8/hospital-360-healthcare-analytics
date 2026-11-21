@@ -8,7 +8,7 @@ import type { EChartsOption } from 'echarts';
 import { useFilters } from '@/lib/filters';
 import { changeTone, formatChange, formatValue, isLowerBetter, kpiLabel } from '@/lib/format';
 import type { KpiValue } from '@/lib/types';
-import { cn, routeWithFilters } from '@/lib/utils';
+import { cn, routeWithFilters, toNumber } from '@/lib/utils';
 import { Card, EmptyState, ErrorState, Skeleton } from './ui';
 
 const EChart = dynamic(() => import('./EChart'), { ssr: false, loading: () => <Skeleton className="h-10 w-full" /> });
@@ -111,11 +111,19 @@ export function KpiCard({ kpiId, item, loading, error, definition, route, onRetr
       <div className="mt-3 flex items-end gap-3">
         <div className="min-w-0">
           <p data-testid="metric-value" className="truncate text-2xl font-semibold tracking-tight text-navy">{formatValue(item.value, unit)}</p>
-          <div className="mt-1 flex items-center gap-1.5 text-[11px]">
+          <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
             <span className={cn('inline-flex items-center gap-0.5 font-semibold', tone === 'positive' ? 'text-success' : tone === 'negative' ? 'text-critical' : 'text-slate-400')}>
               <ChangeIcon className="h-3.5 w-3.5" />
               {formatChange(item.change_pct)}
             </span>
+            {(() => {
+              const currentNum = toNumber(item.value);
+              const prevNum = toNumber(item.previous);
+              if (currentNum === null || prevNum === null) return null;
+              const delta = currentNum - prevNum;
+              const sign = delta > 0 ? '+' : delta < 0 ? '-' : '';
+              return <span className="text-slate-400">{sign}{formatValue(Math.abs(delta), unit)} abs</span>;
+            })()}
             <span className="text-slate-400">vs previous</span>
             {item.previous !== undefined && item.previous !== null && (
               <span className="text-slate-400">({formatValue(item.previous, unit)})</span>

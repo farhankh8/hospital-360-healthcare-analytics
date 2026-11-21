@@ -44,8 +44,27 @@ export default function EChart({ option, height = 320, className, onClick, onDat
   }, []);
 
   useEffect(() => {
-    chartRef.current?.setOption(option, true);
-  }, [option]);
+    const numericHeight = typeof height === 'number' ? height : parseInt(String(height), 10) || 320;
+    const showToolbox = numericHeight > 80;
+    const base: EChartsOption = {
+      toolbox: showToolbox ? {
+        show: true,
+        right: 8,
+        top: 0,
+        iconStyle: { borderColor: '#64748B' },
+        emphasis: { iconStyle: { borderColor: '#0F766E' } },
+        feature: {
+          dataZoom: { yAxisIndex: 'none', title: { zoom: 'Zoom', back: 'Reset zoom' } },
+          dataView: { readOnly: true, title: 'View data', lang: ['Data', 'Close', 'Refresh'] },
+          restore: { title: 'Restore' },
+          saveAsImage: { title: 'Download image', pixelRatio: 2 },
+        },
+      } : { show: false },
+    };
+    const hasToolbox = option && typeof option === 'object' && 'toolbox' in option;
+    const merged = hasToolbox || !showToolbox ? option : { ...base, ...option, toolbox: (base as any).toolbox };
+    chartRef.current?.setOption(merged, true);
+  }, [option, height]);
 
   return <div ref={containerRef} className={className} style={{ width: '100%', height }} role="img" aria-label="Analytics chart" />;
 }

@@ -25,7 +25,7 @@ Maps the 21-page blueprint (`blueprint_clean.txt` / PDF) to current implementati
 | 15 | Quality & Compliance | `/quality` | Implemented | Quality/incident/compliance KPIs/charts/table. |
 | 16 | Data Quality | `/data-quality` | Implemented | DQ summary, rules, freshness, quarantine, pipeline links. |
 | 17 | Data Explorer | `/explorer` | Implemented | Dataset/schema/preview/table explorer; DataTable includes column visibility toggle (Columns control). |
-| 18 | Patient Journey | `/journey` | Implemented | Patient timeline/search, event filters, export, synthetic notice. |
+| 18 | Patient Journey | `/patient-journey` | Implemented | Patient timeline/search, event filters, export, synthetic notice. Frontend route `/patient-journey`; API endpoints under `/api/v1/journey/*`. |
 | 19 | KPI Dictionary | `/glossary` | Implemented | Glossary table/cards, search/filter, formula/definition display. |
 | 20 | Pipeline Status | `/pipeline` | Implemented | Runs, compare runs, lineage drawer, manifest/DQ summary links. |
 | 21 | Cross-cutting / All Pages | all routes | Implemented | Global filters + URL sync, compare period, export, drilldown, breadcrumbs, loading/empty/error states, synthetic disclaimers. |

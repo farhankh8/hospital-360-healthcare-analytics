@@ -304,7 +304,7 @@ def _load_allowed_ids(column: str, table: str) -> set[str]:
     try:
         from api.core.config import DATABASE_PATH
         cache_key = (str(DATABASE_PATH), column, table)
-    except Exception:
+    except Exception:  # noqa: BLE001 - config import failure should not block filter validation
         cache_key = ("", column, table)
     if cache_key in _ALLOWED_ID_CACHE:
         return _ALLOWED_ID_CACHE[cache_key]
@@ -313,8 +313,7 @@ def _load_allowed_ids(column: str, table: str) -> set[str]:
         with get_conn() as conn:
             rows = conn.execute(f"SELECT DISTINCT {column} FROM {table} WHERE {column} IS NOT NULL").fetchall()
         values = {str(r[0]) for r in rows if r[0] is not None}
-    except Exception:
-        # If DB is unavailable, skip strict ID validation; downstream will report DB-not-ready.
+    except Exception:  # noqa: BLE001 - DB unavailable during startup; downstream reports DB-not-ready
         return set()
     _ALLOWED_ID_CACHE[cache_key] = values
     return values

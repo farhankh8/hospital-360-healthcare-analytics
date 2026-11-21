@@ -31,7 +31,7 @@ def resolve_export_route(request: Request, path: str) -> tuple[APIRoute, dict[st
     if ".." in path or "?" in path or "#" in path:
         raise ValueError("Invalid export path")
     normalized = path.strip()
-    if normalized.startswith("http://") or normalized.startswith("https://"):
+    if normalized.startswith(("http://", "https://")):
         raise ValueError("Invalid export path")
     if not normalized.startswith("/"):
         normalized = f"/{normalized}"

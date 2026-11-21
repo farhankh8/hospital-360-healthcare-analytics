@@ -96,7 +96,7 @@ SUPPORTED_QUERY_PARAMS = {
     "sort_by", "sort_dir", "previous", "numeric_column", "numeric_min",
     "numeric_max", *PAGE_FILTER_COLUMNS,
 }
-ROUTE_QUERY_PARAMS = {"by", "metric", "run_a", "run_b", "patient_id", "encounter_id", "admission_id", "event_type"}
+ROUTE_QUERY_PARAMS = {"by", "metric", "run_a", "run_b", "patient_id", "encounter_id", "admission_id", "event_type", "rank_sort"}
 BOOLEAN_VALUES = {
     "1": True, "true": True, "yes": True,
     "0": False, "false": False, "no": False,

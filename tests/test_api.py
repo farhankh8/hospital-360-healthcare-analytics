@@ -506,3 +506,12 @@ def test_kpi_glossary_required_fields(client, duckdb_path) -> None:
     assert not missing, f"missing keys: {missing}"
     # spot check a few items have business_definition
     assert any(i.get("business_definition") for i in items)
+
+
+def test_hospital_rankings_metric_sort(client, duckdb_path) -> None:
+    resp = _get(client, "/api/v1/charts/hospital-rankings?metric=occupancy&rank_sort=asc")
+    assert resp.status_code == 200, resp.text
+    rows = resp.json()["data"]
+    assert isinstance(rows, list) and rows
+    vals = [r.get("occupancy") for r in rows if r.get("occupancy") is not None]
+    assert vals == sorted(vals)

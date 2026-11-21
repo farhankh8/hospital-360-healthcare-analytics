@@ -104,18 +104,40 @@ router.add_api_route("/comparison-monthly", multi("gold_hospital_monthly", "mont
     "denial_rate": "SUM(claims_denied) * 100.0 / NULLIF(SUM(claims_submitted), 0)",
 }), methods=["GET"])
 
-router.add_api_route("/hospital-rankings", custom("gold_hospital_monthly", "month", """
-SELECT h.hospital_name AS label,
-       SUM(g.net_revenue) AS revenue,
-       SUM(g.encounters) AS patient_volume,
-       SUM(g.occupied_bed_days) * 100.0 / NULLIF(SUM(g.available_bed_days), 0) AS occupancy,
-       AVG(g.avg_satisfaction) AS satisfaction,
-       SUM(g.avg_los_days * g.discharges) / NULLIF(SUM(g.discharges), 0) AS los,
-       SUM(g.claims_denied) * 100.0 / NULLIF(SUM(g.claims_submitted), 0) AS denial_rate
-FROM (SELECT * FROM gold_hospital_monthly{where}) g
-JOIN silver_dim_hospital h ON h.hospital_id = g.hospital_id
-GROUP BY 1 ORDER BY 2 DESC
-"""), methods=["GET"])
+@router.get("/hospital-rankings")
+def hospital_rankings(request: Request) -> dict[str, Any]:
+    f = parse_filters(request)
+    metric = (request.query_params.get("metric") or "revenue").strip().lower()
+    rank_sort = (request.query_params.get("rank_sort") or "desc").strip().lower()
+    metric_map = {
+        "revenue": "revenue",
+        "patient_volume": "patient_volume",
+        "occupancy": "occupancy",
+        "satisfaction": "satisfaction",
+        "los": "los",
+        "denial_rate": "denial_rate",
+    }
+    order_col = metric_map.get(metric, "revenue")
+    direction = "ASC" if rank_sort == "asc" else "DESC"
+    with get_conn() as conn:
+        where, params = build_where(f, columns(conn, "gold_hospital_monthly"), date_col="month")
+        rows = query_rows(
+            conn,
+            f"""
+            SELECT h.hospital_name AS label,
+                   SUM(g.net_revenue) AS revenue,
+                   SUM(g.encounters) AS patient_volume,
+                   SUM(g.occupied_bed_days) * 100.0 / NULLIF(SUM(g.available_bed_days), 0) AS occupancy,
+                   AVG(g.avg_satisfaction) AS satisfaction,
+                   SUM(g.avg_los_days * g.discharges) / NULLIF(SUM(g.discharges), 0) AS los,
+                   SUM(g.claims_denied) * 100.0 / NULLIF(SUM(g.claims_submitted), 0) AS denial_rate
+            FROM (SELECT * FROM gold_hospital_monthly{where}) g
+            JOIN silver_dim_hospital h ON h.hospital_id = g.hospital_id
+            GROUP BY 1 ORDER BY {order_col} {direction} NULLS LAST
+            """,
+            params,
+        )
+    return envelope(rows, f.date_from, f.date_to, f.hospital_ids, metric=order_col, rank_sort=direction.lower())
 
 router.add_api_route("/comparison-kpis", custom("gold_hospital_monthly", "month", """
 WITH base AS (SELECT * FROM gold_hospital_monthly{where})

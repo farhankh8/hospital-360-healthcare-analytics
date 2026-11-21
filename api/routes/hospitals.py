@@ -108,8 +108,17 @@ def hospital_profile(hospital_id: str, request: Request):
             + build_where(f, cols, date_col="month")[0],
             build_where(f, cols, date_col="month")[1],
         )
+        specialty_count = query_rows(
+            conn,
+            "SELECT COUNT(DISTINCT specialty_id) AS specialty_count, COUNT(*) AS department_count FROM silver_dim_department WHERE hospital_id = $hospital_id",
+            {"hospital_id": hospital_id},
+        )
+    hosp = dict(hospital[0])
+    if specialty_count:
+        hosp["specialty_count"] = specialty_count[0].get("specialty_count")
+        hosp["department_count"] = specialty_count[0].get("department_count")
     return envelope(
-        {"hospital": hospital[0], "summary": summary[0] if summary else {}, "network": network[0] if network else {}},
+        {"hospital": hosp, "summary": summary[0] if summary else {}, "network": network[0] if network else {}},
         f.date_from, f.date_to, [hospital_id],
     )
 

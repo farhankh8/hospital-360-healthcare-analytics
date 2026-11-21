@@ -6,6 +6,8 @@ from typing import Any
 
 from fastapi.responses import JSONResponse
 
+from api.core.config import MAX_PAGE_SIZE
+
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
@@ -36,30 +38,43 @@ def table_envelope(
     filters_applied: dict[str, Any] | None = None,
     **extra: Any,
 ) -> dict[str, Any]:
-    total_pages = (total_records + page_size - 1) // page_size if page_size else 0
+    """Return pagination metadata at the top level.
+
+    The same object is retained under ``metadata.pagination`` for backward
+    compatibility with clients built before the Phase 3 API contract.
+    """
+    applied = filters_applied or {}
+    pagination = {
+        "page": page,
+        "page_size": page_size,
+        "max_page_size": MAX_PAGE_SIZE,
+        "total_records": total_records,
+        "total_pages": (total_records + page_size - 1) // page_size if page_size else 0,
+    }
     resp = envelope(
         data,
-        pagination={
-            "page": page,
-            "page_size": page_size,
-            "total_records": total_records,
-            "total_pages": total_pages,
-        },
-        filters_applied=filters_applied or {},
+        date_from=applied.get("date_from"),
+        date_to=applied.get("date_to"),
+        hospital_ids=applied.get("hospital_ids") or [],
+        pagination=pagination,
+        filters_applied=applied,
         **extra,
     )
+    resp["pagination"] = pagination
     return resp
 
 
+def error_payload(code: str, message: str, details: Any = None) -> dict[str, Any]:
+    """Build the single structured error body used by every error handler."""
+    return {
+        "error": {
+            "code": code,
+            "message": message,
+            "details": details,
+            "generated_at": utc_now(),
+        }
+    }
+
+
 def error_response(status_code: int, code: str, message: str, details: Any = None) -> JSONResponse:
-    return JSONResponse(
-        status_code=status_code,
-        content={
-            "error": {
-                "code": code,
-                "message": message,
-                "details": details,
-                "generated_at": utc_now(),
-            }
-        },
-    )
+    return JSONResponse(status_code=status_code, content=error_payload(code, message, details))

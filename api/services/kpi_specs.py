@@ -43,6 +43,18 @@ def _wavg(expr: str, weight: str) -> str:
     return f"SUM(({expr}) * ({weight})) / NULLIF(SUM({weight}), 0)"
 
 
+def _wavg_nonnull(expr: str, weight: str) -> str:
+    """Weighted mean whose denominator excludes rows with a NULL measurement.
+
+    A NULL investigation duration is an unmeasured incident, not a zero-day
+    incident. Counting its weight in the denominator understates the mean.
+    """
+    return (
+        f"SUM(({expr}) * ({weight})) FILTER (WHERE {expr} IS NOT NULL) / "
+        f"NULLIF(SUM({weight}) FILTER (WHERE {expr} IS NOT NULL), 0)"
+    )
+
+
 NETWORK: list[KpiSpec] = [
     KpiSpec("total_patients", "Total Patients", "silver_encounters",
             "COUNT(DISTINCT patient_id)", date_col="arrival_datetime", unit=COUNT,
@@ -53,8 +65,7 @@ NETWORK: list[KpiSpec] = [
     KpiSpec("total_admissions", "Total Admissions", H, "SUM(admissions)", unit=COUNT,
             description="Inpatient admissions in the period."),
     KpiSpec("total_revenue", "Total Revenue", H, "SUM(gross_revenue)", unit=CURRENCY,
-            aliases=("revenue",),
-            description="Gross charged revenue before discounts."),
+            description="Gross charged revenue before discounts. `revenue` is the separate net-revenue KPI."),
     KpiSpec("net_collections", "Net Collections", H, "SUM(collections)", unit=CURRENCY,
             description="Cash collected against invoices."),
     KpiSpec("average_occupancy", "Average Occupancy", H,
@@ -65,8 +76,7 @@ NETWORK: list[KpiSpec] = [
             higher_is_better=False, description="Discharge-weighted average length of stay."),
     KpiSpec("patient_satisfaction", "Patient Satisfaction", PE,
             _wavg("satisfaction_pct", "feedback_count"), unit=PERCENT,
-            aliases=("average_satisfaction",),
-            description="Feedback-weighted satisfaction percentage."),
+            description="Rating converted to a 0-100 scale (AVG(rating)/5*100). `average_satisfaction` is the 1-5 score."),
     KpiSpec("no_show_rate", "No-Show Rate", H,
             _pct("SUM(no_show_appointments)", "SUM(completed_appointments + no_show_appointments)"),
             unit=PERCENT, higher_is_better=False,
@@ -75,10 +85,10 @@ NETWORK: list[KpiSpec] = [
             _pct("SUM(denied)", "SUM(approved + denied)"), unit=PERCENT,
             higher_is_better=False, description="Denied claims divided by adjudicated claims."),
     KpiSpec("hospitals_selected", "Hospitals Selected", "dim_hospital",
-            "COUNT(DISTINCT hospital_id)", date_col="month", unit=COUNT,
-            description="Number of hospitals in the active selection (1-10)."),
-    KpiSpec("total_beds", "Total Beds", "dim_hospital", "SUM(beds)", date_col="month",
-            unit=COUNT, description="Staffed bed capacity across the selected hospitals."),
+            "COUNT(DISTINCT hospital_id)", date_col="", unit=COUNT,
+            description="Number of hospitals in the active selection (1-10); dimension snapshot, no date filter."),
+    KpiSpec("total_beds", "Total Beds", "dim_hospital", "SUM(beds)", date_col="",
+            unit=COUNT, description="Staffed bed capacity across the selected hospitals; dimension snapshot, no date filter."),
 ]
 
 HOSPITAL: list[KpiSpec] = [
@@ -86,7 +96,8 @@ HOSPITAL: list[KpiSpec] = [
             date_col="arrival_datetime", unit=COUNT),
     KpiSpec("encounters", "Encounters", H, "SUM(encounters)", unit=COUNT),
     KpiSpec("admissions", "Admissions", H, "SUM(admissions)", unit=COUNT),
-    KpiSpec("revenue", "Revenue", H, "SUM(gross_revenue)", unit=CURRENCY),
+    KpiSpec("total_revenue", "Total Revenue", H, "SUM(gross_revenue)", unit=CURRENCY,
+            description="Gross charged revenue before discounts; the net measure is `revenue`."),
     KpiSpec("occupancy", "Occupancy", H,
             _pct("SUM(occupied_bed_days)", "SUM(available_bed_days)"), unit=PERCENT),
     KpiSpec("average_los", "Average LOS", H,
@@ -163,7 +174,7 @@ EMERGENCY: list[KpiSpec] = [
 ]
 
 INPATIENT: list[KpiSpec] = [
-    KpiSpec("total_beds", "Total Beds", "dim_hospital", "SUM(beds)", date_col="month", unit=COUNT),
+    KpiSpec("total_beds", "Total Beds", "dim_hospital", "SUM(beds)", date_col="", unit=COUNT),
     KpiSpec("available_beds", "Available Beds", BU,
             "SUM(available_bed_days) / NULLIF(COUNT(DISTINCT month || ward), 0)", unit=COUNT),
     KpiSpec("occupied_beds", "Occupied Beds", BU,
@@ -173,7 +184,9 @@ INPATIENT: list[KpiSpec] = [
     KpiSpec("occupancy_rate", "Occupancy Rate", BU,
             _pct("SUM(occupied_bed_days)", "SUM(available_bed_days)"), unit=PERCENT),
     KpiSpec("average_los", "Average LOS", BU,
-            _wavg("avg_los_days", "occupied_bed_days"), unit=DAYS, higher_is_better=False),
+            "SUM(avg_los_days * discharges) / NULLIF(SUM(discharges), 0)", unit=DAYS,
+            higher_is_better=False,
+            description="Discharge-weighted mean LOS; occupied bed-days are not a valid LOS weight."),
     KpiSpec("bed_turnover", "Bed Turnover", BU,
             _wavg("bed_turnover", "available_bed_days"), unit=RATIO,
             aliases=("bed_turnover_rate",)),
@@ -289,6 +302,8 @@ PHARMACY: list[KpiSpec] = [
 
 FINANCE: list[KpiSpec] = [
     KpiSpec("gross_revenue", "Gross Revenue", H, "SUM(gross_revenue)", unit=CURRENCY),
+    KpiSpec("revenue", "Revenue (Net)", H, "SUM(net_revenue)", unit=CURRENCY,
+            description="Canonical net revenue. `total_revenue` is gross and is a different KPI."),
     KpiSpec("net_revenue", "Net Revenue", H, "SUM(net_revenue)", unit=CURRENCY),
     KpiSpec("total_billed", "Total Billed", H, "SUM(gross_revenue)", unit=CURRENCY),
     KpiSpec("total_collected", "Total Collected", H, "SUM(collections)", unit=CURRENCY),
@@ -341,7 +356,7 @@ WORKFORCE: list[KpiSpec] = [
     KpiSpec("total_employees", "Total Employees", WF, "SUM(headcount)", unit=COUNT),
     KpiSpec("active_employees", "Active Employees", "silver_dim_staff",
             "COUNT(DISTINCT staff_id) FILTER (WHERE status = 'Active')",
-            date_col="month", unit=COUNT,
+            date_col="", unit=COUNT,
             description="Staff records marked Active in the synthetic staff dimension."),
     KpiSpec("scheduled_hours", "Scheduled Hours", WF, "SUM(scheduled_hours)", unit=HOURS),
     KpiSpec("worked_hours", "Worked Hours", WF, "SUM(worked_hours)", unit=HOURS),
@@ -449,10 +464,14 @@ QUALITY: list[KpiSpec] = [
     KpiSpec("investigation_completion", "Investigation Completion Rate", QS,
             _wavg("investigation_completion_rate", "incidents"), unit=PERCENT,
             aliases=("investigation_completion_rate",)),
-    KpiSpec("avg_investigation_time", "Average Investigation Time", QS,
-            _wavg("avg_investigation_days", "incidents"), unit=DAYS, higher_is_better=False),
-    KpiSpec("readmission_rate", "Readmission Rate", QS,
-            _wavg("readmission_rate", "incidents"), unit=PERCENT, higher_is_better=False),
+    KpiSpec("average_investigation_time", "Average Investigation Time", QS,
+            _wavg_nonnull("avg_investigation_days", "incidents"), unit=DAYS,
+            higher_is_better=False, aliases=("avg_investigation_time",),
+            description="Incident-weighted mean of completed investigations; incidents with no duration are excluded."),
+    KpiSpec("readmission_rate", "Readmission Rate", H,
+            _pct("SUM(readmissions)", "SUM(discharges)"), unit=PERCENT,
+            higher_is_better=False,
+            description="Readmissions per discharge. The incident-weighted variant was not a canonical KPI."),
     KpiSpec("compliance_indicator", "Compliance Indicator", "silver_incidents",
             _pct("COUNT(*) FILTER (WHERE investigation_complete_flag)", "COUNT(*)"),
             date_col="incident_date", unit=PERCENT,

@@ -21,6 +21,9 @@ const DQ_CHARTS: ChartConfig[] = [
   { title: 'Rule pass rate', endpoint: '/charts/dq/rule-pass-rate', type: 'bar', dataKey: 'pass_rate', xKey: 'label', valueKey: 'pass_rate', span: 1 },
   { title: 'Validation trend over time', endpoint: '/charts/dq/validation-trend', type: 'line', dataKey: 'validation', xKey: 'period', span: 1 },
   { title: 'Quarantine trend', endpoint: '/charts/dq/quarantine-trend', type: 'line', dataKey: 'quarantine', xKey: 'period', span: 2 },
+  { title: 'Quarantine by rule', endpoint: '/charts/dq/quarantine-by-rule', type: 'bar', dataKey: 'quarantined', xKey: 'label', valueKey: 'quarantined', span: 1 },
+  { title: 'Quarantine by dataset', endpoint: '/charts/dq/quarantine-by-dataset', type: 'horizontal-bar', dataKey: 'quarantined', xKey: 'label', valueKey: 'quarantined', span: 1 },
+  { title: 'Injected vs detected DQ issues', endpoint: '/charts/dq/injected-vs-detected', type: 'bar', dataKey: 'comparison', xKey: 'label', seriesKeys: ['injected', 'detected'], span: 2 },
 ];
 
 const DQ_KPI_IDS = [
@@ -48,6 +51,13 @@ export function DataQualityPage() {
   return (
     <div className="space-y-6">
       <PageHeading title="Data Quality" description="Validation rules, detected failures and dataset-level quality indicators." badge={<Badge tone="info">Engineering</Badge>} />
+
+      <Card className="border-amber-200 bg-amber-50/60 p-4 text-sm text-slate-700">
+        <p className="font-medium text-slate-900">Post-quarantine DQ rule score: silver passes all rules after invalid rows are quarantined.</p>
+        <p className="mt-1 text-slate-600">
+          The DQ rule checks below run on cleaned silver/gold data. Detections at ingestion are shown in the quarantine charts below, so a 100% post-quarantine score does not mean raw input was perfect.
+        </p>
+      </Card>
 
       <section aria-label="Key performance indicators">
         <div className="mb-3 flex items-center justify-between">

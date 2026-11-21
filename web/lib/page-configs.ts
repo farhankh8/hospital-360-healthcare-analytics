@@ -128,7 +128,7 @@ export const pages: Record<PageSlug, PageConfig> = {
     ],
     charts: [
       chart('Patient volume trend', '/overview/trends', 'line', 'trends', { xKey: 'month', span: 2, description: 'Patients, encounters and admissions by month' }),
-      chart('Revenue, collections and balances', '/overview/trends', 'line', 'revenue', {
+      chart('Net revenue, collections and balances', '/overview/trends', 'line', 'revenue', {
         xKey: 'month',
         seriesKeys: ['revenue', 'collections', 'outstanding_balance'],
         span: 2,
@@ -161,9 +161,9 @@ export const pages: Record<PageSlug, PageConfig> = {
       'hospitals_selected',
       'total_beds',
       'patient_volume',
-      'revenue',
+      'total_revenue',
       'average_occupancy',
-      'average_satisfaction'
+      'patient_satisfaction'
     ],
     charts: [
       chart('Revenue ranking', '/charts/hospital-rankings', 'horizontal-bar', 'rankings', { xKey: 'label', valueKey: 'revenue', span: 1 }),
@@ -191,7 +191,7 @@ export const pages: Record<PageSlug, PageConfig> = {
       'patients',
       'encounters',
       'admissions',
-      'revenue',
+      'total_revenue',
       'occupancy',
       'los',
       'patient_satisfaction',
@@ -517,14 +517,14 @@ export const pages: Record<PageSlug, PageConfig> = {
       'revenue_per_hospital'
     ],
     charts: [
-      chart('Revenue by hospital', '/charts/finance/hospital', 'bar', 'hospitals', { xKey: 'label', valueKey: 'net_revenue', span: 1 }),
-      chart('Revenue by department', '/finance/revenue-by', 'horizontal-bar', 'departments', { xKey: 'department_name', span: 1 }),
-      chart('Revenue by specialty', '/charts/finance/specialty', 'horizontal-bar', 'specialties', { xKey: 'label', valueKey: 'revenue', span: 1 }),
-      chart('Revenue by service category', '/charts/finance/service-category', 'donut', 'services', { xKey: 'label', valueKey: 'amount', span: 1 }),
+      chart('Net revenue by hospital', '/charts/finance/hospital', 'bar', 'hospitals', { xKey: 'label', valueKey: 'net_revenue', span: 1 }),
+      chart('Net revenue by department', '/finance/revenue-by', 'horizontal-bar', 'departments', { xKey: 'label', valueKey: 'net_revenue', span: 1 }),
+      chart('Net revenue by specialty', '/charts/finance/specialty', 'horizontal-bar', 'specialties', { xKey: 'label', valueKey: 'net_revenue', span: 1 }),
+      chart('Gross revenue by service category', '/charts/finance/service-category', 'donut', 'services', { xKey: 'label', valueKey: 'gross_amount', span: 1 }),
       chart('Collections trend', '/finance/collections', 'line', 'collections', { xKey: 'period', span: 1 }),
       chart('Outstanding receivables ageing', '/finance/receivables', 'bar', 'receivables', { xKey: 'aging_bucket', span: 1 }),
       chart('Revenue per encounter', '/charts/finance/revenue-per-encounter', 'bar', 'per_encounter', { xKey: 'label', valueKey: 'revenue_per_encounter', span: 1 }),
-      chart('Payer mix', '/charts/finance/payer-mix', 'donut', 'payers', { xKey: 'label', valueKey: 'amount', span: 1 }),
+      chart('Net revenue by payer', '/charts/finance/payer-mix', 'donut', 'payers', { xKey: 'label', valueKey: 'net_revenue', span: 1 }),
       chart('Revenue leakage analysis', '/charts/finance/leakage', 'bar', 'leakage', { xKey: 'label', valueKey: 'amount', span: 1 }),
       chart('Revenue trend', '/finance/revenue-trend', 'line', 'revenue_trend', { xKey: 'period', span: 2 }),
     ],

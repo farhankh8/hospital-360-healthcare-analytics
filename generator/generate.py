@@ -76,6 +76,12 @@ FK_CHECKS = [
 ]
 
 
+def build_dim_patient(patients: pd.DataFrame) -> pd.DataFrame:
+    """Build the conformed patient dimension from the clean patient registry."""
+    dim = patients.drop_duplicates(subset=["patient_id"], keep="first").copy()
+    return dim[schema.columns("dim_patient")]
+
+
 def write_bronze(tables: dict[str, pd.DataFrame]) -> None:
     """Write one CSV per contract table, with exact column names and order."""
     for table in schema.TABLES:
@@ -197,6 +203,21 @@ def validate(tables: dict[str, pd.DataFrame], dq_log: list[dict]) -> dict:
     if n:
         problems.append(f"payments: {n} negative regular payments")
 
+    # Reporting-window freshness. Historical demographic attributes are excluded.
+    historical_columns = {"birth_date", "registration_date"}
+    window_end = pd.Timestamp(config.END_DATE) + pd.Timedelta(days=1)
+    for table, cols in schema.DATE_COLUMNS.items():
+        frame = tables.get(table)
+        if frame is None:
+            continue
+        for col in cols:
+            if col in historical_columns:
+                continue
+            parsed = pd.to_datetime(frame[col], errors="coerce")
+            latest = parsed.max()
+            if pd.notna(latest) and latest > window_end:
+                problems.append(f"{table}.{col}: date {latest.date()} exceeds reporting window end")
+
     target_table = {
         "hospitals": "dim_hospital", "departments": "dim_department",
         "doctors": "dim_doctor", "staff": "dim_staff",
@@ -225,6 +246,7 @@ def generate_all(seed: int = config.SEED) -> dict:
     started = datetime.now(timezone.utc)
     refs = build_reference(seed)
     patients = generate_patients(seed)
+    dim_patient = build_dim_patient(patients)
     appointments = generate_appointments(seed, refs, patients)
     clinical = generate_encounters(seed, refs, patients, appointments)
     encounters = clinical["encounters"]
@@ -236,6 +258,7 @@ def generate_all(seed: int = config.SEED) -> dict:
 
     tables: dict[str, pd.DataFrame] = dict(refs.tables)
     tables.update({
+        "dim_patient": dim_patient,
         "patients": patients, "appointments": appointments,
         **clinical, **finance, **claims, **workforce, **inventory, **feedback,
     })

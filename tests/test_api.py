@@ -1,6 +1,8 @@
 """API tests: envelopes, filters, pagination, 404s and SQL-safety guards."""
 from __future__ import annotations
 
+import json
+
 import pytest
 from conftest import load_optional
 from fastapi.testclient import TestClient
@@ -9,6 +11,8 @@ from starlette.requests import Request
 from api.core import db as db_utils
 from api.core import filters as filter_utils
 from api.core import responses as response_utils
+from api.core.errors import ExportLimitExceeded, FilterValidationError
+from api.services import exports as export_utils
 
 pytestmark = pytest.mark.api
 
@@ -47,38 +51,62 @@ def test_envelope_shape() -> None:
 
 def test_table_envelope_pagination_shape() -> None:
     payload = response_utils.table_envelope([{"id": 1}], 120, page=2, page_size=50)
-    # CONTRACT.md allows pagination as a table-response field; the API currently
-    # nests it under metadata. Accept either shape so this test checks the contract,
-    # not a specific implementation detail owned by another layer.
-    pagination = payload.get("pagination") or payload["metadata"].get("pagination")
-    assert pagination == {
+    expected = {
         "page": 2,
         "page_size": 50,
+        "max_page_size": 5000,
         "total_records": 120,
         "total_pages": 3,
     }
+    assert payload["pagination"] == expected
+    # Backward compatibility for clients that read the old nested location.
+    assert payload["metadata"]["pagination"] == expected
     assert "filters_applied" in payload["metadata"]
 
 
 def test_error_response_shape() -> None:
-    response = response_utils.error_response(404, "not_found", "Missing")
+    response = response_utils.error_response(404, "NOT_FOUND", "Missing")
+    body = json.loads(response.body)
     assert response.status_code == 404
-    assert response.body, "error response must have a non-empty body"
-    assert b'"error"' in response.body
+    assert body["error"]["code"] == "NOT_FOUND"
+    assert body["error"]["message"] == "Missing"
+    assert body["error"]["generated_at"].endswith("Z")
 
 
 # ---------------------------------------------------------------------------
 # Filter parsing / SQL safety (no database needed)
 # ---------------------------------------------------------------------------
-def test_parse_filters_sanitises_invalid_values() -> None:
-    request = _request(
-        "page=-1&page_size=999999&sort_dir=BOGUS&hospital_id=H01&hospital_id=H03"
-    )
+def test_parse_filters_accepts_valid_repeated_hospitals() -> None:
+    request = _request("page=2&page_size=100&sort_dir=desc&hospital_id=H01&hospital_id=H03")
     parsed = filter_utils.parse_filters(request)
-    assert parsed.page == 1
-    assert parsed.page_size <= 5000
-    assert parsed.sort_dir == "asc"
+    assert parsed.page == 2
+    assert parsed.page_size == 100
+    assert parsed.sort_dir == "desc"
     assert parsed.hospital_ids == ["H01", "H03"]
+
+
+@pytest.mark.parametrize(
+    "query,parameter",
+    [
+        ("page=-1", "page"),
+        ("page=abc", "page"),
+        ("page_size=5001", "page_size"),
+        ("sort_dir=BOGUS", "sort_dir"),
+        ("date_from=not-a-date", "date_from"),
+        ("date_from=2026-01-01&date_to=2025-01-01", "date_from"),
+        ("unknown_filter=H01", "unknown_filter"),
+        ("numeric_min=abc", "numeric_min"),
+        ("numeric_min=10&numeric_max=9", "numeric_min"),
+        ("previous=maybe", "previous"),
+        ("rating=abc", "rating"),
+    ],
+)
+def test_parse_filters_rejects_invalid_values(query: str, parameter: str) -> None:
+    with pytest.raises(FilterValidationError) as raised:
+        filter_utils.parse_filters(_request(query))
+    assert raised.value.status_code == 422
+    assert raised.value.code == "VALIDATION_ERROR"
+    assert parameter in json.dumps(raised.value.details)
 
 
 def test_parse_filters_defaults() -> None:
@@ -163,9 +191,10 @@ def test_pagination_shape_on_records(client, duckdb_path) -> None:
         pytest.skip("explorer records endpoint not implemented yet")
     assert response.status_code == 200
     body = response.json()
-    pagination = body.get("pagination") or body.get("metadata", {}).get("pagination", {})
+    pagination = body["pagination"]
     for key in ("page", "page_size", "total_records", "total_pages"):
         assert key in pagination
+    assert pagination == body["metadata"]["pagination"]
 
 
 def test_no_arbitrary_sql_parameter_is_executed(client, duckdb_path) -> None:
@@ -176,3 +205,210 @@ def test_no_arbitrary_sql_parameter_is_executed(client, duckdb_path) -> None:
     assert response.status_code in {200, 400, 404, 422}
     still_there = _get(client, "/api/v1/overview/kpis")
     assert still_there.status_code in {200, 500, 503}
+
+
+# ---------------------------------------------------------------------------
+# Phase 3 API contract
+# ---------------------------------------------------------------------------
+def test_structured_error_envelope_for_all_error_types(client) -> None:
+    cases = [
+        ("/api/v1/nope", 404, "NOT_FOUND"),
+        ("/api/v1/overview/kpis?page=0", 422, "VALIDATION_ERROR"),
+        ("/api/v1/exports/csv?path=/unknown", 404, "NOT_FOUND"),
+        ("/api/v1/exports/csv?path=/explorer/appointments/records/extra", 404, "NOT_FOUND"),
+    ]
+    for url, status, code in cases:
+        response = client.get(url)
+        assert response.status_code == status
+        body = response.json()
+        assert body["error"]["code"] == code
+        assert isinstance(body["error"]["message"], str)
+        assert body["error"]["message"]
+        assert "traceback" not in response.text.lower()
+
+
+def test_openapi_documents_contract_schemas(client) -> None:
+    schema = client.get("/openapi.json").json()
+    assert "/api/v1/exports/csv" in schema["paths"]
+    components = schema["components"]["schemas"]
+    for name in ("ErrorEnvelope", "KpiEnvelope", "PaginatedEnvelope", "Pagination"):
+        assert name in components
+
+    kpi_schema = schema["paths"]["/api/v1/overview/kpis"]["get"]["responses"]["200"]
+    assert "KpiEnvelope" in json.dumps(kpi_schema)
+    records_schema = schema["paths"]["/api/v1/explorer/{dataset}/records"]["get"]["responses"]["200"]
+    assert "PaginatedEnvelope" in json.dumps(records_schema)
+    for status in ("400", "404", "413", "422", "500", "503"):
+        error_schema = schema["paths"]["/api/v1/overview/kpis"]["get"]["responses"][status]
+        assert "ErrorEnvelope" in json.dumps(error_schema)
+
+
+def test_export_limit_boundary() -> None:
+    export_utils.enforce_export_limit(export_utils.MAX_EXPORT_ROWS)
+    with pytest.raises(ExportLimitExceeded) as raised:
+        export_utils.enforce_export_limit(export_utils.MAX_EXPORT_ROWS + 1)
+    assert raised.value.status_code == 413
+    assert raised.value.code == "EXPORT_LIMIT_EXCEEDED"
+    assert raised.value.details["requested_rows"] == 5001
+
+
+def test_server_export_reuses_source_filters_and_enforces_cap(client, duckdb_path) -> None:
+    exported = _get(
+        client,
+        "/api/v1/exports/csv?path=/finance/revenue-by&by=service_category&filename=net_revenue",
+    )
+    assert exported.status_code == 200
+    assert 'filename="net_revenue.csv"' in exported.headers["content-disposition"]
+    assert "label,net_revenue" in exported.text
+
+    at_cap = _get(
+        client,
+        "/api/v1/exports/csv?path=/explorer/appointments/records&page=1&page_size=5000",
+    )
+    assert at_cap.status_code == 413
+    assert at_cap.json()["error"]["code"] == "EXPORT_LIMIT_EXCEEDED"
+
+    above_cap = _get(
+        client,
+        "/api/v1/exports/csv?path=/explorer/appointments/records&page=1&page_size=5001",
+    )
+    assert above_cap.status_code == 422
+    assert above_cap.json()["error"]["code"] == "VALIDATION_ERROR"
+
+
+def test_service_category_revenue_matches_canonical_net_revenue(client, duckdb_path) -> None:
+    canonical = _get(client, "/api/v1/finance/kpis").json()["data"]["revenue"]["value"]
+    rows = _get(client, "/api/v1/finance/revenue-by?by=service_category").json()["data"]
+    assert rows
+    assert all("net_revenue" in row and "revenue" not in row for row in rows)
+    assert sum(row["net_revenue"] for row in rows) == pytest.approx(canonical, abs=0.01)
+
+
+def test_malformed_numeric_filter_returns_validation_error(client, duckdb_path) -> None:
+    response = _get(client, "/api/v1/experience/records?rating=abc")
+    if response.status_code in {500, 503}:
+        pytest.fail("malformed filter must not raise an internal error")
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "VALIDATION_ERROR"
+
+
+def test_snapshot_kpis_mark_date_filter_unavailable(client, duckdb_path) -> None:
+    data = _get(client, "/api/v1/overview/kpis").json()["data"]
+    for kpi_id in ("hospitals_selected", "total_beds"):
+        assert data[kpi_id]["date_filter_available"] is False
+        assert "no date field" in data[kpi_id]["date_filter_note"]
+    glossary = _get(client, "/api/v1/kpis/glossary").json()["data"]
+    total_beds = next(item for item in glossary if item.get("id") == "total_beds")
+    assert total_beds["date_filter_available"] is False
+
+
+RECORD_ENDPOINTS = [
+    "/api/v1/appointments/records",
+    "/api/v1/emergency/records",
+    "/api/v1/inpatient/admissions",
+    "/api/v1/finance/invoices",
+    "/api/v1/claims/records",
+    "/api/v1/procedures/records",
+    "/api/v1/data-quality/failures",
+]
+
+
+@pytest.mark.parametrize("endpoint", RECORD_ENDPOINTS)
+def test_records_pagination_is_stable_and_respected(client, duckdb_path, endpoint: str) -> None:
+    r1 = _get(client, f"{endpoint}?page=1&page_size=5")
+    r2 = _get(client, f"{endpoint}?page=2&page_size=5")
+    assert r1.status_code == 200, r1.text
+    assert r2.status_code == 200, r2.text
+    b1 = r1.json()
+    b2 = r2.json()
+    assert b1["pagination"]["page"] == 1
+    assert b2["pagination"]["page"] == 2
+    assert b1["pagination"]["page_size"] == 5
+    assert b2["pagination"]["page_size"] == 5
+    assert b1["pagination"]["total_records"] == b2["pagination"]["total_records"]
+    assert b1["pagination"]["max_page_size"] == 5000
+    assert len(b1["data"]) <= 5
+    assert len(b2["data"]) <= 5
+    # If there are enough rows, page 2 should differ from page 1.
+    if b1["pagination"]["total_records"] > 5:
+        assert b1["data"] != b2["data"]
+
+
+def test_explorer_records_pagination_differs(client, duckdb_path) -> None:
+    r1 = _get(client, "/api/v1/explorer/patients/records?page=1&page_size=5")
+    r2 = _get(client, "/api/v1/explorer/patients/records?page=2&page_size=5")
+    assert r1.status_code == 200
+    assert r2.status_code == 200
+    b1, b2 = r1.json(), r2.json()
+    assert b1["pagination"]["total_records"] == b2["pagination"]["total_records"]
+    assert b1["data"] != b2["data"]
+
+
+@pytest.mark.parametrize("endpoint", RECORD_ENDPOINTS[:5])
+def test_records_oversized_page_size_returns_422(client, duckdb_path, endpoint: str) -> None:
+    response = _get(client, f"{endpoint}?page_size=999999")
+    assert response.status_code == 422
+    body = response.json()
+    assert body["error"]["code"] == "VALIDATION_ERROR"
+
+
+@pytest.mark.parametrize(
+    "query,parameter",
+    [
+        ("hospital_id=BAD", "hospital_id"),
+        ("department_id=BAD", "department_id"),
+        ("specialty_id=BAD", "specialty_id"),
+        ("payer_id=BAD", "payer_id"),
+        ("doctor_id=BAD", "doctor_id"),
+        ("supplier_id=BAD", "supplier_id"),
+        ("item_id=BAD", "item_id"),
+    ],
+)
+def test_invalid_id_filters_return_422(client, duckdb_path, query: str, parameter: str) -> None:
+    response = _get(client, f"/api/v1/overview/kpis?{query}")
+    assert response.status_code == 422, response.text
+    body = response.json()
+    assert body["error"]["code"] == "VALIDATION_ERROR"
+    assert parameter in json.dumps(body["error"]["details"])
+
+
+def test_date_from_after_date_to_returns_422(client, duckdb_path) -> None:
+    response = _get(client, "/api/v1/overview/kpis?date_from=2026-06-01&date_to=2026-01-01")
+    assert response.status_code == 422
+    body = response.json()
+    assert body["error"]["code"] == "VALIDATION_ERROR"
+    assert "date_from" in json.dumps(body["error"]["details"])
+
+
+def test_dq_validity_chart_returns_non_empty(client, duckdb_path) -> None:
+    response = _get(client, "/api/v1/charts/dq/validity")
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert isinstance(body["data"], list)
+    assert len(body["data"]) > 0
+    assert {"label", "failures"}.issubset(body["data"][0].keys())
+
+
+def test_dq_quarantine_charts_return_data(client, duckdb_path) -> None:
+    for endpoint, value_key in (
+        ("/api/v1/charts/dq/quarantine-by-rule", "quarantined"),
+        ("/api/v1/charts/dq/quarantine-by-dataset", "quarantined"),
+    ):
+        response = _get(client, endpoint)
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert isinstance(body["data"], list)
+        assert len(body["data"]) > 0
+        assert {"label", value_key}.issubset(body["data"][0].keys())
+
+
+def test_dq_injected_vs_detected_chart(client, duckdb_path) -> None:
+    response = _get(client, "/api/v1/charts/dq/injected-vs-detected")
+    assert response.status_code == 200, response.text
+    body = response.json()
+    rows = body["data"]
+    assert isinstance(rows, list)
+    assert len(rows) > 0
+    assert {"issue_type", "injected", "detected", "rule_id", "table"}.issubset(rows[0].keys())
+    assert body["metadata"]["total_injected"] >= 0
+    assert body["metadata"]["total_quarantine_rule_failures"] >= 0

@@ -4,6 +4,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Request
 
 from api.core.db import get_conn
+from api.core.errors import FilterValidationError
 from api.core.filters import build_where, parse_filters
 from api.core.responses import envelope
 from api.routes.common import (
@@ -194,21 +195,26 @@ def finance_receivables(request: Request):
 @router.get("/finance/revenue-by")
 def finance_revenue_by(request: Request, by: str = "department"):
     if by not in {"department", "specialty", "service_category"}:
-        from fastapi import HTTPException
-        raise HTTPException(400, "by must be department, specialty or service_category")
+        raise FilterValidationError(
+            "by must be department, specialty or service_category",
+            {"parameter": "by", "value": by},
+        )
     f = parse_filters(request)
     with get_conn() as conn:
         if by == "service_category":
-            cols = columns(conn, "silver_invoice_lines")
-            where, params = build_where(f, {"invoice_date", "hospital_id", "department_id"}, date_col="invoice_date")
-            # invoice_lines has no date; filter via invoice id join instead.
-            base = parse_filters(request)
-            iw, ip = build_where(base, columns(conn, "silver_invoices"), date_col="invoice_date")
+            # invoice lines carry gross line amounts only; allocate the invoice's
+            # canonical net amount proportionally so this endpoint reports the
+            # same net `revenue` definition as every other finance KPI.
+            iw, ip = build_where(f, columns(conn, "silver_invoices"), date_col="invoice_date")
+            iw = iw.replace("CAST(invoice_date AS DATE)", "CAST(i.invoice_date AS DATE)")
+            iw = iw.replace("hospital_id IN", "i.hospital_id IN")
             rows = query_rows(
                 conn,
-                "SELECT l.service_category AS label, SUM(l.line_amount) AS revenue "
+                "SELECT l.service_category AS label, "
+                "SUM(CASE WHEN i.gross_amount > 0 "
+                "THEN i.net_amount * l.line_amount / i.gross_amount ELSE 0 END) AS net_revenue "
                 "FROM silver_invoice_lines l JOIN silver_invoices i ON i.invoice_id = l.invoice_id"
-                f"{iw.replace('invoice_date', 'i.invoice_date')} GROUP BY 1 ORDER BY 2 DESC",
+                f"{iw} GROUP BY 1 ORDER BY 2 DESC",
                 ip,
             )
         else:
@@ -217,7 +223,7 @@ def finance_revenue_by(request: Request, by: str = "department"):
             key = "department_name" if by == "department" else "specialty_name"
             rows = query_rows(
                 conn,
-                f"SELECT {key} AS label, SUM(revenue) AS revenue FROM gold_department_monthly"
+                f"SELECT {key} AS label, SUM(revenue) AS net_revenue FROM gold_department_monthly"
                 f"{where} GROUP BY 1 ORDER BY 2 DESC LIMIT 20",
                 params,
             )

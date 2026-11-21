@@ -1,11 +1,18 @@
 """Generic, safe query helpers shared by all route modules."""
 from __future__ import annotations
 
+from datetime import date
 from typing import Any
 
 import duckdb
 
-from api.core.filters import NUMERIC_FILTER_TYPES, Filters, build_where
+from api.core.errors import FilterValidationError
+from api.core.filters import (
+    NUMERIC_FILTER_TYPES,
+    PAGE_FILTER_COLUMNS,
+    Filters,
+    build_where,
+)
 
 
 def column_types(conn: duckdb.DuckDBPyConnection, table: str) -> dict[str, str]:
@@ -15,6 +22,44 @@ def column_types(conn: duckdb.DuckDBPyConnection, table: str) -> dict[str, str]:
 
 def columns(conn: duckdb.DuckDBPyConnection, table: str) -> set[str]:
     return set(column_types(conn, table))
+
+
+def validate_filter_types(f: Filters, types: dict[str, str]) -> None:
+    """Validate values against the target table's column types before DuckDB runs SQL."""
+    for name, value in f.page_filters.items():
+        for col in PAGE_FILTER_COLUMNS.get(name, ()):
+            dtype = types.get(col)
+            if not dtype:
+                continue
+            if any(token in dtype for token in NUMERIC_FILTER_TYPES):
+                try:
+                    float(value)
+                except ValueError as exc:
+                    raise FilterValidationError(
+                        f"Invalid {name}: must be a number",
+                        {"parameter": name, "value": value, "column": col},
+                    ) from exc
+            if any(token in dtype for token in ("DATE", "TIME")):
+                try:
+                    date.fromisoformat(value[:10])
+                except ValueError as exc:
+                    raise FilterValidationError(
+                        f"Invalid {name}: must use YYYY-MM-DD",
+                        {"parameter": name, "value": value, "column": col},
+                    ) from exc
+
+    if f.numeric_column:
+        dtype = types.get(f.numeric_column)
+        if not dtype:
+            raise FilterValidationError(
+                f"numeric_column '{f.numeric_column}' is not available on this dataset",
+                {"parameter": "numeric_column", "value": f.numeric_column},
+            )
+        if not any(token in dtype for token in NUMERIC_FILTER_TYPES):
+            raise FilterValidationError(
+                f"numeric_column '{f.numeric_column}' is not numeric",
+                {"parameter": "numeric_column", "value": f.numeric_column},
+            )
 
 
 def numeric_where(f: Filters, types: dict[str, str]) -> tuple[str, dict[str, Any]]:
@@ -71,7 +116,9 @@ def filtered_rows(
     extra_where: str = "",
     extra_params: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
-    cols = columns(conn, table)
+    types = column_types(conn, table)
+    cols = set(types)
+    validate_filter_types(f, types)
     where, params = build_where(f, cols, date_col=date_col)
     if extra_where:
         where = (where + f" AND {extra_where}") if where else f" WHERE {extra_where}"
@@ -91,6 +138,7 @@ def paginated_rows(
     """Return (rows, total_records) with safe sorting, search and pagination."""
     types = column_types(conn, table)
     cols = set(types)
+    validate_filter_types(f, types)
     where, params = build_where(f, cols, date_col=date_col)
     num_clause, num_params = numeric_where(f, types)
     if num_clause:
@@ -118,15 +166,24 @@ def paginated_rows(
     count_sql = f"SELECT COUNT(*) FROM {table}{where}"
     total = int(query_scalar(conn, count_sql, params) or 0)
 
+    # Stable tiebreaker prevents duplicate/missing rows across pages when the
+    # primary sort column is non-unique (e.g. many rows share the same date).
+    ordered_cols = list(types.keys())
+    tiebreaker = next((c for c in ordered_cols if c.lower().endswith("_id")), ordered_cols[0] if ordered_cols else None)
+
     order = ""
     if f.sort_by and (allowlist is None or f.sort_by in allowlist) and f.sort_by in cols:
         order = f" ORDER BY {f.sort_by} {f.sort_dir.upper()}"
+        if tiebreaker and tiebreaker != f.sort_by:
+            order += f", {tiebreaker} ASC"
     else:
         # Stable default: most recent first when a date column exists.
         if date_col in cols:
             order = f" ORDER BY {date_col} DESC"
+            if tiebreaker and tiebreaker != date_col:
+                order += f", {tiebreaker} ASC"
         else:
-            first = min(cols) if cols else "1"
+            first = ordered_cols[0] if ordered_cols else "1"
             order = f" ORDER BY {first} ASC"
 
     sql = f"SELECT * FROM {table}{where}{order} LIMIT $limit OFFSET $offset"

@@ -48,6 +48,17 @@ export function displayValue(value: unknown): string {
   return String(value);
 }
 
+export function downloadCsvBlob(filename: string, blob: Blob): void {
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  URL.revokeObjectURL(url);
+}
+
 export function downloadCsv(filename: string, rows: Array<Record<string, unknown>>): void {
   if (!rows.length) return;
   const headers = Array.from(
@@ -61,13 +72,5 @@ export function downloadCsv(filename: string, rows: Array<Record<string, unknown
     return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
   };
   const csv = [headers.map(escape).join(','), ...rows.map((row) => headers.map((key) => escape(row[key])).join(','))].join('\r\n');
-  const blob = new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement('a');
-  anchor.href = url;
-  anchor.download = filename;
-  document.body.appendChild(anchor);
-  anchor.click();
-  document.body.removeChild(anchor);
-  URL.revokeObjectURL(url);
+  downloadCsvBlob(filename, new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8;' }));
 }

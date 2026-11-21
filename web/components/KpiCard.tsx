@@ -13,6 +13,8 @@ import { Card, EmptyState, ErrorState, Skeleton } from './ui';
 
 const EChart = dynamic(() => import('./EChart'), { ssr: false, loading: () => <Skeleton className="h-10 w-full" /> });
 
+const SNAPSHOT_KPIS = new Set(['hospitals_selected', 'total_beds', 'active_employees']);
+
 interface KpiCardProps {
   kpiId: string;
   item?: KpiValue;
@@ -75,7 +77,9 @@ export function KpiCard({ kpiId, item, loading, error, definition, route, onRetr
   if (!item) return <Card className="p-2"><EmptyState message="No value returned" hint="This KPI is not present in the API response." /></Card>;
 
   const ChangeIcon = tone === 'positive' ? ArrowUpRight : tone === 'negative' ? ArrowDownRight : Minus;
-  const tooltipText = definition || item.definition || 'Definition not available in the KPI glossary.';
+  const dateUnavailable = item.date_filter_available === false || SNAPSHOT_KPIS.has(kpiId);
+  const note = item.date_filter_note || 'Date filter unavailable: this is a snapshot KPI with no date field.';
+  const tooltipText = `${definition || item.definition || 'Definition not available in the KPI glossary.'}${dateUnavailable ? ` ${note}` : ''}`;
 
   return (
     <Card
@@ -89,6 +93,11 @@ export function KpiCard({ kpiId, item, loading, error, definition, route, onRetr
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-center gap-1.5">
           <p className="truncate text-xs font-medium text-slate-500">{kpiLabel(kpiId, item)}</p>
+          {dateUnavailable && (
+            <span className="shrink-0 rounded border border-slate-200 bg-slate-50 px-1 py-0.5 text-[9px] font-medium text-slate-500">
+              No date filter
+            </span>
+          )}
           <span className="group/tooltip relative">
             <Info className="h-3.5 w-3.5 shrink-0 text-slate-300" aria-hidden="true" />
             <span className="pointer-events-none absolute bottom-5 left-1/2 z-50 hidden w-56 -translate-x-1/2 rounded-md bg-navy px-2.5 py-2 text-[11px] font-normal leading-relaxed text-white shadow-lg group-hover/tooltip:block">

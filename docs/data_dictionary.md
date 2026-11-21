@@ -17,9 +17,9 @@
 
 | Layer | Tables |
 |---|---|
-| Dimensions | 16 |
+| Dimensions | 18 |
 | Transactional / fact-like | 23 |
-| **Total** | **39** |
+| **Total** | **41** |
 
 ## Dimension tables
 
@@ -38,6 +38,45 @@
 | `hospital_type` | `string` | - | Facility type |
 | `beds` | `int64` | - | Licensed bed capacity |
 | `status` | `string` | - | Active / Inactive |
+| `latitude` | `float64` | - | Synthetic latitude |
+| `longitude` | `float64` | - | Synthetic longitude |
+
+### `dim_patient`
+
+- **Grain:** One row per unique patient (conformed demographic dimension)
+- **Primary key:** `patient_id`
+- **Foreign keys:** none
+- **Note:** `birth_date` and `registration_date` are historical attributes and may precede the reporting window. `age_group` is derived as of `2026-12-31`.
+
+| Column | Dtype | Key | Description |
+|---|---|---|---|
+| `patient_id` | `string` | PK | PAT000001.. (conformed patient key) |
+| `first_name` | `string` | - | Synthetic first name |
+| `last_name` | `string` | - | Synthetic last name |
+| `birth_date` | `date` | - | Historical date of birth |
+| `gender` | `string` | - | Male / Female / Other |
+| `city` | `string` | - | City |
+| `state` | `string` | - | State / region |
+| `registration_date` | `date` | - | Historical registration date |
+| `blood_type` | `string` | - | ABO group |
+| `patient_type` | `string` | - | New / Returning |
+| `age_group` | `string` | - | 0-17 / 18-34 / 35-49 / 50-64 / 65+ |
+
+### `dim_location`
+
+- **Grain:** One row per hospital campus location
+- **Primary key:** `location_id`
+- **Foreign keys:** `hospital_id` -> `dim_hospital`
+
+| Column | Dtype | Key | Description |
+|---|---|---|---|
+| `location_id` | `string` | PK | LOC-H01..LOC-H10 |
+| `hospital_id` | `string` | FK | Parent hospital |
+| `location_name` | `string` | - | Facility location name |
+| `location_type` | `string` | - | Hospital campus / Satellite site |
+| `address_line` | `string` | - | Synthetic street address |
+| `city` | `string` | - | City / district |
+| `state` | `string` | - | State / region |
 | `latitude` | `float64` | - | Synthetic latitude |
 | `longitude` | `float64` | - | Synthetic longitude |
 
@@ -272,6 +311,7 @@
 - **Grain:** One row per appointment
 - **Primary key:** `appointment_id`
 - **Foreign keys:** `patient_id` -> `patients`, `hospital_id` -> `dim_hospital`, `department_id` -> `dim_department`, `doctor_id` -> `dim_doctor`
+- **Note:** Same-day walk-in / ED appointments are generated for encounters that are not linked to a pre-booked appointment, so every encounter has a resolvable `appointment_id`.
 
 | Column | Dtype | Key | Description |
 |---|---|---|---|
@@ -296,6 +336,7 @@
 - **Grain:** One row per encounter
 - **Primary key:** `encounter_id`
 - **Foreign keys:** `patient_id` -> `patients`, `appointment_id` -> `appointments`, `hospital_id` -> `dim_hospital`, `department_id` -> `dim_department`
+- **Note:** All event timestamps are clipped to the declared reporting window; dependent waiting/treatment durations are recomputed after clipping.
 
 | Column | Dtype | Key | Description |
 |---|---|---|---|

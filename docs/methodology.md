@@ -103,6 +103,10 @@ Non-negotiable rules:
    silver tables are loaded with a `silver_` prefix for record drill-down.
 5. **Manifest.** Every run writes `data/manifests/manifest_<run_id>.json` with actual
    counts, valid/quarantined totals, injected issues and pipeline status.
+   Quarantine reconciliation distinguishes `quarantined_rows` (distinct dropped source
+   rows, identified by `source_row_key`) from `quarantine_rule_failures` (one record per
+   row-and-rule violation). A row failing multiple rules therefore contributes one to
+   the former and multiple to the latter.
 
 Pipeline stage sequence (blueprint section 20):
 
@@ -132,12 +136,12 @@ Tests are grouped as in blueprint section 21:
 | Business logic | completed appointments have completion info; claims reference invoices; payments reference invoices |
 | Analytical | revenue reconciles; occupancy denominator correct; rates consistent; LOS correct |
 
-**DQ score.** Instead of an unweighted average of every assertion, the overall score is a
+**Post-quarantine DQ rule score: silver passes all rules after invalid rows are quarantined.** Instead of an unweighted average of every assertion, the overall score is a
 weighted roll-up of six categories: completeness, validity, uniqueness, referential
 integrity, consistency and timeliness. Each category score is the share of passing checks
 within that category; the overall score is their weighted mean. Intentional DQ issues from
 the manifest are reported separately so a controlled injection is never misread as a
-generator defect. The exact weights and the measured score are recorded in the manifest
+generator defect. Detections at ingestion are shown in the quarantine charts. The exact weights and the measured score are recorded in the manifest
 after a real run; no score is claimed in this document before measurement.
 
 ## 5. Validation approach
@@ -166,3 +170,4 @@ after a real run; no score is claimed in this document before measurement.
   from persistent storage (see [deployment.md](deployment.md)).
 - Performance targets (initial load < 3s, KPI < 2s, charts < 3s) are engineering targets to
   measure, not measured results.
+- **DATE_ORDER_INVALID generator defect (known, not regenerated):** 26 quarantined rows (18 `purchase_orders`: `received_date`/`expected_date` before `order_date`; 8 `incidents`: `resolution_date` before `incident_date`) occur at the 2026-12-30/31 window edge. Cause: generators clip derived dates to `MAX_DAY = (END_DATE-START_DATE).days - 2` (2026-12-29) while `sample_event_days` can return the last two window days. Smallest fix: use a shared `MAX_DAY = (END_DATE-START_DATE).days` (or `N_DAYS-1`) across generators and clamp derived dates as `max(source_day, min(source_day+offset, MAX_DAY))`; apply in a planned seed-42 regeneration.

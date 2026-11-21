@@ -81,7 +81,7 @@ GOLD_TYPES: dict[str, list[tuple[str, str]]] = {
         ("total_beds", "INTEGER"), ("occupied_bed_days", "DOUBLE"),
         ("available_bed_days", "DOUBLE"), ("blocked_bed_days", "DOUBLE"),
         ("occupancy_rate", "DOUBLE"), ("avg_los_days", "DOUBLE"),
-        ("bed_turnover", "DOUBLE"), ("avg_boarding_hours", "DOUBLE"),
+        ("discharges", "INTEGER"), ("bed_turnover", "DOUBLE"), ("avg_boarding_hours", "DOUBLE"),
     ],
     "gold_financial_performance": [
         ("hospital_id", "VARCHAR"), ("department_id", "VARCHAR"), ("month", "DATE"),

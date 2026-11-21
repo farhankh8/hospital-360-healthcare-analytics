@@ -43,6 +43,7 @@ SELECT b.hospital_id, b.ward, b.month,
        ROUND(100.0 * b.occupied_bed_days
              / NULLIF(b.occupied_bed_days + b.available_bed_days, 0), 2) AS occupancy_rate,
        ROUND(l.avg_los_days, 2) AS avg_los_days,
+       CAST(l.discharges AS INTEGER) AS discharges,
        ROUND(l.discharges / NULLIF(b.total_beds, 0), 2) AS bed_turnover,
        ROUND(bo.avg_boarding_hours, 2) AS avg_boarding_hours
 FROM beds b

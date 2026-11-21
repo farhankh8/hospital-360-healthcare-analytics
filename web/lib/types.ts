@@ -34,6 +34,8 @@ export interface KpiValue {
   definition?: string;
   target?: number | null;
   lower_is_better?: boolean;
+  date_filter_available?: boolean;
+  date_filter_note?: string;
   [key: string]: unknown;
 }
 

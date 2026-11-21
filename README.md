@@ -132,10 +132,10 @@ read from `data/manifests/manifest_<run_id>.json`.**
 
 ## 7. Data model overview
 
-`generator/schema.py` is the canonical schema for all 39 tables (16 dimensions + 23
-transactional / fact-like tables). Dimensions cover hospital, department, specialty,
-doctor, staff, payer, diagnosis, procedure, medication, lab test, service, supplier,
-inventory item, bed, date and time. Transactional tables span patients and appointments
+`generator/schema.py` is the canonical schema for all 41 tables (18 dimensions + 23
+transactional / fact-like tables). Dimensions cover hospital, patient, location, department,
+specialty, doctor, staff, payer, diagnosis, procedure, medication, lab test, service,
+supplier, inventory item, bed, date and time. Transactional tables span patients and appointments
 through encounters, admissions, procedures, labs, pharmacy, finance, claims, workforce,
 inventory, feedback and incidents. Fact grains are explicit - for example one row per
 appointment, per admission, per bed per snapshot, per invoice, per payment and per claim
@@ -195,7 +195,7 @@ python -m generator.generate
 # 2. Build silver + gold Parquet, DuckDB database and quarantine records
 python -m etl.pipeline
 
-# 3. Start the API (http://localhost:8000, docs at /docs)
+# 3. Start the API (base URL http://localhost:8000/api/v1, docs at /docs)
 uvicorn api.main:app --reload --port 8000
 ```
 
@@ -259,16 +259,17 @@ npx playwright test --config=e2e/playwright.config.ts
 The frontend and API must already be running for Playwright (section 11). Data-dependent
 Python suites skip gracefully until generation and ETL have produced the DuckDB file.
 
-## 15. Limitations
+## 15. Known limitations
 
 - Data is synthetic; distributions are designed, not observed in a real provider.
 - Sentiment labels and NPS are generated values, not real survey analytics.
 - Gold tables are pre-aggregated; questions outside the defined grains need direct SQL.
 - Performance targets (load < 3s, KPI < 2s) are targets to measure, not measured results.
-- Ephemeral hosting filesystems do not preserve the DuckDB data across restarts; use
-  persistent storage or regenerate during deployment
-  ([docs/deployment.md](docs/deployment.md)).
+- Ephemeral hosting filesystems do not preserve the DuckDB data across restarts; use persistent storage or regenerate during deployment ([docs/deployment.md](docs/deployment.md)).
 - The quality module is an operational monitoring demo, not clinical decision support.
+- **npm audit (deferred, no `--force`):** `echarts <6.1.0` (moderate XSS, direct prod) and `next/postcss` chain (moderate/high, direct/transitive prod) require semver-major upgrades. Next 14→16 is a migration risk for 22 passing Playwright tests; ECharts 6 is smaller but deferred. Portfolio project uses synthetic data; tracked for a separate upgrade branch.
+- **DATE_ORDER_INVALID generator defect:** 26 quarantined rows (18 `purchase_orders`, 8 `incidents`) at 2026-12-30/31 are caused by `MAX_DAY` clipping in generators vs. `sample_event_days` window end. Not regenerated; smallest fix is shared `MAX_DAY = N_DAYS-1` and `max(source, min(source+offset, MAX_DAY))` in a planned seed-42 regeneration.
+- **DQ score is post-quarantine:** “Post-quarantine DQ rule score” means silver/gold rules pass after invalid rows are quarantined; detections at ingestion are shown in quarantine charts and are not raw-data perfection.
 
 ## 16. Project status
 
@@ -276,13 +277,13 @@ Measured from a local end-to-end run of `python -m generator.generate`,
 `python -m etl.pipeline`, `python -m pytest -q`, `npm run build` and
 `python scripts/verify_project.py`:
 
-- Generated records (actual): **1,540,892** across 39 bronze tables
-- Hospitals / patients: **10** / **15,240**
+- Generated records (actual): **1,588,637** across 41 bronze tables
+- Hospitals / patients: **10** / **15,200 unique** (15,240 source rows include 40 injected duplicates)
 - Coverage window achieved: **2025-01-01 → 2026-12-31 (24 months)**
-- Gold tables loaded in DuckDB: **12** (72 tables total; `gold_hospital_monthly` = 240 rows)
-- Automated data-quality score: **96.29 / 100** (297 rules, 12 failed rules, 1,172 quarantined rows)
+- Gold tables loaded in DuckDB: **12** (76 tables total; `gold_hospital_monthly` = 240 rows)
+- Automated data-quality score: **100.00 / 100** (304 rules, 0 failed rules, 2,819 quarantined rows / 2,859 rule-failure records)
 - API: **206 / 206 GET endpoints registered**; all **118 chart-data endpoints** returned HTTP 200 with non-empty data; verifier PASS for bronze, manifest, DuckDB and API
-- pytest result (passed / skipped / failed): **82 / 0 / 0**
+- pytest result (passed / skipped / failed): **87 / 0 / 0**
 - Frontend: `npm run build` succeeded (21 routes + hospital profile); `tsc --noEmit` and `npm run lint` clean
 - Playwright e2e result: **18 passed / 0 failed** across Chromium and mobile; covers the §28 journey, additional cases and all 21 routes
 - Screenshots: captured in `docs/screenshots/` and embedded in section 3

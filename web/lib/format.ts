@@ -28,6 +28,7 @@ export const LOWER_IS_BETTER = new Set([
   'avg_processing_days',
   'average_processing_time',
   'avg_investigation_days',
+  'avg_investigation_time',
   'average_investigation_time',
   'complaint_resolution_days',
   'complaint_resolution_time',
@@ -145,12 +146,14 @@ const CURRENCY_HINTS = [
   'paid',
   'procurement',
 ];
-const PERCENT_HINTS = ['rate', 'pct', 'percent', 'coverage', 'satisfaction', 'sla', 'completion', 'on_time'];
+const SCORE_HINTS = ['avg_rating', 'average_satisfaction', 'satisfaction_score', 'nps'];
+const PERCENT_HINTS = ['rate', 'pct', 'percent', 'coverage', 'satisfaction_pct', 'satisfaction_percentage', 'sla', 'completion', 'on_time'];
 const DATE_HINTS = ['date', '_at', 'month', 'time', 'start', 'end'];
 
 export function inferColumnType(key: string, sample?: unknown): 'number' | 'currency' | 'percent' | 'date' | 'text' {
   const lowered = key.toLowerCase();
   if (DATE_HINTS.some((hint) => lowered.includes(hint))) return 'date';
+  if (SCORE_HINTS.some((hint) => lowered.includes(hint))) return 'number';
   if (PERCENT_HINTS.some((hint) => lowered.includes(hint))) return 'percent';
   if (CURRENCY_HINTS.some((hint) => lowered.includes(hint))) return 'currency';
   if (typeof sample === 'number') return 'number';

@@ -5,6 +5,7 @@ import json
 import os
 from datetime import date
 
+import pandas as pd
 import pytest
 
 from generator import config, schema
@@ -129,9 +130,11 @@ def test_controlled_dq_issues_are_configured() -> None:
 
 
 def test_schema_defined_for_all_layer_tables() -> None:
-    assert len(schema.DIMENSION_TABLES) == 16
+    assert len(schema.DIMENSION_TABLES) == 18
     assert len(schema.FACT_TABLES) == 23
-    assert len(schema.TABLES) == 39
+    assert len(schema.TABLES) == 41
+    assert "dim_patient" in schema.DIMENSION_TABLES
+    assert "dim_location" in schema.DIMENSION_TABLES
     assert "patient_id" in schema.columns("patients")
     assert schema.dtypes("patients")["patient_id"] == "string"
     assert schema.BRONZE_TABLES == list(schema.TABLES)
@@ -153,3 +156,68 @@ def test_manifest_reports_actual_counts_if_present(data_dir) -> None:
         assert payload["patients"] >= 0
     if "total_records" in payload:
         assert payload["total_records"] >= 0
+
+
+def _bronze(table: str) -> pd.DataFrame:
+    path = config.BRONZE_DIR / table / f"{table}.csv"
+    if not path.exists():
+        pytest.skip(f"bronze data not generated: {table}")
+    return pd.read_csv(path, low_memory=False)
+
+
+def test_phase1_dimensions_are_generated() -> None:
+    dim_patient = _bronze("dim_patient")
+    patients = _bronze("patients")
+    dim_location = _bronze("dim_location")
+    dim_hospital = _bronze("dim_hospital")
+
+    assert dim_patient["patient_id"].is_unique
+    assert set(dim_patient["patient_id"]) == set(patients["patient_id"].dropna())
+    assert "age_group" in dim_patient.columns
+    assert dim_location["location_id"].is_unique
+    assert set(dim_location["hospital_id"]) <= set(dim_hospital["hospital_id"])
+
+
+def test_phase1_event_dates_respect_reporting_window() -> None:
+    historical = {"birth_date", "registration_date"}
+    for table, cols in schema.DATE_COLUMNS.items():
+        if not (config.BRONZE_DIR / table / f"{table}.csv").exists():
+            continue
+        frame = _bronze(table)
+        for col in cols:
+            if col in historical:
+                continue
+            parsed = pd.to_datetime(frame[col], errors="coerce")
+            latest = parsed.max()
+            if pd.isna(latest):
+                continue
+            assert latest <= pd.Timestamp(config.END_DATE) + pd.Timedelta(days=1), (
+                f"{table}.{col}: {latest} outside reporting window"
+            )
+
+
+def test_phase1_every_encounter_has_a_resolvable_appointment() -> None:
+    encounters = _bronze("encounters")
+    appointments = _bronze("appointments")
+    assert encounters["appointment_id"].notna().all()
+    assert set(encounters["appointment_id"]) <= set(appointments["appointment_id"])
+
+
+def test_phase1_manifest_quarantine_counts_reconcile() -> None:
+    manifests = sorted(config.MANIFEST_DIR.glob("pipeline_*.json"))
+    phase1_manifests = []
+    for path in manifests:
+        candidate = json.loads(path.read_text(encoding="utf-8"))
+        if "quarantined_rows" in candidate.get("totals", {}):
+            phase1_manifests.append((path, candidate))
+    if not phase1_manifests:
+        pytest.skip("no Phase 1 pipeline manifest generated yet")
+    payload = phase1_manifests[-1][1]
+    totals = payload["totals"]
+    quarantine = payload["quarantine"]
+    quality_summary = payload["quality"]["summary"]
+    assert quarantine["rows"] == totals["quarantined_rows"]
+    assert quarantine["records"] == quarantine["rule_failure_records"]
+    assert quarantine["records"] == totals["quarantine_rule_failures"]
+    assert quality_summary["quarantine_rule_failures"] == quarantine["records"]
+    assert quality_summary["quarantined_rows"] == quarantine["rows"]

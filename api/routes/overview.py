@@ -1,9 +1,10 @@
 """Network overview endpoints."""
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Request
 
 from api.core.db import get_conn
+from api.core.errors import FilterValidationError
 from api.core.filters import build_where, parse_filters
 from api.core.responses import envelope
 from api.routes.common import make_kpis_route
@@ -14,7 +15,7 @@ router = APIRouter(prefix="/overview", tags=["overview"])
 router.add_api_route("/kpis", make_kpis_route("overview"), methods=["GET"])
 
 RANK_METRICS = {
-    "revenue": "SUM(m.gross_revenue)",
+    "revenue": "SUM(m.net_revenue)",
     "patient_volume": "SUM(m.encounters)",
     "occupancy": "SUM(m.occupied_bed_days) * 100.0 / NULLIF(SUM(m.available_bed_days), 0)",
     "satisfaction": "SUM(m.avg_satisfaction * m.feedback_count) / NULLIF(SUM(m.feedback_count), 0)",
@@ -45,7 +46,7 @@ def trends(request: Request):
                 conn,
                 "SELECT CAST(month AS DATE) AS period, SUM(encounters) AS encounters, "
                 "SUM(admissions) AS admissions, SUM(appointments) AS appointments, "
-                "SUM(gross_revenue) AS revenue, SUM(collections) AS collections, "
+                "SUM(net_revenue) AS revenue, SUM(collections) AS collections, "
                 "SUM(outstanding_balance) AS outstanding "
                 f"FROM gold_hospital_monthly{where} GROUP BY 1 ORDER BY 1",
                 params,
@@ -56,7 +57,10 @@ def trends(request: Request):
 @router.get("/hospital-ranking")
 def hospital_ranking(request: Request, metric: str = "revenue"):
     if metric not in RANK_METRICS:
-        raise HTTPException(400, f"Unknown metric. Allowed: {', '.join(RANK_METRICS)}")
+        raise FilterValidationError(
+            f"Unknown metric. Allowed: {', '.join(RANK_METRICS)}",
+            {"parameter": "metric", "value": metric},
+        )
     f = parse_filters(request)
     with get_conn() as conn:
         cols = columns(conn, "gold_hospital_monthly")
@@ -106,7 +110,10 @@ def heatmap(request: Request):
 @router.get("/distribution")
 def distribution(request: Request, by: str = "hospital"):
     if by not in {"hospital", "department", "specialty"}:
-        raise HTTPException(400, "by must be hospital, department or specialty")
+        raise FilterValidationError(
+            "by must be hospital, department or specialty",
+            {"parameter": "by", "value": by},
+        )
     f = parse_filters(request)
     with get_conn() as conn:
         if by == "hospital":

@@ -98,9 +98,10 @@ test('mobile viewport renders one to two KPI cards per row', async ({ page }) =>
 test('invalid filter and empty result show a controlled state', async ({ page }) => {
   await page.goto('/overview?hospital=H99&from=2030-01-01&to=2030-01-31');
   await expect(page).toHaveURL(/H99/);
-  const empty = page.getByText(/no data|no results|empty/i).first();
-  const card = kpiCard(page, /total encounters/i);
-  await expect(empty.or(card)).toBeVisible();
+  // Invalid hospital_id is now rejected with a 422 validation error; the UI must show a controlled error state.
+  await expect(
+    page.getByText(/invalid hospital_id|kpis could not be loaded|validation_error/i).first(),
+  ).toBeVisible();
 });
 
 test('compare periods requests the previous-period KPI values', async ({ page }) => {
@@ -138,4 +139,33 @@ test('API failure shows a controlled error state', async ({ page }) => {
   );
   await page.goto('/overview');
   await expect(page.getByText(/API failure test|KPIs could not be loaded/i).first()).toBeVisible();
+});
+
+test('structured API error message is shown to the user', async ({ page }) => {
+  await page.route('**/api/v1/overview/kpis*', (route) =>
+    route.fulfill({
+      status: 422,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Structured validation failure',
+          details: { parameter: 'page' },
+          generated_at: '2026-11-21T00:00:00Z',
+        },
+      }),
+    }),
+  );
+  await page.goto('/overview');
+  await expect(page.getByText('Structured validation failure').first()).toBeVisible();
+});
+
+test('snapshot KPIs are marked as date-filter-unavailable', async ({ page }) => {
+  await page.goto('/hospitals');
+  const beds = kpiCard(page, /total beds/i);
+  await expect(beds).toBeVisible();
+  await expect(beds.getByText(/no date filter/i)).toBeVisible();
+
+  await page.goto('/kpi-glossary');
+  await expect(page.getByText(/no date filter/i).first()).toBeVisible();
 });

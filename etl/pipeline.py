@@ -61,7 +61,8 @@ GOLD_LINEAGE: dict[str, dict[str, Any]] = {
     "gold_financial_performance": {
         "sources": ["dim_department", "dim_month", "silver_invoices", "silver_payments", "silver_encounters"],
         "transformations": "collections = cleared payments net of refunds; writeoffs proxied by overdue balances; "
-                           "collection_rate = collections / net_revenue; month-over-month LAG growth.",
+                           "collection_rate = collections / net_revenue (uncapped; >100% flagged); "
+                           "month-over-month LAG growth.",
     },
     "gold_claim_performance": {
         "sources": ["dim_hospital", "dim_payer", "dim_month", "silver_claims", "silver_claim_events"],
@@ -211,6 +212,8 @@ def run_pipeline(run_id: str | None = None, bronze_dir: Path | None = None) -> d
                 "source_rows": silver_out["source_rows"],
                 "valid_rows": silver_out["valid_rows"],
                 "quarantined_rows": silver_out["quarantined_rows"],
+                "quarantine_rule_failures": silver_out["quarantine_summary"]["records"],
+                "counting_method": silver_out["quarantine_summary"]["counting_method"],
             },
             "quality": {
                 "dq_score": dq["dq_score"],
@@ -229,6 +232,8 @@ def run_pipeline(run_id: str | None = None, bronze_dir: Path | None = None) -> d
                 "source_records": silver_out["source_rows"],
                 "valid_records": silver_out["valid_rows"],
                 "quarantined_records": silver_out["quarantined_rows"],
+                "quarantined_rows": silver_out["quarantined_rows"],
+                "quarantine_rule_failures": silver_out["quarantine_summary"]["records"],
                 "tables_created": tables_created,
             },
             "manifest_path": str(manifest_path),

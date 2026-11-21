@@ -30,8 +30,15 @@ def resolve_export_route(request: Request, path: str) -> tuple[APIRoute, dict[st
     """Resolve an API-relative path to an existing GET route and its path params."""
     if ".." in path or "?" in path or "#" in path:
         raise ValueError("Invalid export path")
-    full_path = path if path.startswith(API_PREFIX) else f"{API_PREFIX}{path}"
+    normalized = path.strip()
+    if normalized.startswith(("http://", "https://")):
+        raise ValueError("Invalid export path")
+    if not normalized.startswith("/"):
+        normalized = f"/{normalized}"
+    full_path = normalized if normalized.startswith(API_PREFIX) else f"{API_PREFIX}{normalized}"
     relative_path = full_path[len(API_PREFIX):]
+    if not relative_path.startswith("/"):
+        relative_path = f"/{relative_path}"
     for route_path, route in iter_api_routes(request.app.routes):
         if "GET" not in route.methods or route_path.endswith("/exports/csv"):
             continue

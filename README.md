@@ -259,16 +259,17 @@ npx playwright test --config=e2e/playwright.config.ts
 The frontend and API must already be running for Playwright (section 11). Data-dependent
 Python suites skip gracefully until generation and ETL have produced the DuckDB file.
 
-## 15. Limitations
+## 15. Known limitations
 
 - Data is synthetic; distributions are designed, not observed in a real provider.
 - Sentiment labels and NPS are generated values, not real survey analytics.
 - Gold tables are pre-aggregated; questions outside the defined grains need direct SQL.
 - Performance targets (load < 3s, KPI < 2s) are targets to measure, not measured results.
-- Ephemeral hosting filesystems do not preserve the DuckDB data across restarts; use
-  persistent storage or regenerate during deployment
-  ([docs/deployment.md](docs/deployment.md)).
+- Ephemeral hosting filesystems do not preserve the DuckDB data across restarts; use persistent storage or regenerate during deployment ([docs/deployment.md](docs/deployment.md)).
 - The quality module is an operational monitoring demo, not clinical decision support.
+- **npm audit (deferred, no `--force`):** `echarts <6.1.0` (moderate XSS, direct prod) and `next/postcss` chain (moderate/high, direct/transitive prod) require semver-major upgrades. Next 14→16 is a migration risk for 22 passing Playwright tests; ECharts 6 is smaller but deferred. Portfolio project uses synthetic data; tracked for a separate upgrade branch.
+- **DATE_ORDER_INVALID generator defect:** 26 quarantined rows (18 `purchase_orders`, 8 `incidents`) at 2026-12-30/31 are caused by `MAX_DAY` clipping in generators vs. `sample_event_days` window end. Not regenerated; smallest fix is shared `MAX_DAY = N_DAYS-1` and `max(source, min(source+offset, MAX_DAY))` in a planned seed-42 regeneration.
+- **DQ score is post-quarantine:** “Post-quarantine DQ rule score” means silver/gold rules pass after invalid rows are quarantined; detections at ingestion are shown in quarantine charts and are not raw-data perfection.
 
 ## 16. Project status
 

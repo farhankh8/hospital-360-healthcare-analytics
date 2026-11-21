@@ -9,11 +9,13 @@ parameterised ``build_where`` helper.
 """
 from __future__ import annotations
 
+import json
 from collections.abc import Callable
 from typing import Any
 
 from fastapi import APIRouter, Request
 
+from api.core.config import DATA_PATH
 from api.core.db import get_conn
 from api.core.filters import build_where, parse_filters
 from api.core.responses import envelope
@@ -605,7 +607,7 @@ router.add_api_route("/dq/uniqueness", grouped("dq_rules", "table_name",
     extra_where="LOWER(category) = 'uniqueness'"), methods=["GET"])
 router.add_api_route("/dq/validity", grouped("dq_rules", "rule_name",
     "SUM(failed_count)", "failures", 20, date_col="checked_at",
-    extra_where="LOWER(category) = 'validity' AND failed_count > 0"), methods=["GET"])
+    extra_where="LOWER(category) = 'validity'"), methods=["GET"])
 router.add_api_route("/dq/consistency", grouped("dq_rules", "rule_name",
     "SUM(CASE WHEN passed THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0)", "pass_rate", 20,
     date_col="checked_at", extra_where="LOWER(category) = 'consistency'"), methods=["GET"])
@@ -627,3 +629,84 @@ router.add_api_route("/dq/missing-by-column", grouped("dq_rules", "rule_name",
 router.add_api_route("/dq/duplicates", grouped("dq_rules", "table_name",
     "SUM(failed_count)", "duplicates", 40, date_col="checked_at",
     extra_where="LOWER(rule_name) LIKE '%unique%' OR LOWER(rule_name) LIKE '%duplicate%'"), methods=["GET"])
+
+router.add_api_route("/dq/quarantine-by-rule", grouped("dq_failures", "rule_id",
+    "COUNT(*)", "quarantined", 20, date_col="detected_at"), methods=["GET"])
+router.add_api_route("/dq/quarantine-by-dataset", grouped("dq_failures", "table_name",
+    "COUNT(*)", "quarantined", 40, date_col="detected_at"), methods=["GET"])
+
+
+@router.get("/dq/injected-vs-detected")
+def dq_injected_vs_detected(request: Request) -> dict[str, Any]:
+    """Compare generator-injected DQ issues against quarantine detections."""
+    f = parse_filters(request)
+    manifest_path = DATA_PATH / "manifests" / "generator_manifest.json"
+    injected: list[dict[str, Any]] = []
+    if manifest_path.exists():
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            manifest = {}
+        injected = manifest.get("dq_injections", []) or []
+
+    rule_map = {
+        "duplicate_patients": "PK_DUPLICATE",
+        "missing_payer": "FK_NULL",
+        "invalid_dates": "REQUIRED_DATE_INVALID",
+        "unknown_department": "FK_ORPHAN",
+        "invalid_status": "STATUS_INVALID",
+        "incorrect_hospital_id": "HOSPITAL_ID_INVALID",
+        "negative_amounts": "NEGATIVE_AMOUNT",
+        "orphaned_references": "FK_ORPHAN",
+    }
+
+    with get_conn() as conn:
+        detected_rows = query_rows(
+            conn,
+            "SELECT rule_id, table_name, COUNT(*) AS detected, COUNT(DISTINCT record_id) AS distinct_records "
+            "FROM dq_failures GROUP BY 1, 2",
+        )
+    detected_index: dict[tuple[str, str], dict[str, int]] = {}
+    for r in detected_rows:
+        key = (str(r.get("rule_id") or ""), str(r.get("table_name") or ""))
+        detected_index[key] = {
+            "detected": int(r.get("detected") or 0),
+            "distinct_records": int(r.get("distinct_records") or 0),
+        }
+
+    rows: list[dict[str, Any]] = []
+    for inj in injected:
+        issue_type = str(inj.get("issue_type") or "")
+        table = str(inj.get("table") or "")
+        injected_count = int(inj.get("count") or len(inj.get("row_identifiers") or []))
+        rule_id = rule_map.get(issue_type, "")
+        det = detected_index.get((rule_id, table), {"detected": 0, "distinct_records": 0})
+        detected_count = det["detected"]
+        # orphaned_references on prescriptions is detected as FK_ORPHAN; cascades can inflate table count.
+        note = "match" if detected_count == injected_count else "mismatch"
+        if issue_type == "orphaned_references" and detected_count >= injected_count:
+            note = "detected (includes cascade orphans)" if detected_count > injected_count else "match"
+        rows.append({
+            "label": issue_type.replace("_", " ").title(),
+            "issue_type": issue_type,
+            "table": table,
+            "rule_id": rule_id,
+            "injected": injected_count,
+            "detected": detected_count,
+            "distinct_records": det["distinct_records"],
+            "delta": detected_count - injected_count,
+            "status": note,
+        })
+
+    total_injected = sum(int(r["injected"]) for r in rows)
+    total_detected = sum(int(r["detected"]) for r in rows)
+    return envelope(
+        rows,
+        f.date_from,
+        f.date_to,
+        f.hospital_ids,
+        total_injected=total_injected,
+        total_detected=total_detected,
+        total_quarantine_rule_failures=sum(int(r.get("detected") or 0) for r in detected_rows),
+        total_quarantined_distinct_records=sum(int(r.get("distinct_records") or 0) for r in detected_rows),
+    )

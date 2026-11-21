@@ -13,9 +13,9 @@ services:
       CORS_ORIGINS: "http://localhost:3000,http://127.0.0.1:3000"
       APP_ENV: docker
       LOG_LEVEL: INFO
-    volumes:
-      # Generated data is persisted on the host and shared with the frontend build.
-      - ./data:/app/data
+    # Optional: mount host data to override baked-in image data or persist local runs.
+    # volumes:
+    #   - ./data:/app/data
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8000/api/v1/health"]
       interval: 30s

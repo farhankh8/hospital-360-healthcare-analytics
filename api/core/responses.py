@@ -6,6 +6,8 @@ from typing import Any
 
 from fastapi.responses import JSONResponse
 
+from api.core.config import MAX_PAGE_SIZE
+
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
@@ -45,6 +47,7 @@ def table_envelope(
     pagination = {
         "page": page,
         "page_size": page_size,
+        "max_page_size": MAX_PAGE_SIZE,
         "total_records": total_records,
         "total_pages": (total_records + page_size - 1) // page_size if page_size else 0,
     }

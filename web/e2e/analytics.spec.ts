@@ -98,9 +98,10 @@ test('mobile viewport renders one to two KPI cards per row', async ({ page }) =>
 test('invalid filter and empty result show a controlled state', async ({ page }) => {
   await page.goto('/overview?hospital=H99&from=2030-01-01&to=2030-01-31');
   await expect(page).toHaveURL(/H99/);
-  const empty = page.getByText(/no data|no results|empty/i).first();
-  const card = kpiCard(page, /total encounters/i);
-  await expect(empty.or(card)).toBeVisible();
+  // Invalid hospital_id is now rejected with a 422 validation error; the UI must show a controlled error state.
+  await expect(
+    page.getByText(/invalid hospital_id|kpis could not be loaded|validation_error/i).first(),
+  ).toBeVisible();
 });
 
 test('compare periods requests the previous-period KPI values', async ({ page }) => {

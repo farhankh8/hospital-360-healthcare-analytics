@@ -5,7 +5,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app \
     DATA_PATH=/app/data \
-    DATABASE_PATH=/app/data/hospital360.duckdb
+    DATABASE_PATH=/app/data/hospital360.duckdb \
+    H360_SEED=42
 
 WORKDIR /app
 
@@ -17,15 +18,18 @@ RUN apt-get update \
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Source layers required by the API at runtime.
+# Source layers required for generation and API runtime.
 COPY generator/ ./generator/
 COPY etl/ ./etl/
 COPY analytics/ ./analytics/
 COPY api/ ./api/
 
-# Persistent data volume mount point. Generated files are expected in ./data.
+# Bake deterministic synthetic data into the image for reproducible deployment.
+# The host ./data volume can still be mounted to override/inspect data.
 RUN mkdir -p /app/data /app/data/bronze /app/data/silver /app/data/gold \
-             /app/data/quarantine /app/data/manifests
+             /app/data/quarantine /app/data/manifests \
+    && python -m generator.generate \
+    && python -m etl.pipeline
 
 EXPOSE 8000
 

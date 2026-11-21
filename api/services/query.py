@@ -166,15 +166,24 @@ def paginated_rows(
     count_sql = f"SELECT COUNT(*) FROM {table}{where}"
     total = int(query_scalar(conn, count_sql, params) or 0)
 
+    # Stable tiebreaker prevents duplicate/missing rows across pages when the
+    # primary sort column is non-unique (e.g. many rows share the same date).
+    ordered_cols = list(types.keys())
+    tiebreaker = next((c for c in ordered_cols if c.lower().endswith("_id")), ordered_cols[0] if ordered_cols else None)
+
     order = ""
     if f.sort_by and (allowlist is None or f.sort_by in allowlist) and f.sort_by in cols:
         order = f" ORDER BY {f.sort_by} {f.sort_dir.upper()}"
+        if tiebreaker and tiebreaker != f.sort_by:
+            order += f", {tiebreaker} ASC"
     else:
         # Stable default: most recent first when a date column exists.
         if date_col in cols:
             order = f" ORDER BY {date_col} DESC"
+            if tiebreaker and tiebreaker != date_col:
+                order += f", {tiebreaker} ASC"
         else:
-            first = min(cols) if cols else "1"
+            first = ordered_cols[0] if ordered_cols else "1"
             order = f" ORDER BY {first} ASC"
 
     sql = f"SELECT * FROM {table}{where}{order} LIMIT $limit OFFSET $offset"

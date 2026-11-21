@@ -212,7 +212,7 @@ def parse_filters(request: Request) -> Filters:
             _number(checked, name)
         page_filters[name] = checked
 
-    return Filters(
+    parsed = Filters(
         date_from=date_from,
         date_to=date_to,
         hospital_ids=hospital_ids,
@@ -232,6 +232,8 @@ def parse_filters(request: Request) -> Filters:
         numeric_min=numeric_min,
         numeric_max=numeric_max,
     )
+    _validate_filter_values(parsed)
+    return parsed
 
 
 def _invalid(parameter: str, value: Any, reason: str) -> FilterValidationError:
@@ -292,6 +294,79 @@ def _number(value: str | None, parameter: str) -> str | None:
     except (TypeError, ValueError) as exc:
         raise _invalid(parameter, value, "must be a number") from exc
     return value
+
+
+_ALLOWED_ID_CACHE: dict[tuple[str, str, str], set[str]] = {}
+
+
+def _load_allowed_ids(column: str, table: str) -> set[str]:
+    """Load and cache allowed ID values from a dimension table."""
+    try:
+        from api.core.config import DATABASE_PATH
+        cache_key = (str(DATABASE_PATH), column, table)
+    except Exception:  # noqa: BLE001 - config import failure should not block filter validation
+        cache_key = ("", column, table)
+    if cache_key in _ALLOWED_ID_CACHE:
+        return _ALLOWED_ID_CACHE[cache_key]
+    try:
+        from api.core.db import get_conn  # local import to avoid circular deps
+        with get_conn() as conn:
+            rows = conn.execute(f"SELECT DISTINCT {column} FROM {table} WHERE {column} IS NOT NULL").fetchall()
+        values = {str(r[0]) for r in rows if r[0] is not None}
+    except Exception:  # noqa: BLE001 - DB unavailable during startup; downstream reports DB-not-ready
+        return set()
+    _ALLOWED_ID_CACHE[cache_key] = values
+    return values
+
+
+_ID_FILTER_ALLOWLISTS: dict[str, tuple[str, str]] = {
+    "hospital_id": ("hospital_id", "dim_hospital"),
+    "department_id": ("department_id", "dim_department"),
+    "specialty_id": ("specialty_id", "dim_specialty"),
+    "payer_id": ("payer_id", "dim_payer"),
+}
+
+_PAGE_FILTER_ID_ALLOWLISTS: dict[str, tuple[str, str]] = {
+    "doctor_id": ("doctor_id", "dim_doctor"),
+    "supplier_id": ("supplier_id", "dim_supplier"),
+    "item_id": ("item_id", "dim_inventory_item"),
+}
+
+
+def _validate_filter_values(f: Filters) -> None:
+    """Reject filter ID values not present in known dimension allowlists."""
+    allowed_hospitals = _load_allowed_ids("hospital_id", "dim_hospital")
+    if allowed_hospitals:
+        for hid in f.hospital_ids:
+            if hid not in allowed_hospitals:
+                raise FilterValidationError(
+                    f"Invalid hospital_id: '{hid}' is not a known hospital",
+                    {"parameter": "hospital_id", "value": hid, "allowed": sorted(allowed_hospitals)},
+                )
+
+    for param, (column, table) in _ID_FILTER_ALLOWLISTS.items():
+        if param == "hospital_id":
+            continue
+        value = getattr(f, param, None)
+        if value is None:
+            continue
+        allowed = _load_allowed_ids(column, table)
+        if allowed and value not in allowed:
+            raise FilterValidationError(
+                f"Invalid {param}: '{value}' is not a known value",
+                {"parameter": param, "value": value},
+            )
+
+    for param, (column, table) in _PAGE_FILTER_ID_ALLOWLISTS.items():
+        value = f.page_filters.get(param)
+        if value is None:
+            continue
+        allowed = _load_allowed_ids(column, table)
+        if allowed and value not in allowed:
+            raise FilterValidationError(
+                f"Invalid {param}: '{value}' is not a known value",
+                {"parameter": param, "value": value},
+            )
 
 
 def shift_period(f: Filters) -> tuple[str, str]:

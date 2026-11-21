@@ -40,8 +40,17 @@ Defined in `web/app/globals.css` as CSS variables (light default, `.dark` overri
 - **Delta**: compact trend pill with tone.
 - **Skeleton/Spinner**: loading states.
 - **EmptyState/ErrorState**: icon, message, hint, optional action/retry.
-- **Select/Input**: labeled form controls, token-styled focus ring.
-- **DateRangePicker/IconButton/PageHeading**: compatibility exports used by existing pages.
+- **Select/Input**: labeled form controls, token-styled focus ring, accessible name/id fallback.
+- **DateRangePicker**: two date inputs + optional preset buttons (`showPresets`/`presets`), keyboard/focus friendly.
+- **Tabs**: accessible tablist with active state, optional counts, disabled state.
+- **Tooltip**: lightweight hover/focus tooltip with `role="tooltip"`, top/bottom placement.
+- **MultiSelect**: labeled multi-option dropdown with checkboxes, clear selection, `aria-multiselectable`.
+- **IconButton/PageHeading**: compatibility exports used by existing pages.
+
+## Shell polish
+
+- **DataTable**: tokenized shell (surface/muted/line), search/column controls, pagination, export, loading/empty/error states; preserves `hospital360:export`, drill-down, data-testid behavior.
+- **DrilldownDrawer**: tokenized overlay/aside, focusable close, record details/timeline/related records, preserves drill-down context behavior.
 
 ## Chart/theme guidance
 - ECharts: muted grid, readable labels, max 6-8 categorical colors, subtle area, rounded bars, styled tooltip. Toolbox minimal; save/download in actions.

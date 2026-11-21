@@ -129,7 +129,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <button
           type="button"
           onClick={() => setCollapsed((value) => !value)}
-          className="ml-auto hidden rounded p-1 text-slate-400 hover:bg-white/10 hover:text-white lg:block"
+          className="ml-auto hidden rounded p-1 text-slate-400 hover:bg-surface/10 hover:text-white lg:block"
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
@@ -140,7 +140,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         {grouped.map(({ group, items }) => (
           <div key={group} className="mb-5">
             {!collapsed && <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-wider text-slate-300">{group}</p>}
-            {collapsed && <div className="mx-auto mb-2 h-px w-8 bg-white/10" />}
+            {collapsed && <div className="mx-auto mb-2 h-px w-8 bg-surface/10" />}
             <ul className="space-y-0.5">
               {items.map((page) => {
                 const Icon = ICONS[page.slug as PageSlug] || Activity;
@@ -154,7 +154,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                       className={cn(
                         'flex items-center gap-3 rounded-md px-3 py-2 text-xs transition',
                         collapsed && 'justify-center px-2',
-                        active ? 'bg-teal/15 font-semibold text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white',
+                        active ? 'bg-teal/15 font-semibold text-white' : 'text-slate-300 hover:bg-surface/5 hover:text-white',
                       )}
                     >
                       <Icon className="h-4 w-4 shrink-0" />
@@ -209,16 +209,16 @@ export function AppShell({ children }: { children: ReactNode }) {
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Search records…"
                 aria-label="Search records"
-                className="h-9 w-full rounded-md border border-line bg-canvas/60 pl-9 pr-3 text-xs outline-none focus:border-teal focus:bg-white focus:ring-2 focus:ring-teal/15"
+                className="h-9 w-full rounded-md border border-line bg-canvas/60 pl-9 pr-3 text-xs outline-none focus:border-teal focus:bg-surface focus:ring-2 focus:ring-teal/15"
               />
             </form>
 
             <div className="ml-auto flex items-center gap-2">
-              <div className="hidden items-center gap-2 rounded-md border border-line px-2.5 py-1.5 text-xs text-slate-600 md:flex">
+              <div className="hidden items-center gap-2 rounded-md border border-line px-2.5 py-1.5 text-xs text-muted md:flex">
                 <CalendarClock className="h-3.5 w-3.5 text-teal" />
                 <span>{filters.date_from || '—'} → {filters.date_to || '—'}</span>
               </div>
-              <div className="hidden items-center gap-2 rounded-md border border-line px-2.5 py-1.5 text-xs text-slate-600 sm:flex">
+              <div className="hidden items-center gap-2 rounded-md border border-line px-2.5 py-1.5 text-xs text-muted sm:flex">
                 <Building2 className="h-3.5 w-3.5 text-teal" />
                 <span className="max-w-[140px] truncate">{hospitalLabel}</span>
               </div>
@@ -242,7 +242,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <UserRound className="h-4 w-4" />
                 </button>
                 {profileOpen && (
-                  <div className="absolute right-0 top-11 z-40 w-52 rounded-lg border border-line bg-white p-2 shadow-lg">
+                  <div className="absolute right-0 top-11 z-40 w-52 rounded-lg border border-line bg-surface p-2 shadow-lg">
                     <p className="px-2 py-1 text-[10px] font-semibold uppercase text-slate-400">Synthetic workspace</p>
                     <Link href="/kpi-glossary" className="block rounded px-2 py-1.5 text-xs text-ink hover:bg-canvas">KPI glossary</Link>
                     <Link href="/methodology" className="block rounded px-2 py-1.5 text-xs text-ink hover:bg-canvas">Methodology</Link>
@@ -258,7 +258,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </header>
 
         <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-[1600px] px-4 py-6 outline-none lg:px-6">{children}</main>
-        <footer className="border-t border-line px-4 py-4 text-center text-[11px] text-slate-600 lg:px-6">
+        <footer className="border-t border-line px-4 py-4 text-center text-[11px] text-muted lg:px-6">
           HOSPITAL 360 · Educational analytics project using entirely synthetic data · Not for clinical use
         </footer>
       </div>

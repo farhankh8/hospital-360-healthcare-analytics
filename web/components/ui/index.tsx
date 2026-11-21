@@ -1,7 +1,7 @@
 'use client';
 
-import type { ButtonHTMLAttributes, HTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from 'react';
-import { AlertTriangle, Inbox, Loader2 } from 'lucide-react';
+import { useCallback, useEffect, useId, useRef, useState, type ButtonHTMLAttributes, type HTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from 'react';
+import { AlertTriangle, Check, ChevronDown, Inbox, Loader2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { SelectOption } from '@/lib/types';
 
@@ -237,40 +237,89 @@ export function IconButton({ className, children, ...props }: ButtonHTMLAttribut
   );
 }
 
+type DateRangePreset = { label: string; from: string; to: string };
+
+function defaultDateRangePresets(): DateRangePreset[] {
+  const now = new Date();
+  const iso = (d: Date) => d.toISOString().slice(0, 10);
+  const daysAgo = (n: number) => {
+    const d = new Date(now);
+    d.setDate(d.getDate() - n);
+    return iso(d);
+  };
+  const ytd = `${now.getFullYear()}-01-01`;
+  return [
+    { label: '30D', from: daysAgo(30), to: iso(now) },
+    { label: '90D', from: daysAgo(90), to: iso(now) },
+    { label: 'YTD', from: ytd, to: iso(now) },
+    { label: '12M', from: daysAgo(365), to: iso(now) },
+  ];
+}
+
 export function DateRangePicker({
   from,
   to,
   onFromChange,
   onToChange,
   className,
+  presets,
+  showPresets = false,
 }: {
   from: string;
   to: string;
   onFromChange: (value: string) => void;
   onToChange: (value: string) => void;
   className?: string;
+  presets?: DateRangePreset[];
+  showPresets?: boolean;
 }) {
   const inputClass =
     'h-9 w-full rounded-sm border border-line bg-surface px-2.5 text-xs text-ink outline-none transition focus:border-teal focus:ring-2 focus:ring-teal/15';
+  const resolvedPresets = presets ?? (showPresets ? defaultDateRangePresets() : []);
   return (
-    <div className={cn('flex items-center gap-2', className)}>
-      <input
-        type="date"
-        aria-label="Date from"
-        value={from}
-        max={to || undefined}
-        onChange={(event) => onFromChange(event.target.value)}
-        className={inputClass}
-      />
-      <span className="text-xs text-muted">to</span>
-      <input
-        type="date"
-        aria-label="Date to"
-        value={to}
-        min={from || undefined}
-        onChange={(event) => onToChange(event.target.value)}
-        className={inputClass}
-      />
+    <div className={cn('space-y-2', className)}>
+      <div className="flex items-center gap-2">
+        <input
+          type="date"
+          aria-label="Date from"
+          value={from}
+          max={to || undefined}
+          onChange={(event) => onFromChange(event.target.value)}
+          className={inputClass}
+        />
+        <span className="text-xs text-muted">to</span>
+        <input
+          type="date"
+          aria-label="Date to"
+          value={to}
+          min={from || undefined}
+          onChange={(event) => onToChange(event.target.value)}
+          className={inputClass}
+        />
+      </div>
+      {resolvedPresets.length > 0 && (
+        <div className="flex flex-wrap gap-1.5" role="group" aria-label="Date range presets">
+          {resolvedPresets.map((preset) => {
+            const active = from === preset.from && to === preset.to;
+            return (
+              <button
+                key={preset.label}
+                type="button"
+                onClick={() => {
+                  onFromChange(preset.from);
+                  onToChange(preset.to);
+                }}
+                className={cn(
+                  'rounded-sm border px-2 py-1 text-[11px] font-medium transition',
+                  active ? 'border-teal bg-teal-light text-teal-dark' : 'border-line bg-surface text-muted hover:border-teal/40 hover:text-ink',
+                )}
+              >
+                {preset.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -293,6 +342,170 @@ export function PageHeading({
         </div>
         {description && <p className="mt-1 max-w-3xl text-sm leading-relaxed text-muted">{description}</p>}
       </div>
+    </div>
+  );
+}
+
+export function Tabs({
+  tabs,
+  value,
+  onChange,
+  className,
+}: {
+  tabs: Array<{ id: string; label: ReactNode; count?: number; disabled?: boolean }>;
+  value: string;
+  onChange: (id: string) => void;
+  className?: string;
+}) {
+  return (
+    <div className={cn('inline-flex flex-wrap gap-1 rounded-md border border-line bg-surface-alt p-1', className)} role="tablist">
+      {tabs.map((tab) => {
+        const active = tab.id === value;
+        return (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            disabled={tab.disabled}
+            onClick={() => onChange(tab.id)}
+            className={cn(
+              'inline-flex items-center gap-2 rounded-sm px-3 py-1.5 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/30 disabled:opacity-45',
+              active ? 'bg-surface text-ink-strong shadow-sm' : 'text-muted hover:text-ink',
+            )}
+          >
+            <span>{tab.label}</span>
+            {typeof tab.count === 'number' && (
+              <span className={cn('rounded-full px-1.5 py-0.5 text-[10px]', active ? 'bg-teal-light text-teal-dark' : 'bg-slate-200/70 text-muted dark:bg-slate-700')}>
+                {tab.count}
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+export function Tooltip({
+  content,
+  children,
+  side = 'top',
+  className,
+}: {
+  content: ReactNode;
+  children: ReactNode;
+  side?: 'top' | 'bottom';
+  className?: string;
+}) {
+  const id = useId();
+  return (
+    <span className={cn('group relative inline-flex', className)}>
+      <span aria-describedby={content ? id : undefined} className="inline-flex">
+        {children}
+      </span>
+      {content ? (
+        <span
+          id={id}
+          role="tooltip"
+          className={cn(
+            'pointer-events-none absolute left-1/2 z-toast w-max max-w-xs -translate-x-1/2 rounded-sm border border-line bg-ink-strong px-2.5 py-1.5 text-[11px] leading-relaxed text-white opacity-0 shadow-pop transition duration-150 group-hover:opacity-100 group-focus-within:opacity-100 dark:bg-slate-800',
+            side === 'top' ? 'bottom-full mb-2' : 'top-full mt-2',
+          )}
+        >
+          {content}
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
+export function MultiSelect({
+  label,
+  options,
+  value,
+  onChange,
+  placeholder = 'Select options',
+  className,
+  disabled,
+  testId,
+}: {
+  label?: string;
+  options: SelectOption[];
+  value: string[];
+  onChange: (next: string[]) => void;
+  placeholder?: string;
+  className?: string;
+  disabled?: boolean;
+  testId?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement | null>(null);
+  const id = useId();
+
+  useEffect(() => {
+    const handler = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const selectedLabels = options.filter((o) => value.includes(o.value)).map((o) => o.label);
+  const summary = selectedLabels.length === 0 ? placeholder : selectedLabels.length === 1 ? selectedLabels[0] : `${selectedLabels.length} selected`;
+
+  const toggle = (optionValue: string) => {
+    onChange(value.includes(optionValue) ? value.filter((v) => v !== optionValue) : [...value, optionValue]);
+  };
+
+  return (
+    <div className={cn('flex flex-col gap-1', className)} ref={ref}>
+      {label && <span className="text-[11px] font-medium uppercase tracking-wide text-muted">{label}</span>}
+      <button
+        type="button"
+        id={id}
+        aria-label={label || placeholder}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        disabled={disabled}
+        data-testid={testId}
+        onClick={() => setOpen((v) => !v)}
+        className="flex h-9 w-full items-center justify-between gap-2 rounded-sm border border-line bg-surface px-2.5 text-xs text-ink transition hover:border-teal/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/30 disabled:cursor-not-allowed disabled:bg-surface-alt disabled:text-slate-600"
+      >
+        <span className={cn('truncate', selectedLabels.length === 0 && 'text-muted-soft')}>{summary}</span>
+        <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted" />
+      </button>
+      {open && (
+        <div className="relative">
+          <div role="listbox" aria-multiselectable="true" aria-label={label || placeholder} className="absolute left-0 top-1 z-dropdown max-h-64 w-full min-w-[180px] overflow-auto rounded-md border border-line bg-surface p-1.5 shadow-pop">
+            {options.length === 0 ? (
+              <p className="px-2 py-2 text-xs text-muted">No options</p>
+            ) : options.map((option) => {
+              const checked = value.includes(option.value);
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  role="option"
+                  aria-selected={checked}
+                  onClick={() => toggle(option.value)}
+                  className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-xs text-ink hover:bg-surface-hover"
+                >
+                  <span className={cn('flex h-4 w-4 items-center justify-center rounded-sm border', checked ? 'border-teal bg-teal text-white' : 'border-line-strong bg-surface')}>
+                    {checked && <Check className="h-3 w-3" />}
+                  </span>
+                  <span className="truncate">{option.label}</span>
+                </button>
+              );
+            })}
+            {value.length > 0 && (
+              <button type="button" onClick={() => onChange([])} className="mt-1 w-full border-t border-line px-2 pt-2 text-left text-xs font-medium text-teal hover:text-teal-dark">
+                Clear selection
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -26,7 +26,7 @@ Completed end-to-end Phase 1-11 execution on `feature/final-completion` (from `d
 
 ## Key deliverables
 - `docs/blueprint_parity.md` - 21-page parity matrix
-- `docs/case_study.md`, `docs/demo_script.md`
+- `docs/CASE_STUDY.md`, `docs/DEMO_SCRIPT.md`
 - `docs/deployment.md` (prep only), `web/.env.example`
 - `docs/screenshots/` (8 screenshots)
 - `verification_logs/final_completion_log.md` (external)

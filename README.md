@@ -292,7 +292,7 @@ Measured from a local end-to-end run of `python -m generator.generate`,
 
 See [docs/project_roadmap.md](docs/project_roadmap.md) for the 16-phase status overview,
 [docs/blueprint_parity.md](docs/blueprint_parity.md) for the page parity matrix,
-[docs/portfolio.md](docs/portfolio.md) for risks/presentation, [docs/case_study.md](docs/case_study.md) for the case study, and [docs/demo_script.md](docs/demo_script.md) for the demo script.
+[docs/portfolio.md](docs/portfolio.md) for risks/presentation, [docs/CASE_STUDY.md](docs/CASE_STUDY.md) for the case study, and [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) for the demo script.
 
 ---
 

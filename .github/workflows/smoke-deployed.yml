@@ -1,0 +1,28 @@
+name: Deployed Smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_url:
+        description: "Backend base URL (e.g. https://hospital360-api.onrender.com)"
+        required: true
+        type: string
+      web_url:
+        description: "Frontend base URL (e.g. https://hospital360.vercel.app)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Run deployed smoke checks
+        run: python scripts/smoke_deployed.py --api "${{ inputs.api_url }}" --web "${{ inputs.web_url }}"

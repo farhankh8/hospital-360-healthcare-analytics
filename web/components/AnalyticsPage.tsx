@@ -155,7 +155,7 @@ export function AnalyticsPage({ config }: { config: PageConfig }) {
     : undefined;
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <PageHeading title={config.title} description={config.description} badge={<Badge tone="info">{config.navGroup}</Badge>} />
       {config.profileEndpoint && <ProfileHeader endpoint={config.profileEndpoint} params={pageParams} />}
 
@@ -189,7 +189,7 @@ export function AnalyticsPage({ config }: { config: PageConfig }) {
           {kpiQuery.isError ? (
             <Card><ErrorState message={kpiQuery.error?.message || 'KPIs could not be loaded.'} onRetry={() => kpiQuery.refetch()} /></Card>
           ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+            <div className="flex min-w-0 flex-wrap gap-4 [&>*]:min-w-0 [&>*]:flex-[1_1_260px]">
               {kpiQuery.isLoading
                 ? ids.map((id) => <Skeleton key={id} className="h-[148px] w-full" />)
                 : ids.map((id) => (
@@ -212,7 +212,7 @@ export function AnalyticsPage({ config }: { config: PageConfig }) {
             <h2 className="text-xs font-semibold uppercase tracking-wide text-muted">Analytics</h2>
             <span className="text-[11px] text-muted">Hover for detail, click a point to drill down</span>
           </div>
-          <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+          <div className="grid min-w-0 grid-cols-1 gap-5 xl:grid-cols-2 [&>*]:min-w-0">
             {visibleCharts.map((chartConfig) => (
               <ChartPanel key={`${chartConfig.title}-${chartConfig.endpoint}`} config={chartConfig} tableEndpoint={config.tableEndpoint} filters={filters} params={pageParams} />
             ))}

@@ -47,10 +47,10 @@ const SECTIONS = [
 
 export function MethodologyPage() {
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <PageHeading title="Methodology & Disclaimer" description="How HOSPITAL 360 generates, validates and presents its synthetic healthcare analytics." badge={<Badge tone="info">Documentation</Badge>} />
 
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+      <div className="grid min-w-0 grid-cols-1 gap-5 xl:grid-cols-2 [&>*]:min-w-0">
         {SECTIONS.map((section) => {
           const Icon = section.icon;
           return (

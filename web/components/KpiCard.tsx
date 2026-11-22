@@ -93,7 +93,7 @@ export function KpiCard({ kpiId, item, loading, error, definition, route, onRetr
     <Card
       data-testid={`kpi-${kpiId}`}
       className={cn(
-        'group relative flex min-h-[152px] flex-col justify-between overflow-hidden p-4 transition-all duration-200',
+        'group relative flex min-h-[160px] flex-col justify-between overflow-hidden p-4 transition-all duration-200',
         route && 'cursor-pointer hover:-translate-y-[1px] hover:border-teal/40 hover:shadow-pop',
       )}
       onClick={route ? () => router.push(routeWithFilters(route, filters)) : undefined}
@@ -104,7 +104,7 @@ export function KpiCard({ kpiId, item, loading, error, definition, route, onRetr
       <div className={cn('absolute inset-y-3 left-0 w-[2px] rounded-r', railColor)} aria-hidden="true" />
       <div className="flex items-start justify-between gap-2 pl-2">
         <div className="flex min-w-0 items-center gap-1.5">
-          <p className="truncate text-[11px] font-medium uppercase tracking-wide text-muted">{kpiLabel(kpiId, item)}</p>
+          <p className="line-clamp-2 text-[11px] font-medium uppercase tracking-wide text-muted" title={kpiLabel(kpiId, item)}>{kpiLabel(kpiId, item)}</p>
           {dateUnavailable && (
             <span className="shrink-0 rounded-sm border border-line bg-surface-alt px-1.5 py-0.5 text-[9px] font-medium text-muted">
               No date filter
@@ -122,7 +122,7 @@ export function KpiCard({ kpiId, item, loading, error, definition, route, onRetr
 
       <div className="mt-4 flex items-end justify-between gap-3 pl-2">
         <div className="min-w-0 flex-1">
-          <p data-testid="metric-value" className="truncate text-[28px] font-semibold leading-none tracking-tight text-ink-strong tabular-nums">{formatValue(item.value, unit)}</p>
+          <p data-testid="metric-value" className="text-[28px] font-semibold leading-none tracking-tight text-ink-strong tabular-nums" title={String(item.value ?? '')}>{formatValue(item.value, unit)}</p>
           <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px]">
             <Delta
               tone={tone}

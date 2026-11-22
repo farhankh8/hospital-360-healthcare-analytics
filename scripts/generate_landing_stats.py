@@ -31,16 +31,14 @@ def read_manifest() -> dict:
         return {}
     try:
         m = json.loads(path.read_text(encoding="utf-8"))
-    except Exception:
+    except (OSError, ValueError, json.JSONDecodeError):
         return {}
     bronze = m.get("bronze", {}).get("tables", {})
     totals = m.get("totals", {})
     gold_obj = m.get("gold", {})
     gold_tables = gold_obj.get("tables") if isinstance(gold_obj, dict) else None
     gold_row_counts = gold_obj.get("row_counts") if isinstance(gold_obj, dict) else None
-    if isinstance(gold_tables, dict) and gold_tables:
-        gold_count = len(gold_tables)
-    elif isinstance(gold_tables, list) and gold_tables:
+    if (isinstance(gold_tables, dict) and gold_tables) or (isinstance(gold_tables, list) and gold_tables):
         gold_count = len(gold_tables)
     elif isinstance(gold_row_counts, dict) and gold_row_counts:
         gold_count = len(gold_row_counts)
@@ -76,11 +74,12 @@ def pytest_collected() -> int | None:
             capture_output=True,
             text=True,
             timeout=120,
+            check=False,
         )
         text = proc.stdout + "\n" + proc.stderr
         m = re.search(r"(\d+)\s+tests?\s+collected", text)
         return int(m.group(1)) if m else None
-    except Exception:
+    except (OSError, subprocess.SubprocessError, ValueError):
         return None
 
 
@@ -93,11 +92,12 @@ def playwright_listed() -> int | None:
             text=True,
             timeout=180,
             shell=True,
+            check=False,
         )
         text = proc.stdout + "\n" + proc.stderr
         m = re.search(r"Total:\s*(\d+)\s+tests?\s+in", text)
         return int(m.group(1)) if m else None
-    except Exception:
+    except (OSError, subprocess.SubprocessError, ValueError):
         return None
 
 

@@ -112,7 +112,7 @@ export function PipelinePage() {
   }, [compareTables]);
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <PageHeading title="Data Pipeline" description="Run history, manifests and lineage for the synthetic data pipeline." badge={<Badge tone="info">Engineering</Badge>} />
 
       <section aria-label="Key performance indicators">
@@ -120,7 +120,7 @@ export function PipelinePage() {
           <h2 className="text-xs font-semibold uppercase tracking-wide text-muted">Key indicators</h2>
           <span className="text-[11px] text-muted">Values from /pipeline/summary</span>
         </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="flex min-w-0 flex-wrap gap-4 [&>*]:min-w-0 [&>*]:flex-[1_1_260px]">
           {summaryQuery.isLoading && PIPELINE_KPI_IDS.map((id) => <Skeleton key={id} className="h-[148px] w-full" />)}
           {!summaryQuery.isLoading && PIPELINE_KPI_IDS.map((id) => (
             <KpiCard key={id} kpiId={id} item={pipelineKpis[id]} route="/pipeline" />
@@ -224,7 +224,7 @@ export function PipelinePage() {
         ) : <EmptyState message="No compare data" />}
       </Card>
 
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+      <div className="grid min-w-0 grid-cols-1 gap-5 xl:grid-cols-2 [&>*]:min-w-0">
         <Card>
           <CardHeader title="Pipeline lineage" subtitle="From /pipeline/lineage" action={<GitBranch className="h-4 w-4 text-teal" />} />
           <div className="p-4">

@@ -49,7 +49,7 @@ export function DataQualityPage() {
   const kpis = useMemo(() => summaryQuery.data?.data?.kpis, [summaryQuery.data]);
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <PageHeading title="Data Quality" description="Validation rules, detected failures and dataset-level quality indicators." badge={<Badge tone="info">Engineering</Badge>} />
 
       <Card className="border-amber-200 bg-amber-50/60 p-4 text-sm text-slate-700">
@@ -64,7 +64,7 @@ export function DataQualityPage() {
           <h2 className="text-xs font-semibold uppercase tracking-wide text-muted">Key indicators</h2>
           <span className="text-[11px] text-muted">Values from /data-quality/summary</span>
         </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="flex min-w-0 flex-wrap gap-4 [&>*]:min-w-0 [&>*]:flex-[1_1_260px]">
           {summaryQuery.isLoading && DQ_KPI_IDS.map((id) => <Skeleton key={id} className="h-[148px] w-full" />)}
           {!summaryQuery.isLoading && DQ_KPI_IDS.map((id) => (
             <KpiCard key={id} kpiId={id} item={kpis?.[id]} route="/data-quality" />
@@ -74,11 +74,11 @@ export function DataQualityPage() {
         {!summaryQuery.isLoading && !summaryQuery.isError && (!kpis || Object.keys(kpis).length === 0) && <Card className="mt-3"><EmptyState message="No summary values returned" /></Card>}
       </section>
 
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-2">
+      <div className="grid min-w-0 grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-2 [&>*]:min-w-0">
         {DQ_CHARTS.map((config) => <DqChart key={config.endpoint} config={config} filters={filters} params={pageParams} />)}
       </div>
 
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+      <div className="grid min-w-0 grid-cols-1 gap-5 xl:grid-cols-2 [&>*]:min-w-0">
         <DataTable endpoint="/data-quality/datasets" columns={[
           { key: 'dataset', title: 'Dataset', sortable: true },
           { key: 'records', title: 'Records', type: 'number', sortable: true },

@@ -18,6 +18,6 @@
   "invoices": null,
   "claims": null,
   "pytest_collected": 159,
-  "playwright_tests": 38,
-  "generated_at": "2026-11-22T05:11:36.794311+00:00"
+  "playwright_tests": 44,
+  "generated_at": "2026-11-22T06:57:48.190073+00:00"
 }

@@ -1,58 +1,82 @@
-# HOSPITAL 360 - Healthcare Intelligence & Operations Analytics Platform
+# HOSPITAL 360
 
-## 1. Project title
-**HOSPITAL 360** - a full-stack, multi-hospital healthcare analytics platform built on synthetic data.
+**A full-stack healthcare intelligence platform built on synthetic data** - from raw generation to executive dashboards.
 
-## 2. Project overview
-HOSPITAL 360 consolidates synthetic hospital operations data into an interactive analytics product covering executive, clinical, financial, workforce, supply chain, experience, quality, data explorer, data quality, and pipeline views. The system uses a reproducible Python/DuckDB pipeline, a FastAPI backend, and a Next.js frontend.
+[Live Dashboard](https://hospital360-web.vercel.app) · [API Health](https://hospital360-api.onrender.com/api/v1/health) · [API Docs](https://hospital360-api.onrender.com/docs) · [Case Study](docs/CASE_STUDY.md) · [Demo Script](docs/DEMO_SCRIPT.md)
 
-## 3. Business problem
-Healthcare operational data is fragmented across systems, making it difficult for management to monitor performance, investigate root causes, and trust KPI consistency across hospitals and departments.
+> Synthetic data only. No real patient records, no PHI, no clinical use.
 
-## 4. Solution
-A unified analytics platform that:
-- generates reproducible synthetic multi-hospital data,
-- validates and quarantines data quality issues,
-- serves KPI/chart/table APIs from DuckDB,
-- presents 21 connected dashboard pages with global filters, drilldowns, exports, and glossary.
+---
 
-## 5. Features
-- **21 frontend routes**: Overview, Hospitals, Comparison, Appointments, Emergency, Inpatient, Procedures, Diagnostics, Pharmacy, Finance, Claims, Workforce, Inventory, Experience, Quality, Explorer, Data Quality, Pipeline, Glossary, Hospital Profile, Patient Journey.
-- **Global filters**: date range, hospital, department, specialty, doctor, payer, service category, diagnosis group; URL-synced.
-- **API-driven analytics**: KPI/chart/table endpoints under /api/v1.
-- **Data quality**: quarantine, rule failures, DQ score, lineage, manifest/run history.
-- **Exports**: CSV export endpoints with configured export limit.
-- **Accessibility/perf checks**: axe serious/critical checks, Playwright e2e, measured local performance report.
+## What is HOSPITAL 360?
 
-## 6. Architecture
-`mermaid
+HOSPITAL 360 is an end-to-end analytics product that simulates how a multi-hospital network can turn fragmented operational data into trusted, decision-ready insights. It covers the full pipeline: **data generation → validation/quarantine → analytical marts → API → interactive dashboard**.
+
+It’s built as a portfolio-grade system, not just a chart demo: reproducible data, KPI contracts, data quality checks, drill-downs, exports, and automated tests.
+
+## Highlights
+
+| | |
+|---|---|
+| **21 dashboard pages** | Executive, clinical, financial, workforce, supply chain, experience, quality, explorer, DQ, pipeline |
+| **1.58M+ synthetic records** | 10 hospitals, 2 years, reproducible seed-42 generation |
+| **58 analytical tables** | Bronze/Silver/Gold DuckDB model with quarantine and manifests |
+| **43 API route handlers** | Versioned FastAPI endpoints under `/api/v1` |
+| **159 + 44 automated tests** | pytest backend suite + Playwright E2E/a11y checks |
+| **DQ score: 100.0** | Validation rules, quarantine tracking, lineage, run manifests |
+
+## Live Links
+
+- **Frontend:** https://hospital360-web.vercel.app
+- **Backend API:** https://hospital360-api.onrender.com/api/v1
+- **Health:** https://hospital360-api.onrender.com/api/v1/health
+- **Swagger Docs:** https://hospital360-api.onrender.com/docs
+
+> Note: Backend runs on Render Free tier and may cold-start after inactivity.
+
+## Product Modules
+
+| Domain | What you can explore |
+|---|---|
+| **Executive** | Network overview, hospital comparison, hospital profile |
+| **Operations** | Appointments/access, emergency flow, inpatient/beds, procedures, diagnostics |
+| **Business** | Pharmacy, finance/revenue, claims, workforce, inventory/procurement |
+| **Performance** | Patient experience, quality & safety |
+| **Data & Intelligence** | Data explorer, patient journey, data quality, pipeline, KPI glossary, methodology |
+
+## Architecture
+
+```mermaid
 flowchart LR
-  A[Synthetic CSV Generator] --> B[Bronze Parquet]
-  B --> C[Silver Validation/Quarantine]
-  C --> D[Gold DuckDB Tables]
-  D --> E[FastAPI /api/v1]
-  E --> F[Next.js 15 Dashboard]
-  C --> G[DQ Results/Manifests]
-  G --> E
-  G --> F
-`
+    A[Synthetic CSV Generator\nseed=42] --> B[Bronze Parquet]
+    B --> C[Silver Validation\n+ Quarantine]
+    C --> D[Gold DuckDB Tables]
+    D --> E[FastAPI /api/v1]
+    E --> F[Next.js 15 Dashboard]
+    C --> G[DQ Results / Manifests]
+    G --> E
+    G --> F
+```
 
-Detailed docs: [docs/architecture.md](docs/architecture.md), [docs/data_model.md](docs/data_model.md).
+**Design principle:** business KPIs are defined/calculated in the backend/data layer; the frontend renders API data and does not compute business KPIs.
 
-## 7. Technology stack
-| Layer | Technology | Evidence |
-|---|---|---|
-| Frontend | Next.js 15.5, React 19, TypeScript, Tailwind, ECharts 6 | web/package.json |
-| Backend | FastAPI, Pydantic, Uvicorn | pi/ |
-| Data | DuckDB, Parquet, Pandas/NumPy | tl/, data/ |
-| Testing | pytest, Playwright, axe-core | 	ests/, web/e2e/ |
-| CI | GitHub Actions | .github/workflows/ci.yml |
+## Tech Stack
 
-## 8. Dataset
-Synthetic only; no real hospital names/PHI. Current measured pipeline manifest (data/manifests/pipeline_RUN_20261121_001.json):
+| Layer | Stack |
+|---|---|
+| **Frontend** | Next.js 15.5, React 19, TypeScript, Tailwind CSS, ECharts 6, TanStack Query/Table |
+| **Backend** | FastAPI, Pydantic, Uvicorn |
+| **Data** | Python, Pandas/NumPy, DuckDB, Parquet |
+| **Testing** | pytest, Playwright, axe-core |
+| **CI/CD** | GitHub Actions |
+| **Deployment** | Vercel (frontend), Render Docker Web Service (backend) |
+
+## Measured Data Snapshot
+
+From `data/manifests/pipeline_RUN_20261121_001.json`:
 
 | Metric | Value |
-|---|---:|
+|---:|---:|
 | Source records | 1,588,637 |
 | Valid records | 1,585,844 |
 | Quarantined records | 2,793 |
@@ -60,54 +84,80 @@ Synthetic only; no real hospital names/PHI. Current measured pipeline manifest (
 | Tables created | 58 |
 | DQ score | 100.0 |
 
-## 9. Data model
-Bronze/Silver/Gold layered model with dimensional/fact tables in DuckDB. See [docs/data_model.md](docs/data_model.md) and [docs/ERD.dbml](docs/ERD.dbml).
+## Data Quality & Trust
 
-## 10. KPI definitions
-KPI contracts and glossary are documented in [docs/kpi_dictionary.md](docs/kpi_dictionary.md) and served by API glossary endpoints. Frontend renders API-provided KPI values; business KPI calculations are not performed in frontend components.
+- Rule-based validation with quarantine (not silent drops).
+- DQ summaries, rule failures, dataset health, lineage, and run manifests exposed in UI/API.
+- Parameterized SQL practices, allowlisted dynamic identifiers, env-based CORS, export row cap (`MAX_EXPORT_ROWS=5000`).
+- See: [Data Quality Report](docs/data_quality_report.md) · [Accessibility](docs/accessibility.md) · [KPI Dictionary](docs/kpi_dictionary.md)
 
-## 11. Data quality
-- DQ results: data/manifests/dq_results.json (DQ score 100.0 for run RUN_20261121_001).
-- Quarantine/rule failures tracked in manifests and DQ pages/endpoints.
-- Security/quality checks include parameterized SQL practices, allowlisted dynamic identifiers, CORS env config, export limit (MAX_EXPORT_ROWS=5000).
-- Details: [docs/data_quality_report.md](docs/data_quality_report.md), [docs/accessibility.md](docs/accessibility.md).
+## Quick Start (Local)
 
-Measured checks (local, 2026-11-21): `python -m pytest -q` => 159 passed, 2 warnings; `ruff check .` => pass; `web`: `npm run lint`, `npx tsc --noEmit`, `npm run build` => pass; `npx playwright test --config=e2e/playwright.config.ts` => 38 passed.
+### 1) Clone & install
 
-## 12. Installation
-`ash
-git clone <repo-url>
-cd hospital360
+```bash
+git clone https://github.com/farhankh8/hospital-360-healthcare-analytics.git
+cd hospital-360-healthcare-analytics
 python -m venv .venv
 # Windows: .venv\Scripts\activate
+# macOS/Linux: source .venv/bin/activate
 pip install -r requirements.txt
-cd web && npm ci
-`
+cd web && npm ci && cd ..
+```
 
-## 13. Running locally
-`ash
-# from hospital360/
+### 2) Run backend
+
+```bash
 python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
-# new terminal
+```
+
+### 3) Run frontend
+
+```bash
 cd web
 npm run dev
-`
-API: http://127.0.0.1:8000/api/v1/health  
-Web: http://127.0.0.1:3000
+```
 
-## 14. API documentation
-- OpenAPI: http://127.0.0.1:8000/docs
-- API reference: [docs/api_reference.md](docs/api_reference.md)
-- Measured route handlers: 43 (@router decorator static scan).
+- Web: http://127.0.0.1:3000
+- API: http://127.0.0.1:8000/api/v1/health
+- Docs: http://127.0.0.1:8000/docs
 
-## 15. Demo
-Follow [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) for a 5-minute walkthrough.
+## Checks
 
-## 16. Limitations
-- Synthetic data only; not for clinical decisions.
-- Local performance numbers are measured on dev machine, not production SLO guarantees.
-- Deployment docs are prepared; no live deployment performed in this environment.
-- Some legacy artifact/report files outside hospital360/ may exist in workspace but are not product deliverables.
+```bash
+python -m pytest -q
+python -m ruff check .
+cd web && npm run lint && npx tsc --noEmit && npm run build
+npx playwright test --config=e2e/playwright.config.ts
+```
 
-## 17. Disclaimer
-**HOSPITAL 360 uses entirely synthetic data. No real patient data, real hospital identities, or PHI are included. Outputs are for demonstration and portfolio purposes only and must not be used for clinical, operational, or financial decisions.**
+## Deployment
+
+Prepared for split deployment:
+
+- **Frontend:** Vercel (`web/`, env: `NEXT_PUBLIC_API_URL`)
+- **Backend:** Render Docker (`Dockerfile.api`, env: `CORS_ORIGINS`, `DATA_PATH`, `DATABASE_PATH`, `APP_ENV`, `LOG_LEVEL`)
+
+Details: [docs/deployment.md](docs/deployment.md)
+
+## Repository Docs
+
+- [Architecture](docs/architecture.md)
+- [Data Model](docs/data_model.md)
+- [ERD](docs/ERD.dbml)
+- [KPI Dictionary](docs/kpi_dictionary.md)
+- [API Reference](docs/api_reference.md)
+- [Data Quality Report](docs/data_quality_report.md)
+- [Deployment](docs/deployment.md)
+- [Case Study](docs/CASE_STUDY.md)
+- [Demo Script](docs/DEMO_SCRIPT.md)
+
+## Limitations
+
+- Synthetic data only; not for clinical, operational, or financial decisions.
+- Render Free tier may cold-start after inactivity.
+- Local performance measurements are machine-specific, not production SLOs.
+
+## Disclaimer
+
+HOSPITAL 360 uses entirely synthetic data. No real patient data, real hospital identities, or PHI are included. Outputs are for demonstration and portfolio purposes only.

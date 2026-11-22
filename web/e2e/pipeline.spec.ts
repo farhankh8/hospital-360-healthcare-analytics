@@ -24,7 +24,7 @@ test.describe('Pipeline page', () => {
 
     // Compare section should show deltas/table once two runs selected.
     await expect(page.getByText(/Compare runs/i).first()).toBeVisible();
-    await expect(page.getByText(/Delta \(B-A\)/i)).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText(/Delta \(B-A\)/i).first()).toBeVisible({ timeout: 15000 });
     await expect(page.getByText(/Duration seconds|Quarantined records/i).first()).toBeVisible();
 
     // Lineage drawer: click a lineage row.

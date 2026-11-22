@@ -24,16 +24,7 @@ A unified analytics platform that:
 - **Exports**: CSV export endpoints with configured export limit.
 - **Accessibility/perf checks**: axe serious/critical checks, Playwright e2e, measured local performance report.
 
-## 6. Screenshots
-Screenshots can be captured with the rerunnable script:
-
-`ash
-python scripts/capture_screenshots.py --base-url http://127.0.0.1:3000 --out docs/screenshots
-`
-
-Required shots: overview, finance, data-quality, explorer, patient-journey, pipeline. Store generated PNGs in docs/screenshots/.
-
-## 7. Architecture
+## 6. Architecture
 `mermaid
 flowchart LR
   A[Synthetic CSV Generator] --> B[Bronze Parquet]
@@ -48,7 +39,7 @@ flowchart LR
 
 Detailed docs: [docs/architecture.md](docs/architecture.md), [docs/data_model.md](docs/data_model.md).
 
-## 8. Technology stack
+## 7. Technology stack
 | Layer | Technology | Evidence |
 |---|---|---|
 | Frontend | Next.js 15.5, React 19, TypeScript, Tailwind, ECharts 6 | web/package.json |
@@ -57,7 +48,7 @@ Detailed docs: [docs/architecture.md](docs/architecture.md), [docs/data_model.md
 | Testing | pytest, Playwright, axe-core | 	ests/, web/e2e/ |
 | CI | GitHub Actions | .github/workflows/ci.yml |
 
-## 9. Dataset
+## 8. Dataset
 Synthetic only; no real hospital names/PHI. Current measured pipeline manifest (data/manifests/pipeline_RUN_20261121_001.json):
 
 | Metric | Value |
@@ -69,13 +60,13 @@ Synthetic only; no real hospital names/PHI. Current measured pipeline manifest (
 | Tables created | 58 |
 | DQ score | 100.0 |
 
-## 10. Data model
+## 9. Data model
 Bronze/Silver/Gold layered model with dimensional/fact tables in DuckDB. See [docs/data_model.md](docs/data_model.md) and [docs/ERD.dbml](docs/ERD.dbml).
 
-## 11. KPI definitions
+## 10. KPI definitions
 KPI contracts and glossary are documented in [docs/kpi_dictionary.md](docs/kpi_dictionary.md) and served by API glossary endpoints. Frontend renders API-provided KPI values; business KPI calculations are not performed in frontend components.
 
-## 12. Data quality
+## 11. Data quality
 - DQ results: data/manifests/dq_results.json (DQ score 100.0 for run RUN_20261121_001).
 - Quarantine/rule failures tracked in manifests and DQ pages/endpoints.
 - Security/quality checks include parameterized SQL practices, allowlisted dynamic identifiers, CORS env config, export limit (MAX_EXPORT_ROWS=5000).
@@ -83,7 +74,7 @@ KPI contracts and glossary are documented in [docs/kpi_dictionary.md](docs/kpi_d
 
 Measured checks (local, 2026-11-21): `python -m pytest -q` => 159 passed, 2 warnings; `ruff check .` => pass; `web`: `npm run lint`, `npx tsc --noEmit`, `npm run build` => pass; `npx playwright test --config=e2e/playwright.config.ts` => 38 passed.
 
-## 13. Installation
+## 12. Installation
 `ash
 git clone <repo-url>
 cd hospital360
@@ -93,7 +84,7 @@ pip install -r requirements.txt
 cd web && npm ci
 `
 
-## 14. Running locally
+## 13. Running locally
 `ash
 # from hospital360/
 python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
@@ -104,19 +95,19 @@ npm run dev
 API: http://127.0.0.1:8000/api/v1/health  
 Web: http://127.0.0.1:3000
 
-## 15. API documentation
+## 14. API documentation
 - OpenAPI: http://127.0.0.1:8000/docs
 - API reference: [docs/api_reference.md](docs/api_reference.md)
 - Measured route handlers: 43 (@router decorator static scan).
 
-## 16. Demo
+## 15. Demo
 Follow [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) for a 5-minute walkthrough.
 
-## 17. Limitations
+## 16. Limitations
 - Synthetic data only; not for clinical decisions.
 - Local performance numbers are measured on dev machine, not production SLO guarantees.
 - Deployment docs are prepared; no live deployment performed in this environment.
 - Some legacy artifact/report files outside hospital360/ may exist in workspace but are not product deliverables.
 
-## 18. Disclaimer
+## 17. Disclaimer
 **HOSPITAL 360 uses entirely synthetic data. No real patient data, real hospital identities, or PHI are included. Outputs are for demonstration and portfolio purposes only and must not be used for clinical, operational, or financial decisions.**

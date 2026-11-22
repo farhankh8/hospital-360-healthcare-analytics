@@ -20,7 +20,10 @@ test.describe('Landing page', () => {
   test('module category tabs filter cards', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     const modules = page.locator('#modules');
-    await modules.getByRole('tab', { name: 'Finance' }).click();
+    const financeTab = modules.getByRole('tab', { name: 'Finance' });
+    await financeTab.scrollIntoViewIfNeeded();
+    await financeTab.click();
+    await expect(financeTab).toHaveAttribute('aria-selected', 'true');
     await expect(modules.getByRole('link', { name: /Finance/i }).first()).toBeVisible();
     await expect(modules.getByRole('link', { name: /Emergency/i })).toHaveCount(0);
   });

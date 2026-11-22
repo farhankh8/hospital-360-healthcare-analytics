@@ -1,61 +1,36 @@
+'use client';
+
+import Image from 'next/image';
 import Link from 'next/link';
-import { landingStats, fmt, fmtCompact } from '@/lib/landing-stats';
+import { useMemo, useState } from 'react';
 import {
-  Activity,
-  ArrowRight,
-  BarChart3,
-  BookOpen,
-  Building2,
-  CalendarClock,
-  Database,
-  FileCheck2,
-  FileText,
-  FlaskConical,
-  GitBranch,
-  LayoutDashboard,
-  Package,
-  Pill,
-  Route as RouteIcon,
-  ShieldAlert,
-  ShieldCheck,
-  Siren,
-  Stethoscope,
-  UsersRound,
-  WalletCards,
+  Activity, ArrowRight, BarChart3, BookOpen, Building2, CalendarClock, Database,
+  ExternalLink, FileCheck2, FileText, FlaskConical, GitBranch, Github, LayoutDashboard,
+  Moon, Package, Pill, Route as RouteIcon, ShieldAlert, ShieldCheck, Siren,
+  Stethoscope, Sun, UsersRound, WalletCards,
 } from 'lucide-react';
+import { landingStats, fmt, fmtCompact } from '@/lib/landing-stats';
+import { useTheme } from '@/components/ThemeProvider';
 
-const DATA_SCALE = [
-  landingStats.hospitals != null ? { value: fmt(landingStats.hospitals)!, label: 'Hospitals', note: 'Synthetic multi-hospital network in dim_hospital' } : null,
-  landingStats.patients != null ? { value: fmt(landingStats.patients)!, label: 'Patients', note: 'Patient records in the generated dataset' } : null,
-  landingStats.encounters != null ? { value: fmt(landingStats.encounters)!, label: 'Encounters', note: 'Outpatient, inpatient, and emergency encounters' } : null,
-  landingStats.appointments != null ? { value: fmt(landingStats.appointments)!, label: 'Appointments', note: 'Scheduled appointment records' } : null,
-  landingStats.bronze_rows != null ? { value: fmtCompact(landingStats.bronze_rows)!, label: 'Bronze rows', note: `${fmt(landingStats.bronze_rows)} total rows ingested across ${fmt(landingStats.bronze_tables) ?? 'measured'} bronze tables` } : null,
-  landingStats.gold_tables != null ? { value: fmt(landingStats.gold_tables)!, label: 'Gold tables', note: 'Analytics-ready marts for dashboard consumption' } : null,
-].filter((item): item is { value: string; label: string; note: string } => item !== null);
+const REPO_URL = process.env.NEXT_PUBLIC_REPO_URL;
+const DEMO_URL = process.env.NEXT_PUBLIC_DEMO_URL;
+const AUTHOR_NAME = process.env.NEXT_PUBLIC_AUTHOR_NAME;
+const LINKEDIN_URL = process.env.NEXT_PUBLIC_LINKEDIN_URL;
+const PORTFOLIO_URL = process.env.NEXT_PUBLIC_PORTFOLIO_URL;
 
-const TOUR_STEPS = [
-  { step: '1', title: 'Start at Executive Overview', detail: 'Review system KPIs, trends, and compare periods.', href: '/overview', cta: 'Open overview' },
-  { step: '2', title: 'Filter and drill down', detail: 'Use global filters, open a module, and drill into charts/tables for detail.', href: '/hospitals', cta: 'Explore hospitals' },
-  { step: '3', title: 'Check governance', detail: 'Inspect data quality, KPI definitions, and methodology behind the metrics.', href: '/data-quality', cta: 'View data quality' },
-];
+type Module = { icon: typeof Activity; name: string; group: string; href: string; detail: string };
 
-const STACK_GROUPS = [
-  { title: 'Frontend', items: ['Next.js 15', 'React 19', 'TypeScript', 'Tailwind CSS', 'ECharts', 'TanStack Query', 'TanStack Table'] },
-  { title: 'Backend & Data', items: ['FastAPI', 'DuckDB', 'Parquet', 'Python data pipeline', 'SQL-style analytics'] },
-  { title: 'Quality & Testing', items: ['Pytest', 'Ruff', 'ESLint', 'TypeScript checks', 'Playwright + axe'] },
-];
-
-const MODULES = [
+const MODULES: Module[] = [
   { icon: LayoutDashboard, name: 'Executive Overview', group: 'Executive', href: '/overview', detail: 'System-wide KPIs, trends, and drill-down entry points.' },
   { icon: Building2, name: 'Hospital Comparison', group: 'Executive', href: '/hospitals', detail: 'Cross-hospital benchmarks, rankings, and profile views.' },
   { icon: Building2, name: 'Hospital Profile', group: 'Executive', href: '/hospitals', detail: 'Operational, financial, and experience detail for a single hospital.' },
-  { icon: CalendarClock, name: 'Appointments', group: 'Operations', href: '/appointments', detail: 'Scheduling volume, completion, no-shows, and wait times.' },
+  { icon: CalendarClock, name: 'Appointments', group: 'Operations', href: '/appointments', detail: 'Scheduling, completion, no-shows, and wait times.' },
   { icon: Siren, name: 'Emergency', group: 'Operations', href: '/emergency', detail: 'ED arrivals, triage, boarding, and throughput signals.' },
   { icon: Stethoscope, name: 'Inpatient', group: 'Operations', href: '/inpatient', detail: 'Admissions, occupancy, LOS, and discharge flow.' },
   { icon: Activity, name: 'Procedures', group: 'Operations', href: '/procedures', detail: 'Procedure volume, duration, and utilization patterns.' },
   { icon: FlaskConical, name: 'Diagnostics', group: 'Operations', href: '/diagnostics', detail: 'Lab/radiology turnaround and completion metrics.' },
   { icon: Pill, name: 'Pharmacy', group: 'Operations', href: '/pharmacy', detail: 'Medication activity, dispensing, and inventory signals.' },
-  { icon: WalletCards, name: 'Finance', group: 'Finance', href: '/finance', detail: 'Gross/net revenue, collections, receivables, and leakage views.' },
+  { icon: WalletCards, name: 'Finance', group: 'Finance', href: '/finance', detail: 'Gross/net revenue, collections, receivables, and leakage.' },
   { icon: FileCheck2, name: 'Claims & Denials', group: 'Finance', href: '/claims', detail: 'Claim submission, adjudication, denials, payer mix, and appeals.' },
   { icon: UsersRound, name: 'Workforce', group: 'Workforce', href: '/workforce', detail: 'Staffing, shift coverage, overtime, absence, and workforce cost.' },
   { icon: Package, name: 'Inventory', group: 'Workforce', href: '/inventory', detail: 'Stock levels, stockouts, expiry, waste, and supplier performance.' },
@@ -66,41 +41,60 @@ const MODULES = [
   { icon: ShieldAlert, name: 'Data Quality', group: 'Governance', href: '/data-quality', detail: 'Freshness, completeness, and validation checks.' },
   { icon: GitBranch, name: 'Pipeline', group: 'Governance', href: '/pipeline', detail: 'Run history, lineage, and pipeline health context.' },
   { icon: BookOpen, name: 'KPI Glossary', group: 'Governance', href: '/kpi-glossary', detail: 'Metric definitions, formulas, and ownership.' },
-  { icon: FileText, name: 'Methodology', group: 'Governance', href: '/methodology', detail: 'How synthetic data, validation, and metrics are produced and presented.' },
+  { icon: FileText, name: 'Methodology', group: 'Governance', href: '/methodology', detail: 'How synthetic data, validation, and metrics are produced.' },
 ];
 
-const STATS = [
-  { value: String(MODULES.length), label: 'Analytics modules', note: 'Operations, finance, quality, workforce, and governance routes' },
-  landingStats.pytest_collected != null ? { value: fmt(landingStats.pytest_collected)!, label: 'Pytest checks', note: 'Measured collected backend tests' } : null,
-  landingStats.playwright_tests != null ? { value: fmt(landingStats.playwright_tests)!, label: 'Playwright checks', note: 'Measured end-to-end UI coverage' } : null,
-].filter((item): item is { value: string; label: string; note: string } => item !== null);
+const GROUPS = ['All', 'Executive', 'Operations', 'Finance', 'Workforce', 'Quality', 'Governance'] as const;
 
-const FLOW = [
-  {
-    step: '01',
-    title: 'Ingest and validate',
-    detail: 'Synthetic healthcare records are generated and processed through data pipeline steps with validation and manifests.',
-  },
-  {
-    step: '02',
-    title: 'Serve API-driven metrics',
-    detail: 'FastAPI endpoints provide KPI values, chart datasets, table rows, filters, and glossary metadata.',
-  },
-  {
-    step: '03',
-    title: 'Explore in the dashboard',
-    detail: 'Next.js pages render shared filters, drill-downs, exports, and role-relevant views without frontend KPI math.',
-  },
+const GALLERY = [
+  { src: '/landing/overview-1440.png', title: 'Network Overview', detail: 'Executive KPIs and trends', href: '/overview' },
+  { src: '/landing/hospitals-1440.png', title: 'Hospital Comparison', detail: 'Benchmarks across hospitals', href: '/hospitals' },
+  { src: '/landing/finance-1440.png', title: 'Finance & Revenue', detail: 'Revenue, collections, leakage', href: '/finance' },
+  { src: '/landing/claims-1440.png', title: 'Claims & Denials', detail: 'Payer mix and adjudication', href: '/claims' },
+  { src: '/landing/data-quality-1440.png', title: 'Data Quality', detail: 'Freshness and validation checks', href: '/data-quality' },
+  { src: '/landing/pipeline-1440.png', title: 'Pipeline', detail: 'Run history and lineage', href: '/pipeline' },
 ];
 
-const PRINCIPLES = [
-  'API is the single source of truth for KPI values.',
-  'Frontend renders and formats; it does not calculate business KPIs.',
-  'Global filters, drill-downs, exports, and loading/error/empty states are preserved.',
-  'Synthetic data only. Educational project, not for clinical use.',
+const ARCH = [
+  { name: 'Generator', note: 'Synthetic healthcare records' },
+  { name: 'Bronze', note: landingStats.bronze_rows ? `${fmtCompact(landingStats.bronze_rows)} rows ingested` : 'Raw ingested tables' },
+  { name: 'Silver', note: landingStats.valid_records ? `${fmtCompact(landingStats.valid_records)} valid records` : 'Validated records' },
+  { name: 'Quality gate', note: landingStats.quarantined_records != null ? `${fmt(landingStats.quarantined_records)} quarantined` : 'Quarantine & reconciliation' },
+  { name: 'Gold', note: landingStats.gold_tables ? `${landingStats.gold_tables} analytics marts` : 'Analytics marts' },
+  { name: 'DuckDB', note: 'SQL analytics engine' },
+  { name: 'FastAPI', note: 'KPI & data API' },
+  { name: 'Next.js', note: 'Dashboard UI' },
 ];
+
+function Stat({ value, label, note }: { value: string; label: string; note: string }) {
+  return (
+    <div className="rounded-xl border border-line bg-canvas px-4 py-4">
+      <dt className="text-[11px] font-medium uppercase tracking-wide text-muted">{label}</dt>
+      <dd className="mt-2 text-2xl font-semibold tracking-tight text-ink-strong tabular-nums">{value}</dd>
+      <p className="mt-1 text-xs leading-5 text-muted">{note}</p>
+    </div>
+  );
+}
 
 export default function LandingPage() {
+  const { theme, toggleTheme } = useTheme();
+  const [group, setGroup] = useState<(typeof GROUPS)[number]>('All');
+  const [activeShot, setActiveShot] = useState(GALLERY[0]);
+
+  const modules = useMemo(() => (group === 'All' ? MODULES : MODULES.filter((m) => m.group === group)), [group]);
+  const productStats = [
+    landingStats.hospitals != null ? { value: fmt(landingStats.hospitals)!, label: 'Hospitals', note: 'Synthetic multi-hospital network' } : null,
+    landingStats.bronze_rows != null ? { value: fmtCompact(landingStats.bronze_rows)!, label: 'Records processed', note: `${fmt(landingStats.bronze_rows)} source rows in bronze` } : null,
+    { value: String(MODULES.length), label: 'Dashboard modules', note: 'Executive, operations, finance, quality, governance' },
+  ].filter((s): s is { value: string; label: string; note: string } => s !== null);
+
+  const evidence = [
+    landingStats.pytest_collected != null ? { value: fmt(landingStats.pytest_collected)!, label: 'Pytest tests collected', note: 'Measured by pytest --collect-only' } : null,
+    landingStats.playwright_tests != null ? { value: fmt(landingStats.playwright_tests)!, label: 'Playwright tests', note: 'Measured by Playwright --list' } : null,
+    landingStats.bronze_rows != null ? { value: fmtCompact(landingStats.bronze_rows)!, label: 'Bronze rows', note: `Manifest ${landingStats.manifest_run_id ?? ''}`.trim() } : null,
+    landingStats.quarantined_records != null ? { value: fmt(landingStats.quarantined_records)!, label: 'Quarantined records', note: 'Quality gate captured invalid rows' } : null,
+  ].filter((s): s is { value: string; label: string; note: string } => s !== null);
+
   return (
     <div className="min-h-screen bg-canvas text-ink">
       <header className="sticky top-0 z-30 border-b border-line bg-surface/95 backdrop-blur">
@@ -113,300 +107,172 @@ export default function LandingPage() {
             </div>
           </div>
           <nav className="hidden items-center gap-5 md:flex">
-            <a href="#modules" className="text-xs font-medium text-muted transition hover:text-ink">Modules</a>
-            <a href="#data" className="text-xs font-medium text-muted transition hover:text-ink">Data</a>
-            <a href="#flow" className="text-xs font-medium text-muted transition hover:text-ink">How it works</a>
-            <a href="#evidence" className="text-xs font-medium text-muted transition hover:text-ink">Evidence</a>
+            <a href="#modules" className="text-xs font-medium text-muted hover:text-ink">Modules</a>
+            <a href="#preview" className="text-xs font-medium text-muted hover:text-ink">Preview</a>
+            <a href="#architecture" className="text-xs font-medium text-muted hover:text-ink">Architecture</a>
+            <a href="#evidence" className="text-xs font-medium text-muted hover:text-ink">Evidence</a>
           </nav>
-          <Link
-            href="/overview"
-            className="inline-flex h-9 items-center gap-2 rounded-md bg-navy px-4 text-xs font-medium text-white transition hover:bg-navy-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/30"
-          >
-            Open dashboard <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-          </Link>
+          <div className="flex items-center gap-2">
+            {REPO_URL ? (
+              <a href={REPO_URL} target="_blank" rel="noreferrer" className="inline-flex h-9 items-center gap-2 rounded-md border border-line px-3 text-xs font-medium text-muted hover:bg-surface-hover hover:text-ink">
+                <Github className="h-3.5 w-3.5" aria-hidden="true" /> GitHub
+              </a>
+            ) : null}
+            <button type="button" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'} className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-line text-muted hover:bg-surface-hover hover:text-ink">
+              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+            <Link href={DEMO_URL || '/overview'} className="inline-flex h-9 items-center gap-2 rounded-md bg-navy px-4 text-xs font-medium text-white hover:bg-navy-light">
+              {DEMO_URL ? 'Live demo' : 'Open dashboard'} <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+            </Link>
+          </div>
         </div>
       </header>
 
       <main>
         <section className="border-b border-line bg-surface">
           <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
-            <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
+            <div className="grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:items-center">
               <div>
-                <p className="inline-flex items-center rounded-full border border-line bg-surface-alt px-3 py-1 text-[11px] font-medium text-muted">
-                  Synthetic multi-hospital analytics platform
-                </p>
-                <h1 className="mt-5 max-w-3xl text-4xl font-semibold tracking-tight text-ink-strong sm:text-5xl sm:leading-[1.1]">
-                  Operational clarity for every hospital decision.
-                </h1>
-                <p className="mt-5 max-w-2xl text-base leading-7 text-muted">
-                  HOSPITAL 360 is a healthcare analytics workspace that combines executive KPIs, operational drill-downs,
-                  finance, quality, workforce, and data governance. It is designed as a measurable, API-driven project with
-                  synthetic data only.
-                </p>
-
+                <p className="inline-flex items-center rounded-full border border-line bg-surface-alt px-3 py-1 text-[11px] font-medium text-muted">Synthetic multi-hospital analytics platform</p>
+                <h1 className="mt-5 max-w-3xl text-4xl font-semibold tracking-tight text-ink-strong sm:text-5xl sm:leading-[1.1]">Operational clarity for every hospital decision.</h1>
+                <p className="mt-5 max-w-2xl text-base leading-7 text-muted">HOSPITAL 360 is an API-driven healthcare analytics workspace for operations, finance, quality, workforce, and governance. All data is synthetic and for educational use only.</p>
                 <div className="mt-8 flex flex-wrap items-center gap-3">
-                  <Link
-                    href="/overview"
-                    className="inline-flex h-11 items-center gap-2 rounded-lg bg-navy px-5 text-sm font-medium text-white transition hover:bg-navy-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/30"
-                  >
-                    Enter dashboard <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                  </Link>
-                  <Link
-                    href="/data-quality"
-                    className="inline-flex h-11 items-center gap-2 rounded-lg border border-line bg-surface px-5 text-sm font-medium text-ink transition hover:bg-surface-hover"
-                  >
-                    View data quality
-                  </Link>
+                  <Link href="/overview" className="inline-flex h-11 items-center gap-2 rounded-lg bg-navy px-5 text-sm font-medium text-white hover:bg-navy-light">Enter dashboard <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+                  {REPO_URL ? <a href={REPO_URL} target="_blank" rel="noreferrer" className="inline-flex h-11 items-center gap-2 rounded-lg border border-line bg-surface px-5 text-sm font-medium text-ink hover:bg-surface-hover"><Github className="h-4 w-4" aria-hidden="true" /> View on GitHub</a> : <Link href="/data-quality" className="inline-flex h-11 items-center gap-2 rounded-lg border border-line bg-surface px-5 text-sm font-medium text-ink hover:bg-surface-hover">View data quality</Link>}
                 </div>
-
-                <dl className="mt-10 grid gap-4 sm:grid-cols-2">
-                  {STATS.map((stat) => (
-                    <div key={stat.label} className="rounded-xl border border-line bg-canvas px-4 py-4">
-                      <dt className="text-[11px] font-medium uppercase tracking-wide text-muted">{stat.label}</dt>
-                      <dd className="mt-2 text-2xl font-semibold tracking-tight text-ink-strong tabular-nums">{stat.value}</dd>
-                      <p className="mt-1 text-xs leading-5 text-muted">{stat.note}</p>
-                    </div>
-                  ))}
-                </dl>
+                <dl className="mt-10 grid gap-4 sm:grid-cols-3">{productStats.map((s) => <Stat key={s.label} {...s} />)}</dl>
               </div>
-
-              <div className="rounded-2xl border border-line bg-canvas p-5 shadow-card">
-                <div className="flex items-center justify-between border-b border-line pb-4">
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Workspace preview</p>
-                    <h2 className="mt-1 text-sm font-semibold text-ink-strong">What you can inspect</h2>
-                  </div>
-                  <span className="rounded-md bg-teal-light px-2 py-1 text-[11px] font-medium text-teal-dark">API-driven</span>
+              <div className="rounded-2xl border border-line bg-canvas p-3 shadow-card">
+                <div className="flex items-center gap-1.5 border-b border-line px-2 pb-3">
+                  <span className="h-2.5 w-2.5 rounded-full bg-slate-300" /><span className="h-2.5 w-2.5 rounded-full bg-slate-300" /><span className="h-2.5 w-2.5 rounded-full bg-slate-300" />
+                  <span className="ml-3 text-[11px] text-muted">Network Overview</span>
                 </div>
-
-                <div className="mt-4 space-y-3">
-                  {[
-                    { icon: LayoutDashboard, title: 'Executive overview', text: 'Track KPI cards, trends, compare periods, and drill into modules.' },
-                    { icon: Building2, title: 'Hospital profiles', text: 'Compare hospitals, open profiles, and inspect operational differences.' },
-                    { icon: Database, title: 'Explorer and exports', text: 'Filter records, inspect tables, and export data for analysis.' },
-                    { icon: ShieldAlert, title: 'Governance', text: 'Review data quality, pipeline runs, glossary, and methodology.' },
-                  ].map(({ icon: Icon, title, text }) => (
-                    <div key={title} className="flex gap-3 rounded-xl border border-line bg-surface p-4">
-                      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-alt text-teal">
-                        <Icon className="h-4 w-4" aria-hidden="true" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-ink-strong">{title}</p>
-                        <p className="mt-0.5 text-xs leading-5 text-muted">{text}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-4 rounded-xl border border-line bg-surface px-4 py-3">
-                  <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Design system</p>
-                  <p className="mt-1 text-sm text-muted">Calm clinical palette, token-based light/dark UI, tabular numerals, and accessible focus states.</p>
+                <div className="relative mt-3 overflow-hidden rounded-xl border border-line bg-surface">
+                  <Image src="/landing/overview-1440.png" alt="HOSPITAL 360 Network Overview dashboard showing KPI cards, trends, and charts" width={1440} height={900} priority className="h-auto w-full" />
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section id="modules" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <section id="preview" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">Modules</p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-ink-strong sm:text-3xl">21 modules across the healthcare workflow</h2>
-            <p className="mt-3 text-sm leading-7 text-muted">
-              Each module uses shared filters, consistent cards/tables/charts, and drill-down behavior. The list below reflects the platform areas available in the dashboard.
-            </p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">Workspace preview</p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-ink-strong sm:text-3xl">See the dashboard before you enter it</h2>
+            <p className="mt-3 text-sm leading-7 text-muted">Real screenshots from the application. Select a module to preview its layout and metrics.</p>
           </div>
-
-          <div className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {MODULES.map(({ icon: Icon, name, group, detail, href }) => (
-              <Link key={name} href={href} className="group rounded-xl border border-line bg-surface p-4 shadow-card transition hover:border-teal/40 hover:bg-surface-hover">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-alt text-teal">
-                      <Icon className="h-4 w-4" aria-hidden="true" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-ink-strong group-hover:text-teal-dark">{name}</h3>
-                      <p className="text-[11px] text-muted">{group}</p>
-                    </div>
-                  </div>
-                  <ArrowRight className="mt-1 h-3.5 w-3.5 text-slate-300 transition group-hover:text-teal" aria-hidden="true" />
-                </div>
-                <p className="mt-3 text-xs leading-5 text-muted">{detail}</p>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section id="data" className="border-y border-line bg-surface">
-          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div className="max-w-3xl">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">Data scale</p>
-                <h2 className="mt-2 text-2xl font-semibold tracking-tight text-ink-strong sm:text-3xl">Synthetic data, measured at pipeline scale</h2>
-                <p className="mt-3 text-sm leading-7 text-muted">
-                  The dashboard runs on generated healthcare data. Counts below are measured from the latest pipeline manifest
-                  {landingStats.manifest_run_id ? <> (<span className="font-medium text-ink">{landingStats.manifest_run_id}</span>)</> : ''}, not estimates.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {DATA_SCALE.map((item) => (
-                <div key={item.label} className="rounded-xl border border-line bg-canvas p-5">
-                  <p className="text-3xl font-semibold tracking-tight text-ink-strong tabular-nums">{item.value}</p>
-                  <p className="mt-2 text-sm font-medium text-ink">{item.label}</p>
-                  <p className="mt-2 text-xs leading-5 text-muted">{item.note}</p>
-                </div>
+          <div className="mt-8 grid gap-6 lg:grid-cols-[280px_1fr]">
+            <div className="flex flex-row gap-2 overflow-x-auto lg:flex-col lg:overflow-visible">
+              {GALLERY.map((shot) => (
+                <button key={shot.src} type="button" onClick={() => setActiveShot(shot)} className={`min-w-[180px] rounded-lg border px-3 py-3 text-left transition lg:min-w-0 ${activeShot.src === shot.src ? 'border-teal bg-teal-light/30' : 'border-line bg-surface hover:bg-surface-hover'}`}>
+                  <p className="text-sm font-medium text-ink-strong">{shot.title}</p>
+                  <p className="mt-0.5 text-xs text-muted">{shot.detail}</p>
+                </button>
               ))}
             </div>
-
-            {(() => {
-              const extras = [
-                landingStats.doctors != null ? `${fmt(landingStats.doctors)} doctors` : null,
-                landingStats.staff != null ? `${fmt(landingStats.staff)} staff` : null,
-                landingStats.beds != null ? `${fmt(landingStats.beds)} beds` : null,
-                landingStats.admissions != null ? `${fmt(landingStats.admissions)} admissions` : null,
-                landingStats.lab_orders != null ? `${fmt(landingStats.lab_orders)} lab orders` : null,
-                landingStats.invoices != null ? `${fmt(landingStats.invoices)} invoices` : null,
-                landingStats.claims != null ? `${fmt(landingStats.claims)} claims` : null,
-              ].filter(Boolean) as string[];
-              return extras.length ? (
-                <p className="mt-4 text-[11px] leading-5 text-muted">
-                  Additional measured volumes from the same manifest include {extras.join(', ')}.
-                </p>
-              ) : null;
-            })()}
-          </div>
-        </section>
-
-        <section id="flow" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr]">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">How it works</p>
-              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-ink-strong sm:text-3xl">From pipeline to decision-ready views</h2>
-              <p className="mt-3 text-sm leading-7 text-muted">
-                The platform is structured so data generation, API contracts, and UI rendering stay separate. That keeps metrics traceable and the interface predictable.
-              </p>
-              <div className="mt-6 rounded-xl border border-line bg-canvas p-5">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Project principles</p>
-                <ul className="mt-3 space-y-2">
-                  {PRINCIPLES.map((item) => (
-                    <li key={item} className="flex gap-2 text-sm leading-6 text-muted">
-                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-teal" aria-hidden="true" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
+            <div className="rounded-2xl border border-line bg-surface p-3 shadow-card">
+              <div className="relative overflow-hidden rounded-xl border border-line bg-canvas">
+                <Image src={activeShot.src} alt={`${activeShot.title} screenshot`} width={1440} height={900} loading="lazy" className="h-auto w-full" />
+              </div>
+              <div className="mt-3 flex items-center justify-between px-1">
+                <div><p className="text-sm font-medium text-ink-strong">{activeShot.title}</p><p className="text-xs text-muted">{activeShot.detail}</p></div>
+                <Link href={activeShot.href} className="inline-flex items-center gap-1 text-sm font-medium text-teal hover:text-teal-dark">Open page <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" /></Link>
               </div>
             </div>
-
-            <div className="space-y-4">
-              {FLOW.map((item) => (
-                <div key={item.step} className="rounded-xl border border-line bg-canvas p-5">
-                  <div className="flex items-center gap-3">
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-teal-light text-xs font-semibold text-teal-dark">{item.step}</span>
-                    <h3 className="text-sm font-semibold text-ink-strong">{item.title}</h3>
-                  </div>
-                  <p className="mt-3 text-sm leading-6 text-muted">{item.detail}</p>
-                </div>
-              ))}
-            </div>
           </div>
         </section>
 
-        <section id="tour" className="border-y border-line bg-surface">
+        <section id="modules" className="border-y border-line bg-surface">
           <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
             <div className="max-w-3xl">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">Quick tour</p>
-              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-ink-strong sm:text-3xl">Explore the platform in three steps</h2>
-              <p className="mt-3 text-sm leading-7 text-muted">
-                Follow the main analyst flow from executive KPIs to module drill-downs and governance checks.
-              </p>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">Modules</p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-ink-strong sm:text-3xl">{MODULES.length} dashboard modules across the healthcare workflow</h2>
+              <p className="mt-3 text-sm leading-7 text-muted">Each module uses shared filters, consistent cards/tables/charts, and drill-down behavior.</p>
             </div>
-            <div className="mt-8 grid gap-4 md:grid-cols-3">
-              {TOUR_STEPS.map((item) => (
-                <article key={item.step} className="flex flex-col rounded-xl border border-line bg-canvas p-5">
-                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-teal-light text-xs font-semibold text-teal-dark">{item.step}</span>
-                  <h3 className="mt-4 text-sm font-semibold text-ink-strong">{item.title}</h3>
-                  <p className="mt-2 flex-1 text-sm leading-6 text-muted">{item.detail}</p>
-                  <Link href={item.href} className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-teal hover:text-teal-dark">
-                    {item.cta} <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-                  </Link>
-                </article>
+            <div className="mt-6 flex flex-wrap gap-2" role="tablist" aria-label="Module categories">
+              {GROUPS.map((g) => (
+                <button key={g} type="button" role="tab" aria-selected={group === g} onClick={() => setGroup(g)} className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${group === g ? 'border-teal bg-teal-light/40 text-teal-dark' : 'border-line bg-canvas text-muted hover:text-ink'}`}>{g}</button>
+              ))}
+            </div>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {modules.map(({ icon: Icon, name, group: g, detail, href }) => (
+                <Link key={name} href={href} className="group rounded-xl border border-line bg-canvas p-4 transition hover:border-teal/40 hover:bg-surface-hover">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-alt text-teal"><Icon className="h-4 w-4" aria-hidden="true" /></div>
+                      <div><h3 className="text-sm font-semibold text-ink-strong group-hover:text-teal-dark">{name}</h3><p className="text-[11px] text-muted">{g}</p></div>
+                    </div>
+                    <ArrowRight className="mt-1 h-3.5 w-3.5 text-slate-300 group-hover:text-teal" aria-hidden="true" />
+                  </div>
+                  <p className="mt-3 text-xs leading-5 text-muted">{detail}</p>
+                </Link>
               ))}
             </div>
           </div>
         </section>
 
-        <section id="stack" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <section id="architecture" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">Tech stack</p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-ink-strong sm:text-3xl">Built with a data analytics web stack</h2>
-            <p className="mt-3 text-sm leading-7 text-muted">
-              The platform combines a modern frontend, API/data layer, and automated quality checks.
-            </p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">Architecture</p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-ink-strong sm:text-3xl">From synthetic data to decision-ready views</h2>
+            <p className="mt-3 text-sm leading-7 text-muted">The pipeline validates and quarantines records before they reach analytics marts. The frontend renders API data and never calculates business KPIs.</p>
           </div>
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {STACK_GROUPS.map((group) => (
-              <div key={group.title} className="rounded-xl border border-line bg-surface p-5 shadow-card">
-                <h3 className="text-sm font-semibold text-ink-strong">{group.title}</h3>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {group.items.map((item) => (
-                    <span key={item} className="rounded-md border border-line bg-surface-alt px-2.5 py-1 text-[11px] font-medium text-muted">
-                      {item}
-                    </span>
-                  ))}
+          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {ARCH.map((step, i) => (
+              <div key={step.name} className="relative rounded-xl border border-line bg-surface p-4 shadow-card">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex h-6 w-6 items-center justify-center rounded bg-teal-light text-[11px] font-semibold text-teal-dark">{i + 1}</span>
+                  <p className="text-sm font-semibold text-ink-strong">{step.name}</p>
                 </div>
+                <p className="mt-2 text-xs leading-5 text-muted">{step.note}</p>
               </div>
             ))}
+          </div>
+          <div className="mt-6 rounded-xl border border-line bg-surface-alt px-4 py-3 text-xs text-muted">
+            <span className="font-medium text-ink">Engineering highlights:</span> parameterized SQL, quarantine with reconciliation, CI with Docker, independent KPI verification.
           </div>
         </section>
 
         <section id="evidence" className="border-y border-line bg-surface">
           <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div className="max-w-2xl">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">Evidence</p>
-                <h2 className="mt-2 text-2xl font-semibold tracking-tight text-ink-strong sm:text-3xl">Measured checks, visible in the repo</h2>
-                <p className="mt-3 text-sm leading-7 text-muted">
-                  The project includes automated backend, lint/type/build, and Playwright checks. Counts below are measured from project runs.
-                </p>
-              </div>
-              <Link href="/methodology" className="text-sm font-medium text-teal hover:text-teal-dark">Read methodology</Link>
+            <div className="max-w-3xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">Evidence</p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-ink-strong sm:text-3xl">Measured numbers, not marketing claims</h2>
+              <p className="mt-3 text-sm leading-7 text-muted">Counts below are read from the pipeline manifest and test tooling at build time. Source: <span className="font-medium text-ink">{landingStats.manifest_path ?? 'pipeline manifest'}</span>{landingStats.generated_at ? ` (generated ${landingStats.generated_at.slice(0, 10)})` : ''}.</p>
             </div>
-
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {STATS.map((stat) => (
-                <div key={stat.label} className="rounded-xl border border-line bg-surface p-5 shadow-card">
-                  <p className="text-3xl font-semibold tracking-tight text-ink-strong tabular-nums">{stat.value}</p>
-                  <p className="mt-2 text-sm font-medium text-ink">{stat.label}</p>
-                  <p className="mt-2 text-xs leading-5 text-muted">{stat.note}</p>
-                </div>
-              ))}
+            <dl className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{evidence.map((s) => <Stat key={s.label} {...s} />)}</dl>
+            <div className="mt-6 flex flex-wrap gap-3 text-sm">
+              <Link href="/methodology" className="text-teal hover:text-teal-dark">Methodology</Link>
+              <Link href="/kpi-glossary" className="text-teal hover:text-teal-dark">KPI glossary</Link>
+              <Link href="/data-quality" className="text-teal hover:text-teal-dark">Data quality</Link>
+              {REPO_URL ? <a href={REPO_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-teal hover:text-teal-dark">Repository <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" /></a> : null}
             </div>
           </div>
         </section>
+
+        {(AUTHOR_NAME || LINKEDIN_URL || PORTFOLIO_URL || REPO_URL) ? (
+          <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+            <div className="rounded-2xl border border-line bg-surface p-6 shadow-card">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">About</p>
+              <h2 className="mt-2 text-xl font-semibold tracking-tight text-ink-strong">{AUTHOR_NAME ?? 'Project author'}</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-7 text-muted">HOSPITAL 360 is an educational healthcare analytics project demonstrating data pipeline design, API-driven KPI delivery, and dashboard UX with synthetic data only.</p>
+              <div className="mt-4 flex flex-wrap gap-3 text-sm">
+                {REPO_URL ? <a href={REPO_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-md border border-line px-3 py-2 text-muted hover:text-ink"><Github className="h-4 w-4" aria-hidden="true" /> GitHub</a> : null}
+                {LINKEDIN_URL ? <a href={LINKEDIN_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-md border border-line px-3 py-2 text-muted hover:text-ink"><ExternalLink className="h-4 w-4" aria-hidden="true" /> LinkedIn</a> : null}
+                {PORTFOLIO_URL ? <a href={PORTFOLIO_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-md border border-line px-3 py-2 text-muted hover:text-ink"><ExternalLink className="h-4 w-4" aria-hidden="true" /> Portfolio</a> : null}
+              </div>
+            </div>
+          </section>
+        ) : null}
 
         <section className="px-4 pb-16 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl rounded-2xl border border-line bg-navy px-6 py-10 text-white sm:px-10">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-light">Ready to explore</p>
             <h2 className="mt-3 max-w-3xl text-2xl font-semibold tracking-tight sm:text-3xl">Open the dashboard and follow the data from KPI to record.</h2>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-200">
-              Start with the executive overview, apply filters, compare hospitals, inspect patient journeys, and review data quality and glossary definitions.
-            </p>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-200">Start with the executive overview, apply filters, compare hospitals, inspect patient journeys, and review data quality and glossary definitions.</p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link
-                href="/overview"
-                className="inline-flex h-11 items-center gap-2 rounded-lg bg-teal px-5 text-sm font-medium text-white transition hover:bg-teal-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
-              >
-                Enter dashboard <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>
-              <Link
-                href="/kpi-glossary"
-                className="inline-flex h-11 items-center gap-2 rounded-lg border border-white/20 px-5 text-sm font-medium text-white transition hover:bg-white/10"
-              >
-                Open KPI glossary
-              </Link>
+              <Link href="/overview" className="inline-flex h-11 items-center gap-2 rounded-lg bg-teal px-5 text-sm font-medium text-white hover:bg-teal-dark">Enter dashboard <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+              <Link href="/kpi-glossary" className="inline-flex h-11 items-center gap-2 rounded-lg border border-white/20 px-5 text-sm font-medium text-white hover:bg-white/10">Open KPI glossary</Link>
             </div>
           </div>
         </section>
@@ -415,7 +281,7 @@ export default function LandingPage() {
       <footer className="border-t border-line px-4 py-6 sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-7xl flex-col gap-2 text-[11px] text-muted sm:flex-row sm:items-center sm:justify-between">
           <p>HOSPITAL 360 · Synthetic healthcare analytics platform</p>
-          <p>Educational project only · Not for clinical use</p>
+          <p>Educational project only · Synthetic data · Not for clinical use</p>
         </div>
       </footer>
     </div>

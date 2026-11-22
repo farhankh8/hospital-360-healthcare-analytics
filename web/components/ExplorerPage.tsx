@@ -76,7 +76,7 @@ export function ExplorerPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <PageHeading title="Data Explorer" description="Inspect validated, record-level datasets with schema, numeric range filters and source lineage." badge={<Badge tone="info">Record level</Badge>} />
 
       <Card className="p-5">

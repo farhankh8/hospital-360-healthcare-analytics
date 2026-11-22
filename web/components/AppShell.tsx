@@ -187,7 +187,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-canvas text-ink">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-md focus:bg-teal focus:px-3 focus:py-2 focus:text-sm focus:text-white">Skip to main content</a>
-      <aside aria-label="Primary navigation" className={cn('fixed inset-y-0 left-0 z-40 hidden bg-navy transition-all lg:block', collapsed ? 'w-[72px]' : 'w-[260px]')}>{sidebar}</aside>
+      <aside aria-label="Primary navigation" className={cn('fixed inset-y-0 left-0 z-40 hidden h-dvh bg-navy transition-all lg:block', collapsed ? 'w-[72px]' : 'w-[260px]')}>{sidebar}</aside>
 
       {mobileNavOpen && (
         <div className="fixed inset-0 z-50 flex lg:hidden">
@@ -201,9 +201,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       )}
 
-      <div className={cn('transition-all', collapsed ? 'lg:pl-[72px]' : 'lg:pl-[260px]')}>
-        <header className="sticky top-0 z-30 border-b border-line bg-surface/95 backdrop-blur">
-          <div className="flex h-16 items-center gap-3 px-4 lg:px-6">
+      <div className={cn('min-w-0 overflow-x-clip transition-all', collapsed ? 'lg:pl-[72px]' : 'lg:pl-[260px]')}>
+        <header className="sticky top-0 z-30 min-w-0 border-b border-line bg-surface/95 backdrop-blur">
+          <div className="flex h-16 items-center gap-3 px-4 sm:px-6 lg:px-8">
             <button type="button" onClick={() => setMobileNavOpen(true)} className="rounded p-1.5 text-muted hover:bg-canvas lg:hidden" aria-label="Open navigation">
               <Menu className="h-5 w-5" />
             </button>
@@ -258,13 +258,13 @@ export function AppShell({ children }: { children: ReactNode }) {
               </div>
             </div>
           </div>
-          <div className="border-t border-line px-4 py-2.5 lg:px-6">
+          <div className="border-t border-line px-4 py-2.5 sm:px-6 lg:px-8">
             <FilterBar />
           </div>
         </header>
 
-        <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-[1600px] px-4 py-6 outline-none lg:px-6">{children}</main>
-        <footer className="border-t border-line px-4 py-4 text-center text-[11px] text-muted lg:px-6">
+        <main id="main-content" tabIndex={-1} className="w-full min-w-0 max-w-[1800px] px-4 py-6 outline-none sm:px-6 lg:px-8">{children}</main>
+        <footer className="border-t border-line px-4 py-4 text-center text-[11px] text-muted sm:px-6 lg:px-8">
           HOSPITAL 360 · Educational analytics project using entirely synthetic data · Not for clinical use
         </footer>
       </div>

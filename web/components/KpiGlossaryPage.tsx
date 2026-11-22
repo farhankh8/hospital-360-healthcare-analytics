@@ -73,7 +73,7 @@ export function KpiGlossaryPage() {
   };
 
   return (
-    <div className="space-y-6" data-testid="kpi-glossary-page">
+    <div className="min-w-0 space-y-6" data-testid="kpi-glossary-page">
       <PageHeading
         title="KPI Glossary"
         description="Every metric displayed in HOSPITAL 360 is defined by the API, not by the frontend."

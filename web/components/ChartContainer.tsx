@@ -113,7 +113,7 @@ export function ChartContainer({ config, data, loading, error, onRetry }: ChartC
           </div>
         }
       />
-      <div className="min-h-[280px] flex-1 p-2 pt-0">{body}</div>
+      <div className="min-h-[280px] min-w-0 flex-1 p-2 pt-0">{body}</div>
     </Card>
   );
 }

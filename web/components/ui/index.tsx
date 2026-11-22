@@ -277,24 +277,24 @@ export function DateRangePicker({
     'h-9 w-full rounded-sm border border-line bg-surface px-2.5 text-xs text-ink outline-none transition focus:border-teal focus:ring-2 focus:ring-teal/15';
   const resolvedPresets = presets ?? (showPresets ? defaultDateRangePresets() : []);
   return (
-    <div className={cn('space-y-2', className)}>
-      <div className="flex items-center gap-2">
+    <div className={cn('min-w-0 space-y-2', className)}>
+      <div className="flex min-w-0 items-center gap-2">
         <input
           type="date"
           aria-label="Date from"
           value={from}
           max={to || undefined}
           onChange={(event) => onFromChange(event.target.value)}
-          className={inputClass}
+          className={cn(inputClass, 'min-w-0 flex-1')}
         />
-        <span className="text-xs text-muted">to</span>
+        <span className="shrink-0 text-xs text-muted">to</span>
         <input
           type="date"
           aria-label="Date to"
           value={to}
           min={from || undefined}
           onChange={(event) => onToChange(event.target.value)}
-          className={inputClass}
+          className={cn(inputClass, 'min-w-0 flex-1')}
         />
       </div>
       {resolvedPresets.length > 0 && (

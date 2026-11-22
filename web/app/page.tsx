@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import {
@@ -46,15 +45,6 @@ const MODULES: Module[] = [
 
 const GROUPS = ['All', 'Executive', 'Operations', 'Finance', 'Workforce', 'Quality', 'Governance'] as const;
 
-const GALLERY = [
-  { src: '/landing/overview-1440.png', title: 'Network Overview', detail: 'Executive KPIs and trends', href: '/overview' },
-  { src: '/landing/hospitals-1440.png', title: 'Hospital Comparison', detail: 'Benchmarks across hospitals', href: '/hospitals' },
-  { src: '/landing/finance-1440.png', title: 'Finance & Revenue', detail: 'Revenue, collections, leakage', href: '/finance' },
-  { src: '/landing/claims-1440.png', title: 'Claims & Denials', detail: 'Payer mix and adjudication', href: '/claims' },
-  { src: '/landing/data-quality-1440.png', title: 'Data Quality', detail: 'Freshness and validation checks', href: '/data-quality' },
-  { src: '/landing/pipeline-1440.png', title: 'Pipeline', detail: 'Run history and lineage', href: '/pipeline' },
-];
-
 const ARCH = [
   { name: 'Generator', note: 'Synthetic healthcare records' },
   { name: 'Bronze', note: landingStats.bronze_rows ? `${fmtCompact(landingStats.bronze_rows)} rows ingested` : 'Raw ingested tables' },
@@ -79,7 +69,6 @@ function Stat({ value, label, note }: { value: string; label: string; note: stri
 export default function LandingPage() {
   const { theme, toggleTheme } = useTheme();
   const [group, setGroup] = useState<(typeof GROUPS)[number]>('All');
-  const [activeShot, setActiveShot] = useState(GALLERY[0]);
 
   const modules = useMemo(() => (group === 'All' ? MODULES : MODULES.filter((m) => m.group === group)), [group]);
   const productStats = [
@@ -108,7 +97,6 @@ export default function LandingPage() {
           </div>
           <nav className="hidden items-center gap-5 md:flex">
             <a href="#modules" className="text-xs font-medium text-muted hover:text-ink">Modules</a>
-            <a href="#preview" className="text-xs font-medium text-muted hover:text-ink">Preview</a>
             <a href="#architecture" className="text-xs font-medium text-muted hover:text-ink">Architecture</a>
             <a href="#evidence" className="text-xs font-medium text-muted hover:text-ink">Evidence</a>
           </nav>
@@ -131,53 +119,15 @@ export default function LandingPage() {
       <main>
         <section className="border-b border-line bg-surface">
           <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
-            <div className="grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:items-center">
-              <div>
-                <p className="inline-flex items-center rounded-full border border-line bg-surface-alt px-3 py-1 text-[11px] font-medium text-muted">Synthetic multi-hospital analytics platform</p>
-                <h1 className="mt-5 max-w-3xl text-4xl font-semibold tracking-tight text-ink-strong sm:text-5xl sm:leading-[1.1]">Operational clarity for every hospital decision.</h1>
-                <p className="mt-5 max-w-2xl text-base leading-7 text-muted">HOSPITAL 360 is an API-driven healthcare analytics workspace for operations, finance, quality, workforce, and governance. All data is synthetic and for educational use only.</p>
-                <div className="mt-8 flex flex-wrap items-center gap-3">
-                  <Link href="/overview" className="inline-flex h-11 items-center gap-2 rounded-lg bg-navy px-5 text-sm font-medium text-white hover:bg-navy-light">Enter dashboard <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
-                  {REPO_URL ? <a href={REPO_URL} target="_blank" rel="noreferrer" className="inline-flex h-11 items-center gap-2 rounded-lg border border-line bg-surface px-5 text-sm font-medium text-ink hover:bg-surface-hover"><Github className="h-4 w-4" aria-hidden="true" /> View on GitHub</a> : <Link href="/data-quality" className="inline-flex h-11 items-center gap-2 rounded-lg border border-line bg-surface px-5 text-sm font-medium text-ink hover:bg-surface-hover">View data quality</Link>}
-                </div>
-                <dl className="mt-10 grid gap-4 sm:grid-cols-3">{productStats.map((s) => <Stat key={s.label} {...s} />)}</dl>
+            <div className="max-w-4xl">
+              <p className="inline-flex items-center rounded-full border border-line bg-surface-alt px-3 py-1 text-[11px] font-medium text-muted">Synthetic multi-hospital analytics platform</p>
+              <h1 className="mt-5 max-w-3xl text-4xl font-semibold tracking-tight text-ink-strong sm:text-5xl sm:leading-[1.1]">Operational clarity for every hospital decision.</h1>
+              <p className="mt-5 max-w-2xl text-base leading-7 text-muted">HOSPITAL 360 is an API-driven healthcare analytics workspace for operations, finance, quality, workforce, and governance. All data is synthetic and for educational use only.</p>
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <Link href="/overview" className="inline-flex h-11 items-center gap-2 rounded-lg bg-navy px-5 text-sm font-medium text-white hover:bg-navy-light">Enter dashboard <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+                {REPO_URL ? <a href={REPO_URL} target="_blank" rel="noreferrer" className="inline-flex h-11 items-center gap-2 rounded-lg border border-line bg-surface px-5 text-sm font-medium text-ink hover:bg-surface-hover"><Github className="h-4 w-4" aria-hidden="true" /> View on GitHub</a> : <Link href="/data-quality" className="inline-flex h-11 items-center gap-2 rounded-lg border border-line bg-surface px-5 text-sm font-medium text-ink hover:bg-surface-hover">View data quality</Link>}
               </div>
-              <div className="rounded-2xl border border-line bg-canvas p-3 shadow-card">
-                <div className="flex items-center gap-1.5 border-b border-line px-2 pb-3">
-                  <span className="h-2.5 w-2.5 rounded-full bg-slate-300" /><span className="h-2.5 w-2.5 rounded-full bg-slate-300" /><span className="h-2.5 w-2.5 rounded-full bg-slate-300" />
-                  <span className="ml-3 text-[11px] text-muted">Network Overview</span>
-                </div>
-                <div className="relative mt-3 overflow-hidden rounded-xl border border-line bg-surface">
-                  <Image src="/landing/overview-1440.png" alt="HOSPITAL 360 Network Overview dashboard showing KPI cards, trends, and charts" width={1440} height={900} priority className="h-auto w-full" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section id="preview" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="max-w-3xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">Workspace preview</p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-ink-strong sm:text-3xl">See the dashboard before you enter it</h2>
-            <p className="mt-3 text-sm leading-7 text-muted">Real screenshots from the application. Select a module to preview its layout and metrics.</p>
-          </div>
-          <div className="mt-8 grid gap-6 lg:grid-cols-[280px_1fr]">
-            <div className="flex flex-row gap-2 overflow-x-auto lg:flex-col lg:overflow-visible">
-              {GALLERY.map((shot) => (
-                <button key={shot.src} type="button" onClick={() => setActiveShot(shot)} className={`min-w-[180px] rounded-lg border px-3 py-3 text-left transition lg:min-w-0 ${activeShot.src === shot.src ? 'border-teal bg-teal-light/30' : 'border-line bg-surface hover:bg-surface-hover'}`}>
-                  <p className="text-sm font-medium text-ink-strong">{shot.title}</p>
-                  <p className="mt-0.5 text-xs text-muted">{shot.detail}</p>
-                </button>
-              ))}
-            </div>
-            <div className="rounded-2xl border border-line bg-surface p-3 shadow-card">
-              <div className="relative overflow-hidden rounded-xl border border-line bg-canvas">
-                <Image src={activeShot.src} alt={`${activeShot.title} screenshot`} width={1440} height={900} loading="lazy" className="h-auto w-full" />
-              </div>
-              <div className="mt-3 flex items-center justify-between px-1">
-                <div><p className="text-sm font-medium text-ink-strong">{activeShot.title}</p><p className="text-xs text-muted">{activeShot.detail}</p></div>
-                <Link href={activeShot.href} className="inline-flex items-center gap-1 text-sm font-medium text-teal hover:text-teal-dark">Open page <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" /></Link>
-              </div>
+              <dl className="mt-10 grid gap-4 sm:grid-cols-3">{productStats.map((s) => <Stat key={s.label} {...s} />)}</dl>
             </div>
           </div>
         </section>

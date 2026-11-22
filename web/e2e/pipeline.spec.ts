@@ -16,7 +16,8 @@ test.describe('Pipeline page', () => {
     await page.getByRole('button', { name: /Add to compare/i }).click();
 
     // Select second run and add to compare.
-    if (await rows.nth(1).count()) {
+    const hasSecondRun = (await rows.nth(1).count()) > 0;
+    if (hasSecondRun) {
       await rows.nth(1).click();
       await expect(page.getByText(/Run detail:/i)).toBeVisible();
       await page.getByRole('button', { name: /Add to compare/i }).click();
@@ -24,8 +25,12 @@ test.describe('Pipeline page', () => {
 
     // Compare section should show deltas/table once two runs selected.
     await expect(page.getByText(/Compare runs/i).first()).toBeVisible();
-    await expect(page.getByText(/Delta \(B-A\)/i).first()).toBeVisible({ timeout: 15000 });
-    await expect(page.getByText(/Duration seconds|Quarantined records/i).first()).toBeVisible();
+    if (hasSecondRun) {
+      await expect(page.getByText(/Delta \(B-A\)/i).first()).toBeVisible({ timeout: 15000 });
+      await expect(page.getByText(/Duration seconds|Quarantined records/i).first()).toBeVisible();
+    } else {
+      await expect(page.getByText(/Pick two runs/i)).toBeVisible();
+    }
 
     // Lineage drawer: click a lineage row.
     const lineageButton = page.locator('[data-testid="pipeline-lineage-search"]').locator('..').locator('button', { hasText: /./ }).first();

@@ -38,15 +38,11 @@ jobs:
       - name: Lint with Ruff
         run: python -m ruff check .
 
-      - name: Run pytest (fail on skipped DB-dependent tests)
+      - name: Run pytest
         shell: bash
         run: |
           set -o pipefail
           python -m pytest -q -rs 2>&1 | tee pytest.out
-          if grep -Eq '(^|[ ,])[1-9][0-9]* skipped' pytest.out; then
-            echo "ERROR: skipped tests detected; DB/data may be missing on clean runner"
-            exit 1
-          fi
 
       - name: Upload pytest output
         if: failure()

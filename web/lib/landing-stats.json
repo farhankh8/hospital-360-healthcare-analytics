@@ -1,0 +1,23 @@
+{
+  "manifest_run_id": "RUN_20261121_001",
+  "manifest_path": "data/manifests/pipeline_RUN_20261121_001.json",
+  "hospitals": 10,
+  "patients": 15200,
+  "encounters": 82000,
+  "appointments": 136800,
+  "bronze_rows": 1588637,
+  "bronze_tables": 41,
+  "valid_records": 1585844,
+  "quarantined_records": 2793,
+  "gold_tables": 12,
+  "doctors": 690,
+  "staff": 2980,
+  "beds": 3450,
+  "admissions": 24804,
+  "lab_orders": 106000,
+  "invoices": null,
+  "claims": null,
+  "pytest_collected": 159,
+  "playwright_tests": 38,
+  "generated_at": "2026-11-22T05:11:36.794311+00:00"
+}

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { landingStats, fmt, fmtCompact } from '@/lib/landing-stats';
 import {
   Activity,
   ArrowRight,
@@ -23,21 +24,14 @@ import {
   WalletCards,
 } from 'lucide-react';
 
-const STATS = [
-  { value: '21', label: 'Analytics modules', note: 'Operations, finance, quality, workforce, and governance routes' },
-  { value: '159', label: 'Pytest checks', note: 'Measured passing with 2 warnings' },
-  { value: '38', label: 'Playwright checks', note: 'Measured end-to-end UI coverage' },
-  { value: '24/24', label: 'Static build pages', note: 'Measured Next.js production build' },
-];
-
 const DATA_SCALE = [
-  { value: '10', label: 'Hospitals', note: 'Synthetic multi-hospital network in dim_hospital' },
-  { value: '15,200', label: 'Patients', note: 'Patient records in the generated dataset' },
-  { value: '82,000', label: 'Encounters', note: 'Outpatient, inpatient, and emergency encounters' },
-  { value: '136,800', label: 'Appointments', note: 'Scheduled appointment records' },
-  { value: '1.59M', label: 'Bronze rows', note: '1,588,637 total rows ingested across 41 bronze tables' },
-  { value: '12', label: 'Gold tables', note: 'Analytics-ready marts for dashboard consumption' },
-];
+  landingStats.hospitals != null ? { value: fmt(landingStats.hospitals)!, label: 'Hospitals', note: 'Synthetic multi-hospital network in dim_hospital' } : null,
+  landingStats.patients != null ? { value: fmt(landingStats.patients)!, label: 'Patients', note: 'Patient records in the generated dataset' } : null,
+  landingStats.encounters != null ? { value: fmt(landingStats.encounters)!, label: 'Encounters', note: 'Outpatient, inpatient, and emergency encounters' } : null,
+  landingStats.appointments != null ? { value: fmt(landingStats.appointments)!, label: 'Appointments', note: 'Scheduled appointment records' } : null,
+  landingStats.bronze_rows != null ? { value: fmtCompact(landingStats.bronze_rows)!, label: 'Bronze rows', note: `${fmt(landingStats.bronze_rows)} total rows ingested across ${fmt(landingStats.bronze_tables) ?? 'measured'} bronze tables` } : null,
+  landingStats.gold_tables != null ? { value: fmt(landingStats.gold_tables)!, label: 'Gold tables', note: 'Analytics-ready marts for dashboard consumption' } : null,
+].filter((item): item is { value: string; label: string; note: string } => item !== null);
 
 const TOUR_STEPS = [
   { step: '1', title: 'Start at Executive Overview', detail: 'Review system KPIs, trends, and compare periods.', href: '/overview', cta: 'Open overview' },
@@ -74,6 +68,12 @@ const MODULES = [
   { icon: BookOpen, name: 'KPI Glossary', group: 'Governance', href: '/kpi-glossary', detail: 'Metric definitions, formulas, and ownership.' },
   { icon: FileText, name: 'Methodology', group: 'Governance', href: '/methodology', detail: 'How synthetic data, validation, and metrics are produced and presented.' },
 ];
+
+const STATS = [
+  { value: String(MODULES.length), label: 'Analytics modules', note: 'Operations, finance, quality, workforce, and governance routes' },
+  landingStats.pytest_collected != null ? { value: fmt(landingStats.pytest_collected)!, label: 'Pytest checks', note: 'Measured collected backend tests' } : null,
+  landingStats.playwright_tests != null ? { value: fmt(landingStats.playwright_tests)!, label: 'Playwright checks', note: 'Measured end-to-end UI coverage' } : null,
+].filter((item): item is { value: string; label: string; note: string } => item !== null);
 
 const FLOW = [
   {
@@ -245,7 +245,7 @@ export default function LandingPage() {
                 <h2 className="mt-2 text-2xl font-semibold tracking-tight text-ink-strong sm:text-3xl">Synthetic data, measured at pipeline scale</h2>
                 <p className="mt-3 text-sm leading-7 text-muted">
                   The dashboard runs on generated healthcare data. Counts below are measured from the latest pipeline manifest
-                  (<span className="font-medium text-ink">RUN_20261121_001</span>), not estimates.
+                  {landingStats.manifest_run_id ? <> (<span className="font-medium text-ink">{landingStats.manifest_run_id}</span>)</> : ''}, not estimates.
                 </p>
               </div>
             </div>
@@ -260,9 +260,22 @@ export default function LandingPage() {
               ))}
             </div>
 
-            <p className="mt-4 text-[11px] leading-5 text-muted">
-              Additional measured volumes from the same manifest include 690 doctors, 2,980 staff, 3,450 beds, 24,804 admissions, 106,000 lab orders, 66,000 invoices, and 52,000 claims.
-            </p>
+            {(() => {
+              const extras = [
+                landingStats.doctors != null ? `${fmt(landingStats.doctors)} doctors` : null,
+                landingStats.staff != null ? `${fmt(landingStats.staff)} staff` : null,
+                landingStats.beds != null ? `${fmt(landingStats.beds)} beds` : null,
+                landingStats.admissions != null ? `${fmt(landingStats.admissions)} admissions` : null,
+                landingStats.lab_orders != null ? `${fmt(landingStats.lab_orders)} lab orders` : null,
+                landingStats.invoices != null ? `${fmt(landingStats.invoices)} invoices` : null,
+                landingStats.claims != null ? `${fmt(landingStats.claims)} claims` : null,
+              ].filter(Boolean) as string[];
+              return extras.length ? (
+                <p className="mt-4 text-[11px] leading-5 text-muted">
+                  Additional measured volumes from the same manifest include {extras.join(', ')}.
+                </p>
+              ) : null;
+            })()}
           </div>
         </section>
 

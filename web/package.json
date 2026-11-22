@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "python ../scripts/generate_landing_stats.py || echo landing-stats generation skipped",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

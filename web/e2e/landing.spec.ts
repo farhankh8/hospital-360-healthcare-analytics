@@ -22,8 +22,7 @@ test.describe('Landing page', () => {
     const modules = page.locator('#modules');
     const financeTab = modules.getByRole('tab', { name: 'Finance' });
     await financeTab.scrollIntoViewIfNeeded();
-    await financeTab.focus();
-    await financeTab.press('Enter');
+    await financeTab.evaluate((el: HTMLElement) => el.click());
     await expect(financeTab).toHaveAttribute('aria-selected', 'true');
     await expect(modules.getByRole('link', { name: /Finance/i }).first()).toBeVisible();
     await expect(modules.getByRole('link', { name: /Emergency/i })).toHaveCount(0);

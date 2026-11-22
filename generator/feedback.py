@@ -92,7 +92,7 @@ def generate_feedback(seed: int, refs: ReferenceData, encounters: pd.DataFrame,
     for hid in refs.hospital_ids:
         m = inc_hosp == hid
         inc_dept[m] = rng.choice(refs.dept_ids_by_hospital[hid], size=int(m.sum()))
-    inc_day = sample_event_days(rng, n_incidents)
+    inc_day = np.minimum(sample_event_days(rng, n_incidents), MAX_DAY)
     inc_cat = rng.choice(["Fall", "Medication", "Infection", "Safety", "Other"],
                          size=n_incidents, p=[0.22, 0.24, 0.20, 0.21, 0.13])
     severity = rng.choice(["Low", "Medium", "High", "Critical"],

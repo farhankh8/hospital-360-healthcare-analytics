@@ -1,21 +1,53 @@
 'use client';
 
 import { useMemo, useState, type FormEvent } from 'react';
-import { useQueries } from '@tanstack/react-query';
-import Link from 'next/link';
+import { Download, Route as RouteIcon, Search, Sparkles, UserRound } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Route as RouteIcon, Search, UserRound } from 'lucide-react';
-import { apiGet, useApiQuery } from '@/lib/api';
+import { apiExportCsv, apiGet, useApiQuery } from '@/lib/api';
+import { useFilters } from '@/lib/filters';
 import { NO_FILTERS, type TableRow } from '@/lib/types';
 import { displayValue } from '@/lib/utils';
 import { useDrilldown } from './DrilldownDrawer';
 import { Badge, Card, CardHeader, EmptyState, ErrorState, PageHeading, Skeleton } from './ui';
 
-const DATE_HINTS = ['date', '_at', 'time', 'month'];
+type JourneyPayload = {
+  patient?: Record<string, unknown>;
+  encounter_summary?: Record<string, unknown>;
+  admission_summary?: Record<string, unknown>;
+  billing_summary?: Record<string, unknown>;
+  claim_summary?: Record<string, unknown>;
+  feedback_summary?: Record<string, unknown>;
+  appointments?: TableRow[];
+  encounters?: TableRow[];
+  admissions?: TableRow[];
+  transfers?: TableRow[];
+  procedures?: TableRow[];
+  lab_orders?: TableRow[];
+  lab_results?: TableRow[];
+  prescriptions?: TableRow[];
+  dispensing?: TableRow[];
+  diagnoses?: TableRow[];
+  diagnoses_note?: string;
+  billing_claims?: TableRow[];
+  invoices?: TableRow[];
+  payments?: TableRow[];
+  feedback?: TableRow[];
+  timeline?: Array<{ event_type: string; event_label: string; event_date?: string; event_id?: string; table?: string; detail?: TableRow }>;
+  event_types?: string[];
+  synthetic_notice?: string;
+};
 
-function firstDate(row: TableRow): [string, string] | null {
-  const entry = Object.entries(row).find(([key, value]) => DATE_HINTS.some((hint) => key.toLowerCase().includes(hint)) && value !== null && value !== undefined && value !== '');
-  return entry ? [entry[0], String(entry[1])] : null;
+function inferIdParam(id: string): { patient_id?: string; encounter_id?: string; admission_id?: string } {
+  const v = id.trim().toUpperCase();
+  if (v.startsWith('ENC')) return { encounter_id: id.trim() };
+  if (v.startsWith('ADM')) return { admission_id: id.trim() };
+  return { patient_id: id.trim() };
+}
+
+function fmtMoney(v: unknown): string {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return '$0';
+  return `$${n.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
 }
 
 export function PatientJourneyPage() {
@@ -23,169 +55,182 @@ export function PatientJourneyPage() {
   const router = useRouter();
   const pathname = usePathname();
   const { openDrilldown } = useDrilldown();
-  const patientId = searchParams.get('patient_id') || '';
-  const [input, setInput] = useState(patientId);
-  const [datasetFilter, setDatasetFilter] = useState('');
+  const { filters } = useFilters();
+  const idParam = searchParams.get('patient_id') || searchParams.get('encounter_id') || searchParams.get('admission_id') || '';
+  const [input, setInput] = useState(idParam);
+  const [eventFilter, setEventFilter] = useState<string>('');
 
-  const datasetsQuery = useApiQuery<unknown>('journey-datasets', '/explorer/datasets', NO_FILTERS);
-  const datasets = useMemo(() => {
-    const data = datasetsQuery.data?.data;
-    const list = Array.isArray(data) ? data : data && typeof data === 'object' ? (Object.values(data as Record<string, unknown>).find(Array.isArray) as unknown[]) || [] : [];
-    return list
-      .map((item) => {
-        if (typeof item === 'string') return { value: item, label: item.replace(/_/g, ' ') };
-        if (item && typeof item === 'object') {
-          const row = item as Record<string, unknown>;
-          const value = String(row.dataset_name ?? row.name ?? row.id ?? row.table_name ?? row.dataset ?? '');
-          return value ? { value, label: String(row.label ?? row.display_name ?? value.replace(/_/g, ' ')) } : null;
-        }
-        return null;
-      })
-      .filter((item): item is { value: string; label: string } => Boolean(item));
-  }, [datasetsQuery.data]);
+  const idQuery = useMemo(() => inferIdParam(idParam), [idParam]);
 
-  const results = useQueries({
-    queries: datasets.map((dataset) => ({
-      queryKey: ['patient-journey', dataset.value, patientId],
-      queryFn: ({ signal }: { signal: AbortSignal }) =>
-        apiGet<TableRow[]>(`/explorer/${encodeURIComponent(dataset.value)}/records`, NO_FILTERS, { params: { search: patientId, page_size: 500 }, signal }),
-      enabled: Boolean(patientId),
-      staleTime: 60_000,
-    })),
-  });
-
-  const events = useMemo(
-    () =>
-      results
-        .flatMap((result, index) => {
-          const rows = Array.isArray(result.data?.data) ? result.data.data : [];
-          return rows.map((row) => ({ row, dataset: datasets[index]?.label || datasets[index]?.value || '', datasetKey: datasets[index]?.value || '' }));
-        })
-        .map((item) => ({ ...item, date: firstDate(item.row) }))
-        .filter((item) => item.date)
-        .sort((a, b) => (a.date?.[1] || '').localeCompare(b.date?.[1] || '')),
-    [results, datasets],
+  const journeyQuery = useApiQuery<JourneyPayload>(
+    'patient-journey',
+    '/journey',
+    filters,
+    { ...idQuery, ...(eventFilter ? { event_type: eventFilter } : {}) },
+    Boolean(idParam),
   );
 
-  const visibleEvents = useMemo(
-    () => (datasetFilter ? events.filter((event) => event.datasetKey === datasetFilter || event.dataset === datasetFilter) : events),
-    [events, datasetFilter],
-  );
+  const payload = (journeyQuery.data?.data as JourneyPayload | undefined) ?? null;
+  const timeline = Array.isArray(payload?.timeline) ? payload.timeline : [];
+  const eventTypes = Array.isArray(payload?.event_types) ? payload.event_types : [];
+  const patient = (payload?.patient as Record<string, unknown> | undefined) ?? null;
 
-  const counts = useMemo(() => {
-    const map = new Map<string, number>();
-    events.forEach((event) => map.set(event.datasetKey, (map.get(event.datasetKey) || 0) + 1));
-    return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
-  }, [events]);
-
-  const totals = useMemo(() => {
-    let billed = 0;
-    let paid = 0;
-    events.forEach(({ row, datasetKey }) => {
-      if (!/invoice|billing|claim|payment/i.test(datasetKey)) return;
-      Object.entries(row).forEach(([key, value]) => {
-        const numeric = typeof value === 'number' ? value : typeof value === 'string' && value.trim() !== '' && !Number.isNaN(Number(value)) ? Number(value) : null;
-        if (numeric === null) return;
-        if (/billed|gross|claimed_amount|net_amount|amount/i.test(key)) billed += numeric;
-        if (/paid_amount|collected|paid/i.test(key)) paid += numeric;
-      });
-    });
-    return { billed, paid };
-  }, [events]);
-
-  const submit = (event: FormEvent) => {
-    event.preventDefault();
-    if (!input.trim()) return;
-    setDatasetFilter('');
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    const id = input.trim();
     const params = new URLSearchParams(searchParams.toString());
-    params.set('patient_id', input.trim());
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    params.delete('patient_id'); params.delete('encounter_id'); params.delete('admission_id');
+    if (id) {
+      const inferred = inferIdParam(id);
+      const [k, v] = Object.entries(inferred)[0];
+      params.set(k, String(v));
+    }
+    router.push(`${pathname}?${params.toString()}`);
   };
 
-  const isLoading = datasetsQuery.isLoading || (Boolean(patientId) && results.some((result) => result.isLoading));
-  const hasError = datasetsQuery.isError || results.some((result) => result.isError);
+  const trySample = async () => {
+    try {
+      const res = await apiGet<{ patient_id?: string }>('/journey/sample-patient', NO_FILTERS);
+      const pid = String((res.data as any)?.patient_id || '');
+      if (!pid) return;
+      setInput(pid);
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete('encounter_id'); params.delete('admission_id');
+      params.set('patient_id', pid);
+      router.push(`${pathname}?${params.toString()}`);
+    } catch {
+      // ignore - button is convenience
+    }
+  };
+
+  const exportEvents = async () => {
+    if (!idParam) return;
+    await apiExportCsv('/journey/events', filters, { ...idQuery, ...(eventFilter ? { event_type: eventFilter } : {}) }, `patient-journey-${idParam}`);
+  };
+
+  const isLoading = journeyQuery.isLoading;
+  const hasError = journeyQuery.isError;
 
   return (
-    <div className="space-y-6">
-      <PageHeading title="Patient Journey" description="Follow one synthetic identity through encounters, tests, billing and feedback." badge={<Badge tone="info">Synthetic identity</Badge>} />
+    <div className="space-y-5" data-testid="patient-journey-page">
+      <PageHeading
+        title="Patient Journey"
+        description="Chronological synthetic patient timeline across encounters, admissions, labs, medications, billing, claims, and feedback."
+        badge="Synthetic IDs only"
+      />
 
-      <Card className="p-5">
-        <form onSubmit={submit} className="flex flex-wrap items-end gap-3">
-          <div className="min-w-[300px] flex-1">
-            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-400">Patient / encounter / admission ID</label>
-            <div className="relative">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-              <input
-                value={input}
-                onChange={(event) => setInput(event.target.value)}
-                placeholder="e.g. PAT000123, ENC000456 or ADM000789"
-                data-testid="journey-search"
-                className="h-9 w-full rounded-md border border-line pl-9 pr-3 text-xs outline-none focus:border-teal focus:ring-2 focus:ring-teal/15"
-              />
+      <Card className="border-l-4 border-l-teal p-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <form onSubmit={submit} className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-end">
+            <div className="flex-1">
+              <label htmlFor="journey-id" className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted">Patient / Encounter / Admission ID</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" />
+                <input
+                  id="journey-id"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="e.g. PAT003840, ENC..., ADM..."
+                  data-testid="journey-search"
+                  className="h-9 w-full rounded-md border border-line pl-9 pr-3 text-xs outline-none focus:border-teal focus:ring-2 focus:ring-teal/15"
+                />
+              </div>
             </div>
+            <button type="submit" className="h-9 rounded-md bg-navy px-4 text-xs font-medium text-white hover:bg-navy-light">View journey</button>
+          </form>
+          <div className="flex gap-2">
+            <button type="button" onClick={trySample} data-testid="journey-sample" className="inline-flex h-9 items-center gap-1.5 rounded-md border border-line px-3 text-xs font-medium text-muted hover:border-teal hover:text-teal">
+              <Sparkles className="h-3.5 w-3.5" /> Try a sample patient
+            </button>
+            <button type="button" onClick={exportEvents} disabled={!idParam} data-testid="journey-export" className="inline-flex h-9 items-center gap-1.5 rounded-md border border-line px-3 text-xs font-medium text-muted hover:border-teal hover:text-teal disabled:opacity-40">
+              <Download className="h-3.5 w-3.5" /> Export CSV
+            </button>
           </div>
-          <button type="submit" className="h-9 rounded-md bg-navy px-4 text-xs font-medium text-white hover:bg-navy-light">View journey</button>
-        </form>
-        <p className="mt-3 text-[11px] text-slate-400">The search runs across all {datasets.length} record datasets and is not limited by the global date range.</p>
+        </div>
+        <p className="mt-3 text-[11px] text-muted">{String(payload?.synthetic_notice || 'Synthetic data only. No real patient identities, no clinical recommendations.')}</p>
       </Card>
 
-      {!patientId && <Card><EmptyState message="Enter a synthetic ID" hint="All identities in this project are synthetic." /></Card>}
-      {hasError && <Card><ErrorState message="Journey records could not be loaded." /></Card>}
-      {patientId && isLoading && <Card className="p-5"><Skeleton className="h-48 w-full" /></Card>}
+      {!idParam && <Card><EmptyState message="Enter a synthetic ID" hint="Search by patient_id, encounter_id, or admission_id. All identities are synthetic." /></Card>}
+      {hasError && <Card><ErrorState message={`Journey could not be loaded. ${String((journeyQuery.error as any)?.message || '')}`.trim()} /></Card>}
+      {idParam && isLoading && <Card className="p-5"><Skeleton className="h-48 w-full" /></Card>}
 
-      {patientId && !isLoading && !hasError && (
+      {idParam && !isLoading && !hasError && payload && (
         <>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Card className="p-4"><p className="text-[10px] uppercase tracking-wide text-slate-400">Synthetic ID</p><p className="mt-1 text-lg font-semibold text-navy">{patientId}</p></Card>
-            <Card className="p-4"><p className="text-[10px] uppercase tracking-wide text-slate-400">Timeline events</p><p className="mt-1 text-lg font-semibold text-navy">{events.length}</p></Card>
-            <Card className="p-4"><p className="text-[10px] uppercase tracking-wide text-slate-400">Billed (invoices/claims)</p><p className="mt-1 text-lg font-semibold text-navy">${totals.billed.toLocaleString('en-US')}</p></Card>
-            <Card className="p-4"><p className="text-[10px] uppercase tracking-wide text-slate-400">Paid (invoices/claims)</p><p className="mt-1 text-lg font-semibold text-navy">${totals.paid.toLocaleString('en-US')}</p></Card>
+            <Card className="p-4" data-testid="journey-card-patient"><p className="text-[10px] uppercase tracking-wide text-muted">Patient</p><p className="mt-1 text-sm font-semibold text-navy">{String(patient?.patient_id || idParam)}</p><p className="text-[11px] text-muted">{String(patient?.gender || '')} {patient?.age_group ? `• ${patient.age_group}` : ''} {patient?.patient_type ? `• ${patient.patient_type}` : ''}</p></Card>
+            <Card className="p-4"><p className="text-[10px] uppercase tracking-wide text-muted">Encounters / Admissions</p><p className="mt-1 text-lg font-semibold text-navy">{displayValue(payload.encounter_summary?.encounter_count)} / {displayValue(payload.admission_summary?.admission_count)}</p><p className="text-[11px] text-muted">Readmissions: {displayValue(payload.admission_summary?.readmissions)}</p></Card>
+            <Card className="p-4"><p className="text-[10px] uppercase tracking-wide text-muted">Billed / Paid</p><p className="mt-1 text-lg font-semibold text-navy">{fmtMoney(payload.billing_summary?.net_amount)} / {fmtMoney(payload.billing_summary?.paid_amount)}</p><p className="text-[11px] text-muted">Balance: {fmtMoney(payload.billing_summary?.balance_amount)}</p></Card>
+            <Card className="p-4"><p className="text-[10px] uppercase tracking-wide text-muted">Claims / Feedback</p><p className="mt-1 text-lg font-semibold text-navy">{displayValue(payload.claim_summary?.claim_count)} / {displayValue(payload.feedback_summary?.feedback_count)}</p><p className="text-[11px] text-muted">Avg rating: {displayValue(payload.feedback_summary?.avg_rating)}</p></Card>
           </div>
 
-          {events.length === 0 ? (
-            <Card><EmptyState message="No journey records found" hint="The API returned no records for this synthetic ID." /></Card>
-          ) : (
-            <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
-              <Card className="xl:col-span-2">
-                <CardHeader title="Timeline" subtitle={`${visibleEvents.length} dated events`} action={<RouteIcon className="h-4 w-4 text-teal" />} />
-                <ol className="max-h-[720px] space-y-0 overflow-y-auto px-5 py-4">
-                  {visibleEvents.map((event, index) => (
-                    <li key={index} className="relative border-l border-line pb-5 pl-6 last:pb-0">
+          <Card>
+            <CardHeader title="Timeline filters" subtitle="Filter by event type. Date range follows global filters." action={<RouteIcon className="h-4 w-4 text-teal" />} />
+            <div className="flex flex-wrap gap-2 p-4 pt-0">
+              <button type="button" onClick={() => setEventFilter('')} className={`rounded-full border px-3 py-1 text-[11px] ${!eventFilter ? 'border-teal bg-teal-light/40 text-teal-dark' : 'border-line text-muted'}`}>All</button>
+              {eventTypes.map((t) => (
+                <button key={t} type="button" data-testid={`journey-filter-${t}`} onClick={() => setEventFilter((c) => c === t ? '' : t)} className={`rounded-full border px-3 py-1 text-[11px] ${eventFilter === t ? 'border-teal bg-teal-light/40 text-teal-dark' : 'border-line text-muted'}`}>{t.replace(/_/g, ' ')}</button>
+              ))}
+            </div>
+          </Card>
+
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
+            <Card className="xl:col-span-2">
+              <CardHeader title="Timeline" subtitle={`${timeline.length} events`} action={<Badge tone="info">{eventFilter || 'all events'}</Badge>} />
+              {timeline.length === 0 ? (
+                <EmptyState message="No timeline events found" hint="Try clearing event type filter or widening the date range." />
+              ) : (
+                <ol className="max-h-[720px] space-y-0 overflow-y-auto px-5 py-4" data-testid="journey-timeline">
+                  {timeline.map((event, index) => (
+                    <li key={`${event.event_type}-${event.event_id}-${index}`} className="relative border-l border-line pb-5 pl-6 last:pb-0">
                       <span className="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-teal" />
-                      <button type="button" onClick={() => openDrilldown(event.row, `${event.dataset} record`)} className="w-full text-left">
+                      <button type="button" onClick={() => openDrilldown(event.detail as TableRow, `${event.event_label} ${event.event_id || ''}`)} className="w-full text-left">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-xs font-semibold text-navy">{event.date?.[1]}</span>
-                          <Badge tone="info">{event.dataset}</Badge>
-                          <span className="text-[10px] text-slate-400">Open record →</span>
+                          <span className="text-xs font-semibold text-navy">{String(event.event_date || 'No date')}</span>
+                          <Badge tone="info">{event.event_label}</Badge>
+                          <span className="text-[10px] text-muted">{String(event.event_id || '')}</span>
                         </div>
-                        <p className="mt-1 text-[11px] text-slate-500">
-                          {Object.entries(event.row)
-                            .filter(([key]) => !DATE_HINTS.some((hint) => key.toLowerCase().includes(hint)))
+                        <p className="mt-1 text-[11px] text-muted">
+                          {Object.entries((event.detail as TableRow) || {})
+                            .filter(([k, v]) => v !== null && v !== undefined && v !== '' && !['patient_id'].includes(k))
                             .slice(0, 6)
-                            .map(([key, value]) => `${key}: ${displayValue(value)}`)
+                            .map(([k, v]) => `${k}: ${displayValue(v)}`)
                             .join(' · ')}
                         </p>
                       </button>
                     </li>
                   ))}
                 </ol>
-              </Card>
+              )}
+            </Card>
+
+            <div className="space-y-5">
               <Card>
-                <CardHeader title="Records by dataset" subtitle="Click a dataset to filter the timeline" action={<UserRound className="h-4 w-4 text-teal" />} />
-                <div className="space-y-2 p-4">
-                  {counts.map(([datasetKey, count]) => (
-                    <button key={datasetKey} type="button" onClick={() => setDatasetFilter((current) => current === datasetKey ? '' : datasetKey)} data-testid={`journey-count-${datasetKey}`} className={`flex w-full items-center justify-between rounded border px-2 py-2 text-left text-xs ${datasetFilter === datasetKey ? 'border-teal bg-teal-light/40 text-teal-dark' : 'border-line text-slate-600 hover:border-teal'}`}>
-                      <span>{datasetKey.replace(/_/g, ' ')}</span>
-                      <span className="font-semibold">{count}</span>
-                    </button>
+                <CardHeader title="Summary" subtitle="Synthetic patient overview" action={<UserRound className="h-4 w-4 text-teal" />} />
+                <div className="space-y-2 p-4 text-xs text-muted">
+                  {Object.entries(patient || {}).slice(0, 12).map(([k, v]) => (
+                    <div key={k} className="flex justify-between gap-3 border-b border-line/60 pb-1"><span className="text-muted">{k}</span><span className="text-right font-medium text-slate-700">{displayValue(v)}</span></div>
                   ))}
                 </div>
-                <div className="border-t border-line p-4 text-[11px] text-slate-500">
-                  <Link href="/explorer" className="font-medium text-teal hover:underline">Open Data Explorer →</Link>
+              </Card>
+              <Card>
+                <CardHeader title="Clinical & billing sections" subtitle="Available records" />
+                <div className="space-y-2 p-4 text-xs">
+                  {([
+                    ['appointments', payload.appointments], ['encounters', payload.encounters], ['admissions', payload.admissions],
+                    ['lab_orders', payload.lab_orders], ['lab_results', payload.lab_results], ['prescriptions', payload.prescriptions],
+                    ['diagnoses', payload.diagnoses], ['billing_claims', payload.billing_claims], ['invoices', payload.invoices],
+                    ['payments', payload.payments], ['feedback', payload.feedback],
+                  ] as Array<[string, unknown]>).map(([name, arr]) => (
+                    <div key={name} className="flex items-center justify-between rounded border border-line px-2 py-1.5">
+                      <span className="text-muted">{name.replace(/_/g, ' ')}</span>
+                      <span className="font-semibold text-navy">{Array.isArray(arr) ? arr.length : 0}</span>
+                    </div>
+                  ))}
+                  {payload.diagnoses_note ? <p className="text-[10px] text-muted">{payload.diagnoses_note}</p> : null}
                 </div>
               </Card>
             </div>
-          )}
+          </div>
         </>
       )}
     </div>

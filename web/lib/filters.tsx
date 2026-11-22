@@ -174,15 +174,14 @@ export function FilterProvider({ children }: { children: ReactNode }) {
   const hospitalQuery = useApiQuery<unknown>('filter-hospitals', '/hospitals', NO_FILTERS, { page_size: 500 });
   const hospitalOptions = useMemo(() => normaliseOptions(hospitalQuery.data?.data, 'hospital'), [hospitalQuery.data]);
 
-  const departmentEndpoint = filters.hospital_ids[0]
-    ? `/hospitals/${encodeURIComponent(filters.hospital_ids[0])}/departments`
-    : undefined;
+  const departmentParams = filters.hospital_ids[0]
+    ? { hospital_id: filters.hospital_ids[0], page_size: 500 }
+    : { page_size: 500 };
   const departmentQuery = useApiQuery<unknown>(
     'filter-departments',
-    departmentEndpoint,
+    '/filters/departments',
     NO_FILTERS,
-    { page_size: 500 },
-    Boolean(departmentEndpoint),
+    departmentParams,
   );
   const departmentOptions = useMemo(() => normaliseOptions(departmentQuery.data?.data, 'department'), [departmentQuery.data]);
 

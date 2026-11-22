@@ -221,3 +221,27 @@ def test_phase1_manifest_quarantine_counts_reconcile() -> None:
     assert quarantine["records"] == totals["quarantine_rule_failures"]
     assert quality_summary["quarantine_rule_failures"] == quarantine["records"]
     assert quality_summary["quarantined_rows"] == quarantine["rows"]
+
+
+def test_purchase_orders_and_incidents_derived_dates_not_before_start() -> None:
+    """Regression: DATE_ORDER_INVALID defect - derived dates must not precede start dates."""
+    purchase_orders = _bronze("purchase_orders")
+    incidents = _bronze("incidents")
+
+    po_order = pd.to_datetime(purchase_orders["order_date"], errors="coerce")
+    po_expected = pd.to_datetime(purchase_orders["expected_date"], errors="coerce")
+    po_received = pd.to_datetime(purchase_orders["received_date"], errors="coerce")
+    assert (po_expected.dropna() >= po_order.loc[po_expected.dropna().index]).all(), (
+        "purchase_orders.expected_date before order_date"
+    )
+    received_idx = po_received.dropna().index
+    assert (po_received.loc[received_idx] >= po_order.loc[received_idx]).all(), (
+        "purchase_orders.received_date before order_date"
+    )
+
+    inc_date = pd.to_datetime(incidents["incident_date"], errors="coerce")
+    res_date = pd.to_datetime(incidents["resolution_date"], errors="coerce")
+    res_idx = res_date.dropna().index
+    assert (res_date.loc[res_idx] >= inc_date.loc[res_idx]).all(), (
+        "incidents.resolution_date before incident_date"
+    )

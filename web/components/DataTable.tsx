@@ -133,7 +133,7 @@ export function DataTable({ endpoint, columns, filters, params: extraParams, tit
           <button
             type="button"
             onClick={tableColumn.getToggleSortingHandler()}
-            className="flex items-center gap-1 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500 hover:text-teal"
+            className="flex items-center gap-1 text-left text-[11px] font-semibold uppercase tracking-wide text-muted hover:text-teal"
           >
             {column.title}
             {tableColumn.getIsSorted() === 'asc' ? <ArrowUp className="h-3 w-3" /> : tableColumn.getIsSorted() === 'desc' ? <ArrowDown className="h-3 w-3" /> : null}
@@ -176,7 +176,7 @@ export function DataTable({ endpoint, columns, filters, params: extraParams, tit
             <button
               type="button"
               onClick={exportCsv}
-              className="inline-flex h-7 items-center gap-1.5 rounded border border-line px-2 text-[11px] font-medium text-slate-600 hover:border-teal hover:text-teal"
+              className="inline-flex h-7 items-center gap-1.5 rounded border border-line px-2 text-[11px] font-medium text-muted hover:border-teal hover:text-teal"
             >
               Export CSV
             </button>
@@ -184,12 +184,12 @@ export function DataTable({ endpoint, columns, filters, params: extraParams, tit
               <button
                 type="button"
                 onClick={() => setShowColumns((value) => !value)}
-                className="inline-flex h-7 items-center gap-1.5 rounded border border-line px-2 text-[11px] font-medium text-slate-600 hover:border-teal hover:text-teal"
+                className="inline-flex h-7 items-center gap-1.5 rounded border border-line px-2 text-[11px] font-medium text-muted hover:border-teal hover:text-teal"
               >
                 <Columns3 className="h-3.5 w-3.5" /> Columns
               </button>
               {showColumns && (
-                <div className="absolute right-0 top-8 z-30 max-h-64 w-48 overflow-auto rounded-lg border border-line bg-white p-2 shadow-lg">
+                <div className="absolute right-0 top-8 z-30 max-h-64 w-48 overflow-auto rounded-lg border border-line bg-surface p-2 shadow-lg">
                   {table.getAllLeafColumns().map((column) => (
                     <label key={column.id} className="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-xs text-ink hover:bg-canvas">
                       <input type="checkbox" checked={column.getIsVisible()} onChange={column.getToggleVisibilityHandler()} className="accent-teal" />
@@ -205,16 +205,16 @@ export function DataTable({ endpoint, columns, filters, params: extraParams, tit
       {searchable && (
         <div className="border-b border-line px-5 py-3">
           <div className="relative max-w-sm">
-            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-slate-400" />
+            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted" />
             <input
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
               placeholder="Search records…"
               aria-label="Search records"
-              className="h-9 w-full rounded-md border border-line bg-white pl-8 pr-8 text-xs outline-none focus:border-teal focus:ring-2 focus:ring-teal/15"
+              className="h-9 w-full rounded-md border border-line bg-surface pl-8 pr-8 text-xs outline-none focus:border-teal focus:ring-2 focus:ring-teal/15"
             />
             {searchInput && (
-              <button type="button" onClick={() => setSearchInput('')} className="absolute right-2 top-2.5 text-slate-400 hover:text-ink" aria-label="Clear search">
+              <button type="button" onClick={() => setSearchInput('')} className="absolute right-2 top-2.5 text-muted hover:text-ink" aria-label="Clear search">
                 <X className="h-3.5 w-3.5" />
               </button>
             )}
@@ -258,7 +258,7 @@ export function DataTable({ endpoint, columns, filters, params: extraParams, tit
       )}
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line px-5 py-3">
-        <p className="text-[11px] text-slate-500">
+        <p className="text-[11px] text-muted">
           {totalRecords ? `${pagination.pageIndex * pagination.pageSize + 1}–${Math.min((pagination.pageIndex + 1) * pagination.pageSize, totalRecords)} of ${totalRecords}` : '0 records'}
         </p>
         <div className="flex items-center gap-2">
@@ -266,16 +266,16 @@ export function DataTable({ endpoint, columns, filters, params: extraParams, tit
             type="button"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className="inline-flex h-7 items-center gap-1 rounded border border-line px-2 text-[11px] text-slate-600 disabled:opacity-40"
+            className="inline-flex h-7 items-center gap-1 rounded border border-line px-2 text-[11px] text-muted disabled:opacity-40"
           >
             <ChevronLeft className="h-3.5 w-3.5" /> Previous
           </button>
-          <span className="text-[11px] text-slate-500">Page {pagination.pageIndex + 1} of {pageCount}</span>
+          <span className="text-[11px] text-muted">Page {pagination.pageIndex + 1} of {pageCount}</span>
           <button
             type="button"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            className="inline-flex h-7 items-center gap-1 rounded border border-line px-2 text-[11px] text-slate-600 disabled:opacity-40"
+            className="inline-flex h-7 items-center gap-1 rounded border border-line px-2 text-[11px] text-muted disabled:opacity-40"
           >
             Next <ChevronRight className="h-3.5 w-3.5" />
           </button>

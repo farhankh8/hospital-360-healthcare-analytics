@@ -65,8 +65,8 @@ categories and resolution metrics are implemented.
 ## 🟢 Phase 11 - Data engineering
 
 Bronze CSVs, silver Parquet with quarantine, gold Parquet, 76 DuckDB tables, 12 gold models,
-304 DQ rules and manifests are present. Current run: `RUN_20261120_006`,
-1,588,637 source / 1,585,818 valid / 2,819 quarantined rows / 2,859 rule-failure records,
+304 DQ rules and manifests are present. Current run: `RUN_20261121_001`,
+1,588,637 source / 1,585,844 valid / 2,793 quarantined rows / 2,833 rule-failure records,
 DQ score **100.00 / 100**.
 
 ## 🟢 Phase 12 - Backend

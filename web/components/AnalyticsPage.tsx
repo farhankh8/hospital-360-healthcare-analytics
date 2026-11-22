@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useApiQuery, useKpis } from '@/lib/api';
 import { useFilters } from '@/lib/filters';
 import { usePageFilters } from '@/lib/page-filters';
@@ -41,7 +42,6 @@ function glossaryDefinitions(data: unknown): Record<string, string> {
 
 function ChartPanel({ config, tableEndpoint, filters, params }: { config: ChartConfig; tableEndpoint?: string; filters: FilterState; params: Record<string, string> }) {
   const query = useApiQuery<unknown>(`chart-${config.endpoint}`, config.endpoint, filters, params);
-  // §15: every chart click drills into the records behind that page.
   const drillable = tableEndpoint ? { ...config, drilldownEndpoint: config.drilldownEndpoint ?? tableEndpoint } : config;
   return (
     <div className={cn(config.span === 2 && 'xl:col-span-2')}>
@@ -55,7 +55,9 @@ function ProfileHeader({ endpoint, params }: { endpoint: string; params: Record<
   const query = useApiQuery<TableRow>(`profile-${endpoint}`, endpoint, filters, params);
   if (query.isLoading) return <Skeleton className="h-28 w-full" />;
   if (query.isError || !query.data?.data) return null;
-  const profile = query.data.data;
+  const raw = query.data.data as Record<string, unknown>;
+  const nested = (raw.hospital && typeof raw.hospital === 'object' ? raw.hospital : raw) as Record<string, unknown>;
+  const profile = { ...nested, ...raw } as Record<string, unknown>;
   const title = String(profile.hospital_name ?? profile.name ?? 'Hospital profile');
   const status = String(profile.status ?? '');
   const fields: Array<[string, string]> = [
@@ -66,21 +68,21 @@ function ProfileHeader({ endpoint, params }: { endpoint: string; params: Record<
     ['Beds', String(profile.beds ?? profile.bed_capacity ?? profile.total_beds ?? '')],
     ['Specialties', String(profile.specialty_count ?? profile.departments ?? '')],
     ['Status', status],
-  ].filter((entry): entry is [string, string] => Boolean(entry[1]) && entry[1] !== 'undefined');
+  ].filter((entry): entry is [string, string] => Boolean(entry[1]) && entry[1] !== 'undefined' && entry[1] !== '');
 
   return (
-    <Card className="p-5">
+    <Card className="p-5" data-testid="hospital-profile-header">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h2 className="text-lg font-semibold text-navy">{title}</h2>
-          <p className="mt-0.5 text-xs text-slate-500">Synthetic hospital record from the API</p>
+          <p className="mt-0.5 text-xs text-muted">Synthetic hospital record from the API</p>
         </div>
         {status && <Badge tone="info">{status}</Badge>}
       </div>
       <dl className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-7">
         {fields.map(([label, value]) => (
           <div key={label}>
-            <dt className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">{label}</dt>
+            <dt className="text-[10px] font-semibold uppercase tracking-wide text-muted">{label}</dt>
             <dd className="mt-1 truncate text-xs font-medium text-ink">{displayValue(value)}</dd>
           </div>
         ))}
@@ -89,9 +91,42 @@ function ProfileHeader({ endpoint, params }: { endpoint: string; params: Record<
   );
 }
 
+function ComparisonControls() {
+  const { params, setPageParam } = usePageFilters();
+  const metric = params.metric || 'revenue';
+  const rankSort = params.rank_sort || 'desc';
+  return (
+    <Card className="p-4" data-testid="comparison-controls">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div>
+          <label htmlFor="comparison-metric-select" className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted">Comparison metric</label>
+          <select id="comparison-metric-select" aria-label="Comparison metric" value={metric} onChange={(e) => setPageParam('metric', e.target.value)} className="h-9 rounded-md border border-line px-3 text-xs" data-testid="comparison-metric">
+            <option value="revenue">Revenue</option>
+            <option value="patient_volume">Patient volume</option>
+            <option value="occupancy">Occupancy</option>
+            <option value="los">Length of stay</option>
+            <option value="satisfaction">Satisfaction</option>
+            <option value="denial_rate">Claim denial rate</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="comparison-sort-select" className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted">Ranking sort</label>
+          <select id="comparison-sort-select" aria-label="Ranking sort" value={rankSort} onChange={(e) => setPageParam('rank_sort', e.target.value)} className="h-9 rounded-md border border-line px-3 text-xs" data-testid="comparison-sort">
+            <option value="desc">Highest first</option>
+            <option value="asc">Lowest first</option>
+          </select>
+        </div>
+        <p className="text-[11px] text-muted">Use global hospital filters to select up to 10 hospitals for comparison. Click a hospital row to open its profile.</p>
+      </div>
+    </Card>
+  );
+}
+
 export function AnalyticsPage({ config }: { config: PageConfig }) {
+  const router = useRouter();
   const { filters, compare } = useFilters();
   const { params: pageParams } = usePageFilters();
+  const [activeTab, setActiveTab] = useState(config.tabs?.[0]?.id || '');
   const kpiQuery = useKpis(config.kpiEndpoint, filters, { ...pageParams, ...(compare ? { previous: 'true' } : {}) });
   const glossaryQuery = useApiQuery<unknown>('kpi-glossary', '/kpis/glossary', { ...filters, date_from: '', date_to: '', hospital_ids: [], department_id: '', specialty_id: '', payer_id: '', encounter_type: '', patient_type: '' });
   const definitions = useMemo(() => glossaryDefinitions(glossaryQuery.data?.data), [glossaryQuery.data]);
@@ -103,16 +138,53 @@ export function AnalyticsPage({ config }: { config: PageConfig }) {
     return configured.length ? configured : Object.keys(kpiData).slice(0, 12);
   }, [kpiData, config.kpiIds]);
 
+  const activeTabConfig = config.tabs?.find((t) => t.id === activeTab) || config.tabs?.[0];
+  const visibleCharts = useMemo(() => {
+    if (!activeTabConfig?.chartTitles) return config.charts;
+    const set = new Set(activeTabConfig.chartTitles);
+    return config.charts.filter((c) => set.has(c.title));
+  }, [config.charts, activeTabConfig]);
+  const showTable = !activeTabConfig || activeTabConfig.showTable !== false;
+  const showKpis = !activeTabConfig || activeTabConfig.showKpis !== false;
+
+  const onHospitalRowClick = config.slug === 'hospitals'
+    ? (row: TableRow) => {
+        const id = String(row.hospital_id || row.id || '');
+        if (id) router.push(`/hospitals/${encodeURIComponent(id)}`);
+      }
+    : undefined;
+
   return (
     <div className="space-y-6">
       <PageHeading title={config.title} description={config.description} badge={<Badge tone="info">{config.navGroup}</Badge>} />
       {config.profileEndpoint && <ProfileHeader endpoint={config.profileEndpoint} params={pageParams} />}
 
-      {config.kpiEndpoint && (
+      {config.tabs && config.tabs.length > 0 && (
+        <div className="inline-flex flex-wrap gap-1 rounded-lg border border-line bg-surface-alt p-1" data-testid="profile-tabs">
+          {config.tabs.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                'rounded-md px-3 py-1.5 text-xs font-medium transition',
+                activeTab === tab.id ? 'bg-surface text-ink-strong shadow-sm' : 'text-muted hover:text-ink',
+              )}
+              data-testid={`tab-${tab.id}`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {config.slug === 'hospitals' && <ComparisonControls />}
+
+      {config.kpiEndpoint && showKpis && (
         <section aria-label="Key performance indicators">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">Key indicators</h2>
-            <span className="text-[11px] text-slate-400">Values from {config.kpiEndpoint}</span>
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-muted">Key indicators</h2>
+            <span className="text-[11px] text-muted">Values from {config.kpiEndpoint}</span>
           </div>
           {kpiQuery.isError ? (
             <Card><ErrorState message={kpiQuery.error?.message || 'KPIs could not be loaded.'} onRetry={() => kpiQuery.refetch()} /></Card>
@@ -134,23 +206,23 @@ export function AnalyticsPage({ config }: { config: PageConfig }) {
         </section>
       )}
 
-      {config.charts.length > 0 && (
+      {visibleCharts.length > 0 && (
         <section aria-label="Charts">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">Analytics</h2>
-            <span className="text-[11px] text-slate-400">Hover for detail · click a point to drill down</span>
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-muted">Analytics</h2>
+            <span className="text-[11px] text-muted">Hover for detail, click a point to drill down</span>
           </div>
           <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-            {config.charts.map((chartConfig) => (
+            {visibleCharts.map((chartConfig) => (
               <ChartPanel key={`${chartConfig.title}-${chartConfig.endpoint}`} config={chartConfig} tableEndpoint={config.tableEndpoint} filters={filters} params={pageParams} />
             ))}
           </div>
         </section>
       )}
 
-      {config.tableEndpoint && (
+      {config.tableEndpoint && showTable && (
         <section aria-label="Records">
-          <DataTable endpoint={config.tableEndpoint} columns={config.tableColumns} filters={filters} params={pageParams} exportName={config.slug} />
+          <DataTable endpoint={config.tableEndpoint} columns={config.tableColumns} filters={filters} params={pageParams} exportName={config.slug} onRowClick={onHospitalRowClick} />
         </section>
       )}
     </div>

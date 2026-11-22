@@ -40,7 +40,7 @@ def hospital_departments(hospital_id: str, request: Request):
     with get_conn() as conn:
         rows = query_rows(
             conn,
-            "SELECT d.department_id, d.department_name, s.specialty_name "
+            "SELECT d.department_id, d.department_name, d.specialty_id, s.specialty_name "
             "FROM dim_department d LEFT JOIN dim_specialty s ON s.specialty_id = d.specialty_id "
             "WHERE d.hospital_id = $hospital_id ORDER BY d.department_name",
             {"hospital_id": hospital_id},
@@ -48,7 +48,7 @@ def hospital_departments(hospital_id: str, request: Request):
         if not rows:
             rows = query_rows(
                 conn,
-                "SELECT department_id, department_name, specialty_id AS specialty_name "
+                "SELECT department_id, department_name, specialty_id, specialty_id AS specialty_name "
                 "FROM silver_dim_department WHERE hospital_id = $hospital_id ORDER BY department_name",
                 {"hospital_id": hospital_id},
             )
@@ -108,8 +108,17 @@ def hospital_profile(hospital_id: str, request: Request):
             + build_where(f, cols, date_col="month")[0],
             build_where(f, cols, date_col="month")[1],
         )
+        specialty_count = query_rows(
+            conn,
+            "SELECT COUNT(DISTINCT specialty_id) AS specialty_count, COUNT(*) AS department_count FROM silver_dim_department WHERE hospital_id = $hospital_id",
+            {"hospital_id": hospital_id},
+        )
+    hosp = dict(hospital[0])
+    if specialty_count:
+        hosp["specialty_count"] = specialty_count[0].get("specialty_count")
+        hosp["department_count"] = specialty_count[0].get("department_count")
     return envelope(
-        {"hospital": hospital[0], "summary": summary[0] if summary else {}, "network": network[0] if network else {}},
+        {"hospital": hosp, "summary": summary[0] if summary else {}, "network": network[0] if network else {}},
         f.date_from, f.date_to, [hospital_id],
     )
 

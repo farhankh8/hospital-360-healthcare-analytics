@@ -56,7 +56,7 @@ export function MethodologyPage() {
           return (
           <Card key={section.title}>
             <CardHeader title={section.title} action={<Icon className="h-4 w-4 text-teal" />} />
-            <ul className="space-y-2 p-5 text-xs leading-relaxed text-slate-600">
+            <ul className="space-y-2 p-5 text-xs leading-relaxed text-muted">
               {section.bullets.map((bullet) => (
                 <li key={bullet} className="flex gap-2">
                   <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-teal" />
@@ -74,7 +74,7 @@ export function MethodologyPage() {
           <AlertTriangle className="h-5 w-5 shrink-0 text-warning" />
           <div>
             <h2 className="text-sm font-semibold text-ink">Known limitations and disclaimer</h2>
-            <p className="mt-2 text-xs leading-relaxed text-slate-600">
+            <p className="mt-2 text-xs leading-relaxed text-muted">
               HOSPITAL 360 is an educational portfolio project built on entirely synthetic data. It is not a clinical system, does not use real
               patient records, and must not be used for diagnosis, treatment decisions, or operational management of a real healthcare
               organisation. Values shown in the interface come from the API; where the API is unavailable the interface shows an explicit

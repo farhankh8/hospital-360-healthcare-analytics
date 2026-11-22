@@ -1,10 +1,11 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { BookOpen, Search } from 'lucide-react';
+import { BookOpen, LayoutGrid, List, Search } from 'lucide-react';
 import { useApiQuery } from '@/lib/api';
 import { NO_FILTERS, type TableRow } from '@/lib/types';
 import { displayValue } from '@/lib/utils';
+import { useDrilldown } from './DrilldownDrawer';
 import { Badge, Card, CardHeader, EmptyState, ErrorState, PageHeading, Skeleton } from './ui';
 
 function glossaryRows(data: unknown): TableRow[] {
@@ -22,104 +23,158 @@ function glossaryRows(data: unknown): TableRow[] {
   return [];
 }
 
-const PREFERRED_ORDER = [
-  'definition',
-  'business_definition',
-  'formula',
-  'numerator',
-  'denominator',
-  'unit',
-  'grain',
-  'date_field',
-  'exclusions',
-  'source',
-  'dimensions',
-  'target',
-  'caveat',
-  'validation',
-  'aliases',
-  'expected_range',
-  'null_handling',
+const DETAIL_FIELDS: Array<[string, string]> = [
+  ['name', 'KPI name'],
+  ['business_definition', 'Business definition'],
+  ['formula', 'Formula'],
+  ['numerator', 'Numerator'],
+  ['denominator', 'Denominator'],
+  ['unit', 'Unit'],
+  ['grain', 'Data grain'],
+  ['date_field', 'Date logic'],
+  ['exclusions', 'Exclusions'],
+  ['source_tables', 'Source table'],
+  ['dimensions', 'Supported dimensions'],
+  ['caveat', 'Caveats'],
+  ['validation_test', 'Validation test'],
 ];
-
-// Phase 2 adds machine-readable contract fields to the glossary JSON. Keep
-// those in search, but do not change the card design by printing raw metadata.
-const HIDDEN_CONTRACT_FIELDS = new Set([
-  'contract_version', 'display_name', 'formula_sql', 'date_column', 'source_columns',
-  'aggregation_method', 'filter_behavior', 'units', 'decimal_precision', 'additivity',
-  'business_interpretation', 'consumer_status', 'audit_findings', 'last_reviewed',
-  'alias_of', 'same_definition_as', 'api_endpoints', 'frontend_consumers',
-]);
 
 const SNAPSHOT_KPIS = new Set(['hospitals_selected', 'total_beds', 'active_employees']);
 
 export function KpiGlossaryPage() {
   const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('all');
+  const [view, setView] = useState<'table' | 'cards'>('table');
+  const { openDrilldown } = useDrilldown();
   const query = useApiQuery<unknown>('glossary-page', '/kpis/glossary', NO_FILTERS);
   const rows = useMemo(() => glossaryRows(query.data?.data), [query.data]);
+
+  const categories = useMemo(() => ['all', ...Array.from(new Set(rows.map((r) => String(r.category || 'Other')))).sort()], [rows]);
+
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
-    if (!term) return rows;
-    return rows.filter((row) => JSON.stringify(row).toLowerCase().includes(term));
-  }, [rows, search]);
+    return rows.filter((row) => {
+      if (category !== 'all' && String(row.category || 'Other') !== category) return false;
+      if (!term) return true;
+      return JSON.stringify(row).toLowerCase().includes(term);
+    });
+  }, [rows, search, category]);
+
+  const openDetail = (row: TableRow) => {
+    const detail: Record<string, unknown> = {};
+    DETAIL_FIELDS.forEach(([key, label]) => {
+      const v = row[key];
+      if (v !== undefined && v !== null && v !== '') detail[label] = v;
+    });
+    // include id/category for context
+    detail['KPI ID'] = row.id ?? row.kpi_id;
+    detail['Category'] = row.category;
+    openDrilldown(detail as TableRow, String(row.name || row.kpi_name || row.id || 'KPI detail'));
+  };
 
   return (
-    <div className="space-y-6">
-      <PageHeading title="KPI Glossary" description="Every metric displayed in HOSPITAL 360 is defined by the API, not by the frontend." badge={<Badge tone="info">Source of truth</Badge>} />
+    <div className="space-y-6" data-testid="kpi-glossary-page">
+      <PageHeading
+        title="KPI Glossary"
+        description="Every metric displayed in HOSPITAL 360 is defined by the API, not by the frontend."
+        badge={<Badge tone="info">Source of truth</Badge>}
+      />
 
       <Card className="p-5">
-        <div className="relative max-w-sm">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-          <input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search KPI definitions…"
-            className="h-9 w-full rounded-md border border-line pl-9 pr-3 text-xs outline-none focus:border-teal focus:ring-2 focus:ring-teal/15"
-          />
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-1 flex-col gap-3 sm:flex-row">
+            <div className="relative max-w-sm flex-1">
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted" />
+              <input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Search KPI definitions..."
+                data-testid="glossary-search"
+                className="h-9 w-full rounded-md border border-line pl-9 pr-3 text-xs outline-none focus:border-teal focus:ring-2 focus:ring-teal/15"
+              />
+            </div>
+            <select
+              aria-label="Category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              data-testid="glossary-category"
+              className="h-9 rounded-md border border-line px-3 text-xs text-slate-700 outline-none focus:border-teal"
+            >
+              {categories.map((c) => <option key={c} value={c}>{c === 'all' ? 'All categories' : c}</option>)}
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <a href="/methodology" className="text-xs font-medium text-teal hover:underline">Methodology</a>
+            <div className="flex rounded-md border border-line">
+              <button type="button" onClick={() => setView('table')} className={`px-2 py-1.5 ${view === 'table' ? 'bg-teal-light/40 text-teal-dark' : 'text-muted'}`} aria-label="Table view"><List className="h-4 w-4" /></button>
+              <button type="button" onClick={() => setView('cards')} className={`px-2 py-1.5 ${view === 'cards' ? 'bg-teal-light/40 text-teal-dark' : 'text-muted'}`} aria-label="Card view"><LayoutGrid className="h-4 w-4" /></button>
+            </div>
+          </div>
         </div>
+        <p className="mt-3 text-[11px] text-muted">{filtered.length} of {rows.length} KPIs. Click a row/card for full definition.</p>
       </Card>
 
       {query.isLoading && <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">{Array.from({ length: 6 }).map((_item, index) => <Skeleton key={index} className="h-48 w-full" />)}</div>}
       {query.isError && <Card><ErrorState message={query.error?.message || 'Glossary unavailable'} onRetry={() => query.refetch()} /></Card>}
-      {!query.isLoading && !query.isError && filtered.length === 0 && <Card><EmptyState message="No KPI definitions found" hint="The glossary endpoint returned no matching definitions." /></Card>}
+      {!query.isLoading && !query.isError && filtered.length === 0 && <Card><EmptyState message="No KPI definitions found" hint="Try adjusting search or category filter." /></Card>}
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {filtered.map((row, index) => {
-          const kpiId = displayValue(row.kpi_id ?? row.id ?? '');
-          const title = displayValue(row.kpi_name ?? row.name ?? kpiId ?? `KPI ${index + 1}`);
-          const dateUnavailable = row.date_filter_available === false || SNAPSHOT_KPIS.has(kpiId);
-          const fields = PREFERRED_ORDER.filter((key) => row[key] !== undefined && row[key] !== null && row[key] !== '')
-            .map((key) => [key, row[key]] as [string, unknown]);
-          Object.entries(row).forEach(([key, value]) => {
-            if (
-              !PREFERRED_ORDER.includes(key)
-              && !HIDDEN_CONTRACT_FIELDS.has(key)
-              && !['kpi_name', 'name', 'kpi_id', 'id'].includes(key)
-              && value !== null && value !== undefined && value !== ''
-            ) {
-              fields.push([key, value]);
-            }
-          });
-          return (
-            <Card key={`${title}-${index}`} className="flex flex-col">
-              <CardHeader
-                title={title}
-                subtitle={kpiId}
-                action={dateUnavailable ? <Badge tone="warning">No date filter</Badge> : <BookOpen className="h-4 w-4 text-teal" />}
-              />
-              <div className="flex-1 space-y-2 p-4">
-                {fields.length === 0 && <p className="text-xs text-slate-400">No definition fields returned by the API.</p>}
-                {fields.map(([key, value]) => (
-                  <div key={key}>
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">{key.replace(/_/g, ' ')}</p>
-                    <p className="mt-0.5 text-xs leading-relaxed text-ink">{displayValue(value)}</p>
+      {!query.isLoading && !query.isError && filtered.length > 0 && view === 'table' && (
+        <Card>
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-xs" data-testid="glossary-table">
+              <thead className="border-b border-line bg-surface-alt text-left text-muted">
+                <tr>
+                  <th className="px-4 py-3">KPI</th>
+                  <th className="px-4 py-3">Category</th>
+                  <th className="px-4 py-3">Definition</th>
+                  <th className="px-4 py-3">Unit</th>
+                  <th className="px-4 py-3">Date logic</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((row, index) => {
+                  const kpiId = String(row.id ?? row.kpi_id ?? '');
+                  const title = String(row.name ?? row.kpi_name ?? kpiId);
+                  const dateUnavailable = row.date_filter_available === false || SNAPSHOT_KPIS.has(kpiId);
+                  return (
+                    <tr key={`${kpiId}-${index}`} className="cursor-pointer border-b border-line/60 hover:bg-teal-light/10" onClick={() => openDetail(row)} data-testid="glossary-row">
+                      <td className="px-4 py-3 font-medium text-navy">{title}<div className="text-[10px] text-muted">{kpiId}</div></td>
+                      <td className="px-4 py-3"><Badge tone="neutral">{String(row.category || 'Other')}</Badge></td>
+                      <td className="px-4 py-3 text-muted">{String(row.business_definition || row.definition || '').slice(0, 120)}</td>
+                      <td className="px-4 py-3">{displayValue(row.unit)}</td>
+                      <td className="px-4 py-3">{dateUnavailable ? <Badge tone="warning">No date filter</Badge> : <span className="text-muted">{String(row.date_field || '').slice(0, 40)}</span>}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
+
+      {!query.isLoading && !query.isError && filtered.length > 0 && view === 'cards' && (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {filtered.map((row, index) => {
+            const kpiId = String(row.id ?? row.kpi_id ?? '');
+            const title = String(row.name ?? row.kpi_name ?? kpiId ?? `KPI ${index + 1}`);
+            const dateUnavailable = row.date_filter_available === false || SNAPSHOT_KPIS.has(kpiId);
+            return (
+              <button key={`${kpiId}-${index}`} type="button" onClick={() => openDetail(row)} className="text-left" data-testid="glossary-card">
+                <Card className="flex h-full flex-col hover:border-teal/40">
+                  <CardHeader title={title} subtitle={kpiId} action={dateUnavailable ? <Badge tone="warning">No date filter</Badge> : <BookOpen className="h-4 w-4 text-teal" />} />
+                  <div className="flex-1 space-y-2 p-4">
+                    <p className="text-xs leading-relaxed text-ink">{String(row.business_definition || row.definition || '')}</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge tone="neutral">{String(row.category || 'Other')}</Badge>
+                      <Badge tone="info">{displayValue(row.unit)}</Badge>
+                    </div>
                   </div>
-                ))}
-              </div>
-            </Card>
-          );
-        })}
-      </div>
+                </Card>
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

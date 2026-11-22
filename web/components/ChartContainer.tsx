@@ -104,7 +104,7 @@ export function ChartContainer({ config, data, loading, error, onRetry }: ChartC
               onClick={download}
               disabled={!built.rows.length}
               title="Download chart data as CSV"
-              className="inline-flex h-7 w-7 items-center justify-center rounded border border-line text-slate-500 transition hover:border-teal hover:text-teal disabled:opacity-40"
+              className="inline-flex h-7 w-7 items-center justify-center rounded border border-line text-slate-600 transition hover:border-teal hover:text-teal disabled:opacity-40"
             >
               <Download className="h-3.5 w-3.5" />
             </button>

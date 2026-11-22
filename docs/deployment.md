@@ -1,119 +1,75 @@
-# HOSPITAL 360 - Deployment
+# HOSPITAL 360 - Deployment (Preparation Only)
 
-## Deployment architecture
+> **Status: deployment preparation only.** No live deployment or cloud accounts were created. All artifacts below are prepared for manual deployment.
 
-```mermaid
-flowchart TB
-    GH[GitHub repo<br/>main / develop] --> CI[GitHub Actions CI<br/>ruff + pytest + npm build]
-    CI --> IMG[Docker images<br/>api + web]
-    IMG --> API[Python host<br/>FastAPI :8000]
-    IMG --> WEB[Vercel / Node host<br/>Next.js :3000]
-    VOL[(Persistent storage<br/>data/ + DuckDB + Parquet)] --> API
-    WEB -->|NEXT_PUBLIC_API_URL| API
-    USER[Browser] --> WEB
-```
+## Target
+- **Frontend:** Vercel (Next.js web app in `web/`).
+- **Backend:** Render Docker Web Service (FastAPI + baked seed-42 DuckDB image from `Dockerfile.api`).
 
-The frontend and backend are deployed independently. The API reads a DuckDB file that is
-produced by the generator + ETL pipeline; the frontend calls the API and never talks to the
-database directly.
+**Why Render for backend:** The API is packaged as a Docker image that bakes deterministic seed-42 data during build (proven in CI). Render supports Docker web services, `PORT` injection, health checks, and env vars with a simple `render.yaml` blueprint. A Vercel frontend can point at the Render URL via `NEXT_PUBLIC_API_URL`, and Render CORS can be restricted to the Vercel origin via `CORS_ORIGINS`.
+
+## Prepared artifacts
+- `Dockerfile.api` - FastAPI image; bakes seed-42 data; respects `${PORT:-8000}`; opens DuckDB read-only in app code.
+- `Dockerfile.web` - Next.js production image.
+- `docker-compose.yml` - local full-stack smoke.
+- `render.yaml` - Render blueprint for backend.
+- `.env.example`, `web/.env.example` - env templates.
+- `scripts/smoke_deployed.py` - post-deploy smoke checks.
+- `.github/workflows/smoke-deployed.yml` - manual `workflow_dispatch` smoke workflow.
 
 ## Environment variables
+| Variable | Where | Required | Notes |
+|---|---|---:|---|
+| `APP_ENV` | Backend | yes | `production` |
+| `LOG_LEVEL` | Backend | yes | `INFO` |
+| `DATA_PATH` | Backend | yes | `/app/data` |
+| `DATABASE_PATH` | Backend | yes | `/app/data/hospital360.duckdb` |
+| `CORS_ORIGINS` | Backend | yes | Set to deployed Vercel URL, e.g. `https://your-app.vercel.app` |
+| `NEXT_PUBLIC_API_URL` | Frontend | yes | Backend API base, e.g. `https://your-api.onrender.com/api/v1` |
 
-| Variable | Used by | Default | Purpose |
-|---|---|---|---|
-| `DATA_PATH` | API, Docker | `<repo>/data` | Root of bronze/silver/gold/quarantine/manifests |
-| `DATABASE_PATH` | API, Docker | `<DATA_PATH>/hospital360.duckdb` | DuckDB analytical database |
-| `CORS_ORIGINS` | API | `http://localhost:3000,http://127.0.0.1:3000` | Comma-separated browser origins |
-| `APP_ENV` | API | `development` | `development` / `staging` / `production` |
-| `LOG_LEVEL` | API | `INFO` | Logging verbosity (no sensitive values logged) |
-| `NEXT_PUBLIC_API_URL` | Frontend | `http://localhost:8000/api/v1` | Public API base URL, baked at build time |
-| `H360_SEED` | Generator | `42` | Reproducibility seed |
+No secrets in repo. Do not put secrets in `NEXT_PUBLIC_*`.
 
-Never place secret credentials in `NEXT_PUBLIC_*` variables: they are embedded in the client
-bundle. This project requires no API secrets.
+## Backend deployment (Render) - click-by-click
+1. Push/merge the branch you want to deploy (after CI green). Do not deploy from an unverified branch.
+2. In Render, **New + > Blueprint** (or Web Service). Connect GitHub repo `farhankh8/hospital-360-healthcare-analytics`.
+3. If using Blueprint, select `render.yaml`. If manual: choose **Docker**, repo root, Dockerfile `Dockerfile.api`.
+4. Set service name `hospital360-api`, plan Free (or as desired), region nearest you.
+5. Set env vars: `APP_ENV=production`, `LOG_LEVEL=INFO`, `DATA_PATH=/app/data`, `DATABASE_PATH=/app/data/hospital360.duckdb`, `CORS_ORIGINS=https://<your-vercel-app>.vercel.app` (update after frontend is deployed).
+6. Health check path: `/api/v1/health`.
+7. Deploy. First Docker build may take several minutes (seed + ETL baked in). Free tier cold starts are expected.
+8. Verify: open `https://<api>/api/v1/health` and `https://<api>/api/v1/hospitals?page=1&page_size=5`.
 
-## Option A - Docker (recommended for local and self-hosted)
+## Frontend deployment (Vercel) - click-by-click
+1. In Vercel, **Add New Project**, import same GitHub repo.
+2. Set **Root Directory** to `web`.
+3. Framework preset: Next.js. Build command: `npm run build` (default). Output: default.
+4. Add env var `NEXT_PUBLIC_API_URL=https://<your-render-api>.onrender.com/api/v1`.
+5. Deploy. After deployment, copy the Vercel URL.
+6. Go back to Render backend env vars and set `CORS_ORIGINS` to the exact Vercel origin; redeploy backend.
 
+## Post-deploy smoke
+Local script:
 ```bash
-cd hospital360
-cp .env.example .env   # keeps NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
-# 1. Generate data and build the analytical database once on the host,
-#    or run the same commands inside a container that mounts ./data.
-python -m pip install -r requirements.txt
-python -m generator.generate
-python -m etl.pipeline
-
-# 2. Build and start api + web.
-docker compose up --build -d
-
-# 3. Check health and open the app.
-curl http://localhost:8000/api/v1/health
-curl http://localhost:8000/openapi.json | python -c "import json,sys; s=json.load(sys.stdin); print('/api/v1/exports/csv' in s['paths'])"
-# http://localhost:3000
+python scripts/smoke_deployed.py --api https://<api> --web https://<web>
 ```
+Checks: health, hospitals, overview KPIs, DQ summary, records page, CORS header, web home.
 
-`docker-compose.yml` mounts `./data` into the API container, so generated data persists on
-the host. It also wires `DATA_PATH`, `DATABASE_PATH`, `CORS_ORIGINS` and
-`NEXT_PUBLIC_API_URL`, and defines healthchecks for both services. The web service waits
-for the API healthcheck before starting.
+GitHub Actions manual smoke:
+- Actions > **Deployed Smoke** > Run workflow.
+- Inputs: `api_url`, `web_url`.
 
-## Option B - Vercel frontend + Python backend host
+## Operational notes
+- Backend opens DuckDB read-only (`duckdb.connect(..., read_only=True)`), safe for read-only filesystem baked data.
+- Backend reads `CORS_ORIGINS` from env; no wildcard required.
+- Backend respects platform `PORT` via Docker CMD `${PORT:-8000}`.
+- Free-tier services may cold-start; first request can be slow.
+- Redeploy: push to deployed branch or trigger manual redeploy in Render/Vercel after env changes.
 
-1. **Backend.** Deploy the FastAPI app to a Python-compatible host (Render, Fly.io,
-   Cloud Run, a VM, etc.):
-   ```bash
-   uvicorn api.main:app --host 0.0.0.0 --port 8000
-   ```
-   Configure `DATA_PATH`, `DATABASE_PATH`, `CORS_ORIGINS`, `APP_ENV` and `LOG_LEVEL`.
-   Mount or restore `data/` so the DuckDB file is available at `DATABASE_PATH`.
-2. **Frontend.** Import the `web/` directory into Vercel (Next.js preset). Set
-   `NEXT_PUBLIC_API_URL` to the public versioned API base URL (e.g.
-   `https://api.example.com/api/v1`) and rebuild. Ensure the backend CORS allowlist includes the
-   Vercel domain.
-3. **Verify.** Open the deployed `/overview`, confirm cards render API values, and check
-   `/api/v1/health` returns `{"status":"ok","version":"1.0.0"}`.
-
-## Persistent storage warning
-
-> DuckDB and the generated Parquet/CSV files live on the local filesystem. **Ephemeral
-> hosting filesystems do not preserve generated data across restarts or redeploys.** For a
-> durable deployment you must either:
-> - mount a persistent volume containing `data/` (including
->   `data/hospital360.duckdb`), or
-> - regenerate the dataset during deployment with `python -m generator.generate &&
->   python -m etl.pipeline` before starting the API, or
-> - bundle a prebuilt read-only analytical database into the image/artifact.
->
-> A serverless frontend cannot host DuckDB; keep the database with the Python backend.
-
-## Data preparation on a fresh host
-
+## Local Docker validation
 ```bash
-export DATA_PATH=/srv/hospital360/data
-export DATABASE_PATH=$DATA_PATH/hospital360.duckdb
-python -m pip install -r requirements.txt
-python -m generator.generate          # writes bronze CSVs + data/manifests/manifest_*.json
-python -m etl.pipeline                # writes silver/gold Parquet + DuckDB + quarantine
+docker compose build
+docker compose up -d
+curl -fsS http://localhost:8000/api/v1/health
+curl -fsS http://localhost:3000 >/dev/null
+docker compose down -v
 ```
-
-Confirm the manifest reports actual counts and zero unexplained pipeline failures before
-exposing the API.
-
-## Health checks and verification
-
-- API: `GET /api/v1/health` -> `{"status":"ok","version":"1.0.0"}` (no envelope).
-- Frontend: `GET /` returns the rendered Next.js app.
-- Data: `GET /api/v1/data-quality/summary` and `GET /api/v1/pipeline/manifest` return
-  quality and run metadata (requires the DuckDB file).
-- CI: `.github/workflows/ci.yml` runs Ruff + pytest for the backend and `npm ci && npm run
-  build` for the frontend. It needs no secrets.
-
-## Security checklist (blueprint section 26)
-
-- [x] Environment variables for configuration; no credentials in Git
-- [x] CORS origin allowlist
-- [x] Parameterised SQL and allowlisted filter columns; no arbitrary SQL
-- [x] Pagination, page-size caps and export row limits
-- [x] Consistent error responses and API versioning under `/api/v1`
-- [x] Synthetic-only data; no real patient information
-- [ ] Verify production host TLS, log retention and backup of the persistent volume

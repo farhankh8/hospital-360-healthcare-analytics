@@ -412,3 +412,106 @@ def test_dq_injected_vs_detected_chart(client, duckdb_path) -> None:
     assert {"issue_type", "injected", "detected", "rule_id", "table"}.issubset(rows[0].keys())
     assert body["metadata"]["total_injected"] >= 0
     assert body["metadata"]["total_quarantine_rule_failures"] >= 0
+
+
+def test_pipeline_runs_compare_endpoint(client, duckdb_path) -> None:
+    runs_resp = _get(client, "/api/v1/pipeline/runs")
+    assert runs_resp.status_code == 200, runs_resp.text
+    runs = runs_resp.json()["data"]
+    if len(runs) < 2:
+        pytest.skip("need at least two pipeline runs for compare test")
+    run_a = runs[-1]["run_id"]
+    run_b = runs[0]["run_id"]
+    resp = _get(client, f"/api/v1/pipeline/runs/compare?run_a={run_a}&run_b={run_b}")
+    assert resp.status_code == 200, resp.text
+    body = resp.json()["data"]
+    assert body["run_a"]["run_id"] == run_a
+    assert body["run_b"]["run_id"] == run_b
+    assert "deltas" in body and "tables" in body
+    assert {"duration_seconds", "source_records", "valid_records", "quarantined_records", "dq_score"}.issubset(body["deltas"].keys())
+
+
+def test_pipeline_runs_compare_rejects_unknown_run(client, duckdb_path) -> None:
+    runs_resp = _get(client, "/api/v1/pipeline/runs")
+    runs = runs_resp.json()["data"]
+    if not runs:
+        pytest.skip("no pipeline runs")
+    run_a = runs[0]["run_id"]
+    resp = _get(client, f"/api/v1/pipeline/runs/compare?run_a={run_a}&run_b=RUN_DOES_NOT_EXIST")
+    assert resp.status_code == 422
+
+
+def test_pipeline_lineage_by_table(client, duckdb_path) -> None:
+    lineage_resp = _get(client, "/api/v1/pipeline/lineage")
+    assert lineage_resp.status_code == 200
+    rows = lineage_resp.json()["data"]
+    if not rows:
+        pytest.skip("no lineage rows")
+    table = rows[0]["target_table"]
+    resp = _get(client, f"/api/v1/pipeline/lineage/{table}")
+    assert resp.status_code == 200, resp.text
+    body = resp.json()["data"]
+    assert body["target_table"] == table
+    assert "downstream_tables" in body
+    bad = _get(client, "/api/v1/pipeline/lineage/__not_a_table__")
+    assert bad.status_code == 422
+
+def test_journey_sample_patient(client, duckdb_path) -> None:
+    resp = _get(client, "/api/v1/journey/sample-patient")
+    assert resp.status_code == 200, resp.text
+    pid = resp.json()["data"].get("patient_id")
+    assert pid
+
+
+def test_patient_journey_endpoint(client, duckdb_path) -> None:
+    sample = _get(client, "/api/v1/journey/sample-patient").json()["data"]["patient_id"]
+    resp = _get(client, f"/api/v1/journey?patient_id={sample}")
+    assert resp.status_code == 200, resp.text
+    body = resp.json()["data"]
+    assert body["patient"]["patient_id"] == sample
+    assert "timeline" in body and isinstance(body["timeline"], list)
+    assert "billing_summary" in body
+    assert "feedback_summary" in body
+    assert "synthetic_notice" in body
+    # event type filter
+    timeline = body["timeline"]
+    if timeline:
+        et = timeline[0]["event_type"]
+        filtered = _get(client, f"/api/v1/journey?patient_id={sample}&event_type={et}")
+        assert filtered.status_code == 200
+        for ev in filtered.json()["data"]["timeline"]:
+            assert ev["event_type"] == et
+
+
+def test_patient_journey_events_export_shape(client, duckdb_path) -> None:
+    sample = _get(client, "/api/v1/journey/sample-patient").json()["data"]["patient_id"]
+    resp = _get(client, f"/api/v1/journey/events?patient_id={sample}&page=1&page_size=25")
+    assert resp.status_code == 200, resp.text
+    payload = resp.json()
+    assert "data" in payload and "pagination" in payload
+    assert payload["pagination"]["total_records"] >= 0
+    bad = _get(client, "/api/v1/journey?patient_id=PAT_DOES_NOT_EXIST")
+    assert bad.status_code == 404
+    missing = _get(client, "/api/v1/journey")
+    assert missing.status_code in (400, 422)
+
+def test_kpi_glossary_required_fields(client, duckdb_path) -> None:
+    resp = _get(client, "/api/v1/kpis/glossary")
+    assert resp.status_code == 200, resp.text
+    data = resp.json()["data"]
+    items = data.get("kpis", data) if isinstance(data, dict) else data
+    assert isinstance(items, list) and len(items) > 50
+    required = {"name", "business_definition", "formula", "numerator", "denominator", "unit", "grain", "date_field", "exclusions", "source_tables", "dimensions", "caveat", "validation_test"}
+    missing = [k for k in required if k not in items[0]]
+    assert not missing, f"missing keys: {missing}"
+    # spot check a few items have business_definition
+    assert any(i.get("business_definition") for i in items)
+
+
+def test_hospital_rankings_metric_sort(client, duckdb_path) -> None:
+    resp = _get(client, "/api/v1/charts/hospital-rankings?metric=occupancy&rank_sort=asc")
+    assert resp.status_code == 200, resp.text
+    rows = resp.json()["data"]
+    assert isinstance(rows, list) and rows
+    vals = [r.get("occupancy") for r in rows if r.get("occupancy") is not None]
+    assert vals == sorted(vals)

@@ -133,7 +133,7 @@ reconciliation from silver invoices; and API-vs-gold value equality.
 - `ruff check .`: PASS (0 errors).
 - `python -m pytest -q`: PASS (108 passed, 2 non-failing deprecation warnings).
 - `python scripts/verify_project.py`: PASS (bronze, manifest, DuckDB and all API endpoints).
-- Pipeline `RUN_20261120_010`: SUCCESS; 1,588,637 source rows; 1,585,818 valid rows; 2,819 quarantined rows; 304/304 DQ rules pass; 12 gold models materialised.
+- Pipeline `RUN_20261121_001`: SUCCESS; 1,588,637 source rows; 1,585,844 valid rows; 2,793 quarantined rows; 2,833 rule-failure records; DQ score 100.0/100; 58 tables materialised.
 - `npm run lint`, `npm run typecheck`, `npm run build`: PASS.
 - Playwright (`npx playwright test --config=e2e/playwright.config.ts`): PASS (18 passed, chromium + mobile).
 - Frontend contract resolution: all 15 configured page KPI endpoints return every configured frontend KPI key.

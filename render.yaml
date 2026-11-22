@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: hospital360-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.api
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: DATA_PATH
+        value: /app/data
+      - key: DATABASE_PATH
+        value: /app/data/hospital360.duckdb
+      - key: CORS_ORIGINS
+        sync: false

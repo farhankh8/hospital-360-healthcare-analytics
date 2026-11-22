@@ -60,17 +60,17 @@ function HospitalMultiSelect() {
         type="button"
         onClick={() => setOpen((value) => !value)}
         className="flex h-9 min-w-[150px] items-center justify-between gap-2 rounded-md border border-line bg-white px-2.5 text-xs text-ink transition hover:border-teal"
-        aria-label="Hospital filter"
+        aria-label={`Hospital filter: ${label}`}
         data-testid="filter-hospital"
         aria-expanded={open}
       >
         <span className="truncate">{label}</span>
-        <ChevronDown className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+        <ChevronDown className="h-3.5 w-3.5 shrink-0 text-slate-600" />
       </button>
       {open && (
         <div role="listbox" aria-label="Hospitals" className="absolute left-0 top-10 z-40 max-h-64 w-64 overflow-auto rounded-lg border border-line bg-white p-2 shadow-lg">
-          {optionsLoading && <p className="px-2 py-3 text-xs text-slate-400">Loading hospitals…</p>}
-          {!optionsLoading && hospitals.length === 0 && <p className="px-2 py-3 text-xs text-slate-400">No hospitals returned by the API.</p>}
+          {optionsLoading && <p className="px-2 py-3 text-xs text-slate-600">Loading hospitals…</p>}
+          {!optionsLoading && hospitals.length === 0 && <p className="px-2 py-3 text-xs text-slate-600">No hospitals returned by the API.</p>}
           {hospitals.map((hospital) => (
             <button
               key={hospital.value}
@@ -111,7 +111,7 @@ export function FilterBar({ inDrawer = false }: { inDrawer?: boolean }) {
     <div className={cn('flex flex-wrap items-end gap-3', inDrawer && 'flex-col items-stretch')}>
       {show('date_from') && (
         <div className="min-w-[240px] flex-1">
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-400">Date range</label>
+          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Date range</label>
           <DateRangePicker
             from={filters.date_from}
             to={filters.date_to}
@@ -122,25 +122,24 @@ export function FilterBar({ inDrawer = false }: { inDrawer?: boolean }) {
       )}
       {show('hospital_ids') && (
         <div>
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-400">Hospital</label>
+          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Hospital</label>
           <HospitalMultiSelect />
         </div>
       )}
       {show('department_id') && (
         <div className="w-44">
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-400">Department</label>
+          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Department</label>
           <Select
             value={filters.department_id}
             onChange={(event) => setFilter('department_id', event.target.value)}
             options={departments}
-            placeholder={filters.hospital_ids.length ? 'All departments' : 'Select a hospital first'}
-            disabled={!filters.hospital_ids.length}
+            placeholder="All departments"
           />
         </div>
       )}
       {show('specialty_id') && (
         <div className="w-40">
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-400">Specialty</label>
+          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Specialty</label>
           <Select
             value={filters.specialty_id}
             onChange={(event) => setFilter('specialty_id', event.target.value)}
@@ -152,7 +151,7 @@ export function FilterBar({ inDrawer = false }: { inDrawer?: boolean }) {
       )}
       {show('payer_id') && (
         <div className="w-36">
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-400">Payer ID</label>
+          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Payer ID</label>
           <input
             value={filters.payer_id}
             onChange={(event) => setFilter('payer_id', event.target.value.trim())}
@@ -163,13 +162,13 @@ export function FilterBar({ inDrawer = false }: { inDrawer?: boolean }) {
       )}
       {show('encounter_type') && (
         <div className="w-36">
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-400">Encounter</label>
+          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Encounter</label>
           <Select value={filters.encounter_type} onChange={(event) => setFilter('encounter_type', event.target.value)} options={ENCOUNTER_TYPES} placeholder="All types" />
         </div>
       )}
       {show('patient_type') && (
         <div className="w-32">
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-400">Patient</label>
+          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Patient</label>
           <Select value={filters.patient_type} onChange={(event) => setFilter('patient_type', event.target.value)} options={PATIENT_TYPES} placeholder="All patients" />
         </div>
       )}
@@ -210,7 +209,7 @@ export function FilterBar({ inDrawer = false }: { inDrawer?: boolean }) {
       </div>
       {compare && !inDrawer && <Badge tone="info">Comparing with previous period</Badge>}
       {!inDrawer && (
-        <button type="button" onClick={() => setDrawerOpen(true)} className="ml-auto flex items-center gap-1.5 text-xs text-slate-500 lg:hidden">
+        <button type="button" onClick={() => setDrawerOpen(true)} className="ml-auto flex items-center gap-1.5 text-xs text-slate-600 lg:hidden">
           <SlidersHorizontal className="h-4 w-4" />
           Filters
         </button>

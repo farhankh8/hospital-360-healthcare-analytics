@@ -48,6 +48,14 @@ jobs:
             exit 1
           fi
 
+      - name: Upload pytest output
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-output
+          path: pytest.out
+          if-no-files-found: ignore
+
   frontend:
     name: Frontend - lint, typecheck & build
     runs-on: ubuntu-latest
@@ -141,9 +149,73 @@ jobs:
         run: npx playwright test --config=e2e/playwright.config.ts
 
       - name: Upload Playwright report
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
           path: web/e2e/playwright-report
           if-no-files-found: ignore
+
+  docker:
+    name: Docker - build, smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build images (timed)
+        shell: bash
+        run: |
+          set -e
+          start=$(date +%s)
+          docker compose build
+          end=$(date +%s)
+          echo "BUILD_SECONDS=$((end-start))"
+          echo "Total build time: $((end-start))s"
+          docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"
+
+      - name: Start stack
+        shell: bash
+        run: |
+          set -e
+          docker compose up -d
+          api_ready=0; web_ready=0
+          for i in {1..90}; do if curl -fsS http://127.0.0.1:8000/api/v1/health >/dev/null; then api_ready=1; break; fi; sleep 2; done
+          for i in {1..90}; do if curl -fsS http://127.0.0.1:3000 >/dev/null; then web_ready=1; break; fi; sleep 2; done
+          if [ "$api_ready" != "1" ] || [ "$web_ready" != "1" ]; then docker compose logs --tail=300 > docker.log 2>&1 || true; tail -n 200 docker.log || true; exit 1; fi
+
+      - name: Smoke checks
+        shell: bash
+        run: |
+          set -e
+          {
+            curl -fsS http://127.0.0.1:8000/api/v1/health
+            echo
+            curl -fsS http://127.0.0.1:8000/api/v1/hospitals | head -c 500
+            echo
+            curl -fsS http://127.0.0.1:3000 >/dev/null
+            echo "WEB_OK"
+            docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"
+          } 2>&1 | tee docker-smoke.out
+
+      - name: Collect docker logs on failure
+        if: failure()
+        shell: bash
+        run: docker compose logs --tail=400 > docker.log 2>&1 || true
+
+      - name: Upload Docker logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-logs
+          path: |
+            docker.log
+            docker-smoke.out
+          if-no-files-found: ignore
+
+      - name: Tear down
+        if: always()
+        shell: bash
+        run: docker compose down -v

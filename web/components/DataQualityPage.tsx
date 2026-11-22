@@ -61,8 +61,8 @@ export function DataQualityPage() {
 
       <section aria-label="Key performance indicators">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">Key indicators</h2>
-          <span className="text-[11px] text-slate-400">Values from /data-quality/summary</span>
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-600">Key indicators</h2>
+          <span className="text-[11px] text-slate-600">Values from /data-quality/summary</span>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {summaryQuery.isLoading && DQ_KPI_IDS.map((id) => <Skeleton key={id} className="h-[148px] w-full" />)}
@@ -108,7 +108,7 @@ export function DataQualityPage() {
         { key: 'pipeline_run_id', title: 'Pipeline run', sortable: true },
       ]} filters={filters} params={pageParams} title="Validation failures" exportName="dq-failures" primaryExport={false} />
 
-      <p className="flex items-center gap-2 text-[11px] text-slate-400"><ShieldCheck className="h-3.5 w-3.5" /> Intentional quality issues are documented in the pipeline manifest and never silently discarded.</p>
+      <p className="flex items-center gap-2 text-[11px] text-slate-600"><ShieldCheck className="h-3.5 w-3.5" /> Intentional quality issues are documented in the pipeline manifest and never silently discarded.</p>
     </div>
   );
 }

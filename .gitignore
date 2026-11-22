@@ -58,6 +58,9 @@ test-results/
 playwright/.cache/
 blob-report/
 
+# --- Local verification / logs (outside-repo logs may also exist at workspace root) ---
+verification_logs/
+
 # --- OS / editor ---
 .DS_Store
 Thumbs.db

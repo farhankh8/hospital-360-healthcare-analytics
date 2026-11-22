@@ -133,7 +133,7 @@ export function DataTable({ endpoint, columns, filters, params: extraParams, tit
           <button
             type="button"
             onClick={tableColumn.getToggleSortingHandler()}
-            className="flex items-center gap-1 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500 hover:text-teal"
+            className="flex items-center gap-1 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-600 hover:text-teal"
           >
             {column.title}
             {tableColumn.getIsSorted() === 'asc' ? <ArrowUp className="h-3 w-3" /> : tableColumn.getIsSorted() === 'desc' ? <ArrowDown className="h-3 w-3" /> : null}
@@ -205,7 +205,7 @@ export function DataTable({ endpoint, columns, filters, params: extraParams, tit
       {searchable && (
         <div className="border-b border-line px-5 py-3">
           <div className="relative max-w-sm">
-            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-slate-400" />
+            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-slate-600" />
             <input
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
@@ -214,7 +214,7 @@ export function DataTable({ endpoint, columns, filters, params: extraParams, tit
               className="h-9 w-full rounded-md border border-line bg-white pl-8 pr-8 text-xs outline-none focus:border-teal focus:ring-2 focus:ring-teal/15"
             />
             {searchInput && (
-              <button type="button" onClick={() => setSearchInput('')} className="absolute right-2 top-2.5 text-slate-400 hover:text-ink" aria-label="Clear search">
+              <button type="button" onClick={() => setSearchInput('')} className="absolute right-2 top-2.5 text-slate-600 hover:text-ink" aria-label="Clear search">
                 <X className="h-3.5 w-3.5" />
               </button>
             )}
@@ -258,7 +258,7 @@ export function DataTable({ endpoint, columns, filters, params: extraParams, tit
       )}
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line px-5 py-3">
-        <p className="text-[11px] text-slate-500">
+        <p className="text-[11px] text-slate-600">
           {totalRecords ? `${pagination.pageIndex * pagination.pageSize + 1}–${Math.min((pagination.pageIndex + 1) * pagination.pageSize, totalRecords)} of ${totalRecords}` : '0 records'}
         </p>
         <div className="flex items-center gap-2">
@@ -270,7 +270,7 @@ export function DataTable({ endpoint, columns, filters, params: extraParams, tit
           >
             <ChevronLeft className="h-3.5 w-3.5" /> Previous
           </button>
-          <span className="text-[11px] text-slate-500">Page {pagination.pageIndex + 1} of {pageCount}</span>
+          <span className="text-[11px] text-slate-600">Page {pagination.pageIndex + 1} of {pageCount}</span>
           <button
             type="button"
             onClick={() => table.nextPage()}

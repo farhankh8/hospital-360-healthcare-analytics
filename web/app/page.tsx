@@ -119,15 +119,40 @@ export default function LandingPage() {
       <main>
         <section className="border-b border-line bg-surface">
           <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
-            <div className="max-w-4xl">
-              <p className="inline-flex items-center rounded-full border border-line bg-surface-alt px-3 py-1 text-[11px] font-medium text-muted">Synthetic multi-hospital analytics platform</p>
-              <h1 className="mt-5 max-w-3xl text-4xl font-semibold tracking-tight text-ink-strong sm:text-5xl sm:leading-[1.1]">Operational clarity for every hospital decision.</h1>
-              <p className="mt-5 max-w-2xl text-base leading-7 text-muted">HOSPITAL 360 is an API-driven healthcare analytics workspace for operations, finance, quality, workforce, and governance. All data is synthetic and for educational use only.</p>
-              <div className="mt-8 flex flex-wrap items-center gap-3">
-                <Link href="/overview" className="inline-flex h-11 items-center gap-2 rounded-lg bg-navy px-5 text-sm font-medium text-white hover:bg-navy-light">Enter dashboard <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
-                {REPO_URL ? <a href={REPO_URL} target="_blank" rel="noreferrer" className="inline-flex h-11 items-center gap-2 rounded-lg border border-line bg-surface px-5 text-sm font-medium text-ink hover:bg-surface-hover"><Github className="h-4 w-4" aria-hidden="true" /> View on GitHub</a> : <Link href="/data-quality" className="inline-flex h-11 items-center gap-2 rounded-lg border border-line bg-surface px-5 text-sm font-medium text-ink hover:bg-surface-hover">View data quality</Link>}
+            <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+              <div>
+                <p className="inline-flex items-center rounded-full border border-line bg-surface-alt px-3 py-1 text-[11px] font-medium text-muted">Synthetic multi-hospital analytics platform</p>
+                <h1 className="mt-5 max-w-3xl text-4xl font-semibold tracking-tight text-ink-strong sm:text-5xl sm:leading-[1.1]">Operational clarity for every hospital decision.</h1>
+                <p className="mt-5 max-w-2xl text-base leading-7 text-muted">HOSPITAL 360 is an API-driven healthcare analytics workspace for operations, finance, quality, workforce, and governance. All data is synthetic and for educational use only.</p>
+                <div className="mt-8 flex flex-wrap items-center gap-3">
+                  <Link href="/overview" className="inline-flex h-11 items-center gap-2 rounded-lg bg-navy px-5 text-sm font-medium text-white hover:bg-navy-light">Enter dashboard <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+                  {REPO_URL ? <a href={REPO_URL} target="_blank" rel="noreferrer" className="inline-flex h-11 items-center gap-2 rounded-lg border border-line bg-surface px-5 text-sm font-medium text-ink hover:bg-surface-hover"><Github className="h-4 w-4" aria-hidden="true" /> View on GitHub</a> : <Link href="/data-quality" className="inline-flex h-11 items-center gap-2 rounded-lg border border-line bg-surface px-5 text-sm font-medium text-ink hover:bg-surface-hover">View data quality</Link>}
+                </div>
+                <dl className="mt-10 grid gap-4 sm:grid-cols-3">{productStats.map((s) => <Stat key={s.label} {...s} />)}</dl>
               </div>
-              <dl className="mt-10 grid gap-4 sm:grid-cols-3">{productStats.map((s) => <Stat key={s.label} {...s} />)}</dl>
+
+              <div className="rounded-2xl border border-line bg-canvas p-6 shadow-card">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-teal">At a glance</p>
+                <h2 className="mt-2 text-lg font-semibold tracking-tight text-ink-strong">What’s inside the dashboard</h2>
+                <div className="mt-5 space-y-3">
+                  {[
+                    { icon: LayoutDashboard, title: 'Executive overview', text: 'KPIs, trends, comparisons, and drill-downs.' },
+                    { icon: Building2, title: 'Hospital operations', text: 'Appointments, emergency, inpatient, procedures, diagnostics.' },
+                    { icon: WalletCards, title: 'Finance & claims', text: 'Revenue, collections, leakage, denials, and payer mix.' },
+                    { icon: ShieldAlert, title: 'Governance', text: 'Data quality, pipeline, glossary, and methodology.' },
+                  ].map(({ icon: Icon, title, text }) => (
+                    <div key={title} className="flex gap-3 rounded-xl border border-line bg-surface p-4">
+                      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-alt text-teal">
+                        <Icon className="h-4 w-4" aria-hidden="true" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-ink-strong">{title}</p>
+                        <p className="mt-0.5 text-xs leading-5 text-muted">{text}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </section>

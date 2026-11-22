@@ -8,6 +8,7 @@ import {
   CalendarClock,
   Database,
   FileCheck2,
+  FileText,
   FlaskConical,
   GitBranch,
   LayoutDashboard,
@@ -51,25 +52,27 @@ const STACK_GROUPS = [
 ];
 
 const MODULES = [
-  { icon: LayoutDashboard, name: 'Executive Overview', group: 'Executive', detail: 'System-wide KPIs, trends, and drill-down entry points.' },
-  { icon: Building2, name: 'Hospital Comparison', group: 'Executive', detail: 'Cross-hospital benchmarks, rankings, and profile views.' },
-  { icon: CalendarClock, name: 'Appointments', group: 'Operations', detail: 'Scheduling volume, completion, no-shows, and wait times.' },
-  { icon: Siren, name: 'Emergency', group: 'Operations', detail: 'ED arrivals, triage, boarding, and throughput signals.' },
-  { icon: Stethoscope, name: 'Inpatient', group: 'Operations', detail: 'Admissions, occupancy, LOS, and discharge flow.' },
-  { icon: Activity, name: 'Procedures', group: 'Operations', detail: 'Procedure volume, duration, and utilization patterns.' },
-  { icon: FlaskConical, name: 'Diagnostics', group: 'Operations', detail: 'Lab/radiology turnaround and completion metrics.' },
-  { icon: Pill, name: 'Pharmacy', group: 'Operations', detail: 'Medication activity, dispensing, and inventory signals.' },
-  { icon: WalletCards, name: 'Finance', group: 'Finance', detail: 'Revenue, cost, margin, and payer-mix views.' },
-  { icon: FileCheck2, name: 'Claims & Denials', group: 'Finance', detail: 'Claim status, denial rates, and reimbursement tracking.' },
-  { icon: UsersRound, name: 'Workforce', group: 'Workforce', detail: 'Staffing, overtime, and department workforce indicators.' },
-  { icon: Package, name: 'Inventory', group: 'Workforce', detail: 'Stock levels, consumption, and replenishment risk.' },
-  { icon: ShieldCheck, name: 'Quality & Safety', group: 'Quality', detail: 'Clinical quality, safety events, and compliance metrics.' },
-  { icon: BarChart3, name: 'Patient Experience', group: 'Quality', detail: 'Satisfaction, feedback, and service experience trends.' },
-  { icon: Database, name: 'Data Explorer', group: 'Governance', detail: 'Record-level exploration with filters and export.' },
-  { icon: RouteIcon, name: 'Patient Journey', group: 'Governance', detail: 'Timeline view across encounters and care events.' },
-  { icon: ShieldAlert, name: 'Data Quality', group: 'Governance', detail: 'Freshness, completeness, and validation checks.' },
-  { icon: GitBranch, name: 'Pipeline', group: 'Governance', detail: 'Run history, lineage, and pipeline health context.' },
-  { icon: BookOpen, name: 'KPI Glossary', group: 'Governance', detail: 'Metric definitions, formulas, and ownership.' },
+  { icon: LayoutDashboard, name: 'Executive Overview', group: 'Executive', href: '/overview', detail: 'System-wide KPIs, trends, and drill-down entry points.' },
+  { icon: Building2, name: 'Hospital Comparison', group: 'Executive', href: '/hospitals', detail: 'Cross-hospital benchmarks, rankings, and profile views.' },
+  { icon: Building2, name: 'Hospital Profile', group: 'Executive', href: '/hospitals', detail: 'Operational, financial, and experience detail for a single hospital.' },
+  { icon: CalendarClock, name: 'Appointments', group: 'Operations', href: '/appointments', detail: 'Scheduling volume, completion, no-shows, and wait times.' },
+  { icon: Siren, name: 'Emergency', group: 'Operations', href: '/emergency', detail: 'ED arrivals, triage, boarding, and throughput signals.' },
+  { icon: Stethoscope, name: 'Inpatient', group: 'Operations', href: '/inpatient', detail: 'Admissions, occupancy, LOS, and discharge flow.' },
+  { icon: Activity, name: 'Procedures', group: 'Operations', href: '/procedures', detail: 'Procedure volume, duration, and utilization patterns.' },
+  { icon: FlaskConical, name: 'Diagnostics', group: 'Operations', href: '/diagnostics', detail: 'Lab/radiology turnaround and completion metrics.' },
+  { icon: Pill, name: 'Pharmacy', group: 'Operations', href: '/pharmacy', detail: 'Medication activity, dispensing, and inventory signals.' },
+  { icon: WalletCards, name: 'Finance', group: 'Finance', href: '/finance', detail: 'Gross/net revenue, collections, receivables, and leakage views.' },
+  { icon: FileCheck2, name: 'Claims & Denials', group: 'Finance', href: '/claims', detail: 'Claim submission, adjudication, denials, payer mix, and appeals.' },
+  { icon: UsersRound, name: 'Workforce', group: 'Workforce', href: '/workforce', detail: 'Staffing, shift coverage, overtime, absence, and workforce cost.' },
+  { icon: Package, name: 'Inventory', group: 'Workforce', href: '/inventory', detail: 'Stock levels, stockouts, expiry, waste, and supplier performance.' },
+  { icon: ShieldCheck, name: 'Quality & Safety', group: 'Quality', href: '/quality', detail: 'Clinical quality, safety events, and compliance metrics.' },
+  { icon: BarChart3, name: 'Patient Experience', group: 'Quality', href: '/experience', detail: 'Satisfaction, feedback, and service experience trends.' },
+  { icon: Database, name: 'Data Explorer', group: 'Governance', href: '/explorer', detail: 'Record-level exploration with filters and export.' },
+  { icon: RouteIcon, name: 'Patient Journey', group: 'Governance', href: '/patient-journey', detail: 'Timeline view across encounters and care events.' },
+  { icon: ShieldAlert, name: 'Data Quality', group: 'Governance', href: '/data-quality', detail: 'Freshness, completeness, and validation checks.' },
+  { icon: GitBranch, name: 'Pipeline', group: 'Governance', href: '/pipeline', detail: 'Run history, lineage, and pipeline health context.' },
+  { icon: BookOpen, name: 'KPI Glossary', group: 'Governance', href: '/kpi-glossary', detail: 'Metric definitions, formulas, and ownership.' },
+  { icon: FileText, name: 'Methodology', group: 'Governance', href: '/methodology', detail: 'How synthetic data, validation, and metrics are produced and presented.' },
 ];
 
 const FLOW = [
@@ -214,21 +217,22 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {MODULES.map(({ icon: Icon, name, group, detail }) => (
-              <article key={name} className="rounded-xl border border-line bg-surface p-4 shadow-card">
+            {MODULES.map(({ icon: Icon, name, group, detail, href }) => (
+              <Link key={name} href={href} className="group rounded-xl border border-line bg-surface p-4 shadow-card transition hover:border-teal/40 hover:bg-surface-hover">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-alt text-teal">
                       <Icon className="h-4 w-4" aria-hidden="true" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-semibold text-ink-strong">{name}</h3>
+                      <h3 className="text-sm font-semibold text-ink-strong group-hover:text-teal-dark">{name}</h3>
                       <p className="text-[11px] text-muted">{group}</p>
                     </div>
                   </div>
+                  <ArrowRight className="mt-1 h-3.5 w-3.5 text-slate-300 transition group-hover:text-teal" aria-hidden="true" />
                 </div>
                 <p className="mt-3 text-xs leading-5 text-muted">{detail}</p>
-              </article>
+              </Link>
             ))}
           </div>
         </section>

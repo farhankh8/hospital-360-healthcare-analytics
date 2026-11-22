@@ -75,14 +75,14 @@ function ProfileHeader({ endpoint, params }: { endpoint: string; params: Record<
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h2 className="text-lg font-semibold text-navy">{title}</h2>
-          <p className="mt-0.5 text-xs text-slate-600">Synthetic hospital record from the API</p>
+          <p className="mt-0.5 text-xs text-muted">Synthetic hospital record from the API</p>
         </div>
         {status && <Badge tone="info">{status}</Badge>}
       </div>
       <dl className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-7">
         {fields.map(([label, value]) => (
           <div key={label}>
-            <dt className="text-[10px] font-semibold uppercase tracking-wide text-slate-600">{label}</dt>
+            <dt className="text-[10px] font-semibold uppercase tracking-wide text-muted">{label}</dt>
             <dd className="mt-1 truncate text-xs font-medium text-ink">{displayValue(value)}</dd>
           </div>
         ))}
@@ -99,8 +99,8 @@ function ComparisonControls() {
     <Card className="p-4" data-testid="comparison-controls">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <div>
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Comparison metric</label>
-          <select value={metric} onChange={(e) => setPageParam('metric', e.target.value)} className="h-9 rounded-md border border-line px-3 text-xs" data-testid="comparison-metric">
+          <label htmlFor="comparison-metric-select" className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted">Comparison metric</label>
+          <select id="comparison-metric-select" aria-label="Comparison metric" value={metric} onChange={(e) => setPageParam('metric', e.target.value)} className="h-9 rounded-md border border-line px-3 text-xs" data-testid="comparison-metric">
             <option value="revenue">Revenue</option>
             <option value="patient_volume">Patient volume</option>
             <option value="occupancy">Occupancy</option>
@@ -110,13 +110,13 @@ function ComparisonControls() {
           </select>
         </div>
         <div>
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Ranking sort</label>
-          <select value={rankSort} onChange={(e) => setPageParam('rank_sort', e.target.value)} className="h-9 rounded-md border border-line px-3 text-xs" data-testid="comparison-sort">
+          <label htmlFor="comparison-sort-select" className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted">Ranking sort</label>
+          <select id="comparison-sort-select" aria-label="Ranking sort" value={rankSort} onChange={(e) => setPageParam('rank_sort', e.target.value)} className="h-9 rounded-md border border-line px-3 text-xs" data-testid="comparison-sort">
             <option value="desc">Highest first</option>
             <option value="asc">Lowest first</option>
           </select>
         </div>
-        <p className="text-[11px] text-slate-600">Use global hospital filters to select up to 10 hospitals for comparison. Click a hospital row to open its profile.</p>
+        <p className="text-[11px] text-muted">Use global hospital filters to select up to 10 hospitals for comparison. Click a hospital row to open its profile.</p>
       </div>
     </Card>
   );
@@ -155,18 +155,21 @@ export function AnalyticsPage({ config }: { config: PageConfig }) {
     : undefined;
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <PageHeading title={config.title} description={config.description} badge={<Badge tone="info">{config.navGroup}</Badge>} />
       {config.profileEndpoint && <ProfileHeader endpoint={config.profileEndpoint} params={pageParams} />}
 
       {config.tabs && config.tabs.length > 0 && (
-        <div className="flex flex-wrap gap-2 border-b border-line pb-2" data-testid="profile-tabs">
+        <div className="inline-flex flex-wrap gap-1 rounded-lg border border-line bg-surface-alt p-1" data-testid="profile-tabs">
           {config.tabs.map((tab) => (
             <button
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={cn('rounded-md px-3 py-1.5 text-xs font-medium', activeTab === tab.id ? 'bg-teal-light/40 text-teal-dark' : 'text-slate-600 hover:text-navy')}
+              className={cn(
+                'rounded-md px-3 py-1.5 text-xs font-medium transition',
+                activeTab === tab.id ? 'bg-surface text-ink-strong shadow-sm' : 'text-muted hover:text-ink',
+              )}
               data-testid={`tab-${tab.id}`}
             >
               {tab.label}
@@ -180,13 +183,13 @@ export function AnalyticsPage({ config }: { config: PageConfig }) {
       {config.kpiEndpoint && showKpis && (
         <section aria-label="Key performance indicators">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-600">Key indicators</h2>
-            <span className="text-[11px] text-slate-600">Values from {config.kpiEndpoint}</span>
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-muted">Key indicators</h2>
+            <span className="text-[11px] text-muted">Values from {config.kpiEndpoint}</span>
           </div>
           {kpiQuery.isError ? (
             <Card><ErrorState message={kpiQuery.error?.message || 'KPIs could not be loaded.'} onRetry={() => kpiQuery.refetch()} /></Card>
           ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+            <div className="flex min-w-0 flex-wrap gap-4 [&>*]:min-w-0 [&>*]:flex-[1_1_260px]">
               {kpiQuery.isLoading
                 ? ids.map((id) => <Skeleton key={id} className="h-[148px] w-full" />)
                 : ids.map((id) => (
@@ -206,10 +209,10 @@ export function AnalyticsPage({ config }: { config: PageConfig }) {
       {visibleCharts.length > 0 && (
         <section aria-label="Charts">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-600">Analytics</h2>
-            <span className="text-[11px] text-slate-600">Hover for detail, click a point to drill down</span>
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-muted">Analytics</h2>
+            <span className="text-[11px] text-muted">Hover for detail, click a point to drill down</span>
           </div>
-          <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+          <div className="grid min-w-0 grid-cols-1 gap-5 xl:grid-cols-2 [&>*]:min-w-0">
             {visibleCharts.map((chartConfig) => (
               <ChartPanel key={`${chartConfig.title}-${chartConfig.endpoint}`} config={chartConfig} tableEndpoint={config.tableEndpoint} filters={filters} params={pageParams} />
             ))}

@@ -49,22 +49,22 @@ export function DataQualityPage() {
   const kpis = useMemo(() => summaryQuery.data?.data?.kpis, [summaryQuery.data]);
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <PageHeading title="Data Quality" description="Validation rules, detected failures and dataset-level quality indicators." badge={<Badge tone="info">Engineering</Badge>} />
 
       <Card className="border-amber-200 bg-amber-50/60 p-4 text-sm text-slate-700">
         <p className="font-medium text-slate-900">Post-quarantine DQ rule score: silver passes all rules after invalid rows are quarantined.</p>
-        <p className="mt-1 text-slate-600">
+        <p className="mt-1 text-muted">
           The DQ rule checks below run on cleaned silver/gold data. Detections at ingestion are shown in the quarantine charts below, so a 100% post-quarantine score does not mean raw input was perfect.
         </p>
       </Card>
 
       <section aria-label="Key performance indicators">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-600">Key indicators</h2>
-          <span className="text-[11px] text-slate-600">Values from /data-quality/summary</span>
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-muted">Key indicators</h2>
+          <span className="text-[11px] text-muted">Values from /data-quality/summary</span>
         </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="flex min-w-0 flex-wrap gap-4 [&>*]:min-w-0 [&>*]:flex-[1_1_260px]">
           {summaryQuery.isLoading && DQ_KPI_IDS.map((id) => <Skeleton key={id} className="h-[148px] w-full" />)}
           {!summaryQuery.isLoading && DQ_KPI_IDS.map((id) => (
             <KpiCard key={id} kpiId={id} item={kpis?.[id]} route="/data-quality" />
@@ -74,11 +74,11 @@ export function DataQualityPage() {
         {!summaryQuery.isLoading && !summaryQuery.isError && (!kpis || Object.keys(kpis).length === 0) && <Card className="mt-3"><EmptyState message="No summary values returned" /></Card>}
       </section>
 
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-2">
+      <div className="grid min-w-0 grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-2 [&>*]:min-w-0">
         {DQ_CHARTS.map((config) => <DqChart key={config.endpoint} config={config} filters={filters} params={pageParams} />)}
       </div>
 
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+      <div className="grid min-w-0 grid-cols-1 gap-5 xl:grid-cols-2 [&>*]:min-w-0">
         <DataTable endpoint="/data-quality/datasets" columns={[
           { key: 'dataset', title: 'Dataset', sortable: true },
           { key: 'records', title: 'Records', type: 'number', sortable: true },
@@ -108,7 +108,7 @@ export function DataQualityPage() {
         { key: 'pipeline_run_id', title: 'Pipeline run', sortable: true },
       ]} filters={filters} params={pageParams} title="Validation failures" exportName="dq-failures" primaryExport={false} />
 
-      <p className="flex items-center gap-2 text-[11px] text-slate-600"><ShieldCheck className="h-3.5 w-3.5" /> Intentional quality issues are documented in the pipeline manifest and never silently discarded.</p>
+      <p className="flex items-center gap-2 text-[11px] text-muted"><ShieldCheck className="h-3.5 w-3.5" /> Intentional quality issues are documented in the pipeline manifest and never silently discarded.</p>
     </div>
   );
 }

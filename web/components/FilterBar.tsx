@@ -59,18 +59,18 @@ function HospitalMultiSelect() {
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="flex h-9 min-w-[150px] items-center justify-between gap-2 rounded-md border border-line bg-white px-2.5 text-xs text-ink transition hover:border-teal"
+        className="flex h-9 w-full min-w-0 items-center justify-between gap-2 rounded-md border border-line bg-surface px-2.5 text-xs text-ink transition hover:border-teal sm:min-w-[150px]"
         aria-label={`Hospital filter: ${label}`}
         data-testid="filter-hospital"
         aria-expanded={open}
       >
         <span className="truncate">{label}</span>
-        <ChevronDown className="h-3.5 w-3.5 shrink-0 text-slate-600" />
+        <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted" />
       </button>
       {open && (
-        <div role="listbox" aria-label="Hospitals" className="absolute left-0 top-10 z-40 max-h-64 w-64 overflow-auto rounded-lg border border-line bg-white p-2 shadow-lg">
-          {optionsLoading && <p className="px-2 py-3 text-xs text-slate-600">Loading hospitals…</p>}
-          {!optionsLoading && hospitals.length === 0 && <p className="px-2 py-3 text-xs text-slate-600">No hospitals returned by the API.</p>}
+        <div role="listbox" aria-label="Hospitals" className="absolute left-0 top-10 z-40 max-h-64 w-64 max-w-[calc(100vw-2rem)] overflow-auto rounded-lg border border-line bg-surface p-2 shadow-lg">
+          {optionsLoading && <p className="px-2 py-3 text-xs text-muted">Loading hospitals…</p>}
+          {!optionsLoading && hospitals.length === 0 && <p className="px-2 py-3 text-xs text-muted">No hospitals returned by the API.</p>}
           {hospitals.map((hospital) => (
             <button
               key={hospital.value}
@@ -80,7 +80,7 @@ function HospitalMultiSelect() {
               onClick={() => toggle(hospital.value)}
               className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs text-ink hover:bg-canvas"
             >
-              <span className={cn('flex h-4 w-4 items-center justify-center rounded border', selected.includes(hospital.value) ? 'border-teal bg-teal text-white' : 'border-slate-300')}>
+              <span className={cn('flex h-4 w-4 items-center justify-center rounded border', selected.includes(hospital.value) ? 'border-teal bg-teal text-white' : 'border-line-strong')}>
                 {selected.includes(hospital.value) && <Check className="h-3 w-3" />}
               </span>
               <span className="truncate">{hospital.label}</span>
@@ -107,109 +107,120 @@ export function FilterBar({ inDrawer = false }: { inDrawer?: boolean }) {
   const show = (key: FilterKey) => enabled.size === 0 || enabled.has(key);
   const exportData = () => window.dispatchEvent(new CustomEvent('hospital360:export'));
 
-  return (
-    <div className={cn('flex flex-wrap items-end gap-3', inDrawer && 'flex-col items-stretch')}>
-      {show('date_from') && (
-        <div className="min-w-[240px] flex-1">
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Date range</label>
-          <DateRangePicker
-            from={filters.date_from}
-            to={filters.date_to}
-            onFromChange={(value) => setFilter('date_from', value)}
-            onToChange={(value) => setFilter('date_to', value)}
-          />
-        </div>
-      )}
-      {show('hospital_ids') && (
-        <div>
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Hospital</label>
-          <HospitalMultiSelect />
-        </div>
-      )}
-      {show('department_id') && (
-        <div className="w-44">
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Department</label>
-          <Select
-            value={filters.department_id}
-            onChange={(event) => setFilter('department_id', event.target.value)}
-            options={departments}
-            placeholder="All departments"
-          />
-        </div>
-      )}
-      {show('specialty_id') && (
-        <div className="w-40">
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Specialty</label>
-          <Select
-            value={filters.specialty_id}
-            onChange={(event) => setFilter('specialty_id', event.target.value)}
-            options={specialties}
-            placeholder="All specialties"
-            disabled={!specialties.length}
-          />
-        </div>
-      )}
-      {show('payer_id') && (
-        <div className="w-36">
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Payer ID</label>
-          <input
-            value={filters.payer_id}
-            onChange={(event) => setFilter('payer_id', event.target.value.trim())}
-            placeholder="e.g. PAY01"
-            className="h-9 w-full rounded-md border border-line bg-white px-2.5 text-xs outline-none focus:border-teal focus:ring-2 focus:ring-teal/15"
-          />
-        </div>
-      )}
-      {show('encounter_type') && (
-        <div className="w-36">
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Encounter</label>
-          <Select value={filters.encounter_type} onChange={(event) => setFilter('encounter_type', event.target.value)} options={ENCOUNTER_TYPES} placeholder="All types" />
-        </div>
-      )}
-      {show('patient_type') && (
-        <div className="w-32">
-          <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-slate-600">Patient</label>
-          <Select value={filters.patient_type} onChange={(event) => setFilter('patient_type', event.target.value)} options={PATIENT_TYPES} placeholder="All patients" />
-        </div>
-      )}
+  const filterControlClass = inDrawer ? 'w-full min-w-0' : 'min-w-0 flex-1';
 
-      <div className="flex items-center gap-2 pb-0.5">
-        <button
-          type="button"
-          onClick={reset}
-          className="inline-flex h-9 items-center gap-1.5 rounded-md border border-line bg-white px-2.5 text-xs font-medium text-slate-600 transition hover:border-teal hover:text-teal"
-        >
-          <RotateCcw className="h-3.5 w-3.5" />
-          Reset
-        </button>
-        <button
-          type="button"
-          onClick={exportData}
-          className="inline-flex h-9 items-center gap-1.5 rounded-md bg-navy px-2.5 text-xs font-medium text-white transition hover:bg-navy-light"
-        >
-          <Download className="h-3.5 w-3.5" />
-          Export
-        </button>
-        <button
-          type="button"
-          onClick={toggleCompare}
-          className={cn(
-            'inline-flex h-9 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium transition',
-            compare ? 'border-teal bg-teal-light text-teal-dark' : 'border-line bg-white text-slate-600 hover:border-teal',
-          )}
-        >
-          <GitCompareArrows className="h-3.5 w-3.5" />
-          Compare
-        </button>
-        {inDrawer && (
-          <IconButton onClick={() => setDrawerOpen(false)} aria-label="Close filters">
-            <X className="h-4 w-4" />
-          </IconButton>
+  return (
+    <div className={cn('min-w-0 space-y-3', inDrawer && 'space-y-4')} data-testid="filter-bar">
+      <div className={cn('grid min-w-0 gap-3', inDrawer ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-4')}>
+        {show('date_from') && (
+          <div className={cn(inDrawer ? 'w-full' : 'md:col-span-2 xl:col-span-1')}>
+            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted">Date range</label>
+            <DateRangePicker
+              from={filters.date_from}
+              to={filters.date_to}
+              onFromChange={(value) => setFilter('date_from', value)}
+              onToChange={(value) => setFilter('date_to', value)}
+            />
+          </div>
+        )}
+        {show('hospital_ids') && (
+          <div className={filterControlClass}>
+            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted">Hospital</label>
+            <HospitalMultiSelect />
+          </div>
+        )}
+        {show('department_id') && (
+          <div className={filterControlClass}>
+            <Select
+              label="Department"
+              value={filters.department_id}
+              onChange={(event) => setFilter('department_id', event.target.value)}
+              options={departments}
+              placeholder="All departments"
+            />
+          </div>
+        )}
+        {show('specialty_id') && (
+          <div className={filterControlClass}>
+            <Select
+              label="Specialty"
+              value={filters.specialty_id}
+              onChange={(event) => setFilter('specialty_id', event.target.value)}
+              options={specialties}
+              placeholder="All specialties"
+              disabled={!specialties.length}
+            />
+          </div>
         )}
       </div>
-      {compare && !inDrawer && <Badge tone="info">Comparing with previous period</Badge>}
+
+      <div className={cn('flex min-w-0 flex-wrap items-end gap-3', inDrawer && 'flex-col items-stretch')}>
+        {show('payer_id') && (
+          <div className={inDrawer ? 'w-full min-w-0' : 'w-full min-w-0 sm:w-40'}>
+            <label htmlFor="filter-payer-id" className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted">Payer ID</label>
+            <input
+              id="filter-payer-id"
+              aria-label="Payer ID"
+              value={filters.payer_id}
+              onChange={(event) => setFilter('payer_id', event.target.value.trim())}
+              placeholder="e.g. PAY01"
+              className="h-9 w-full min-w-0 rounded-md border border-line bg-surface px-2.5 text-xs outline-none focus:border-teal focus:ring-2 focus:ring-teal/15"
+            />
+          </div>
+        )}
+        {show('encounter_type') && (
+          <div className={inDrawer ? 'w-full min-w-0' : 'w-full min-w-0 sm:w-40'}>
+            <Select label="Encounter" value={filters.encounter_type} onChange={(event) => setFilter('encounter_type', event.target.value)} options={ENCOUNTER_TYPES} placeholder="All types" />
+          </div>
+        )}
+        {show('patient_type') && (
+          <div className={inDrawer ? 'w-full min-w-0' : 'w-full min-w-0 sm:w-36'}>
+            <Select label="Patient" value={filters.patient_type} onChange={(event) => setFilter('patient_type', event.target.value)} options={PATIENT_TYPES} placeholder="All patients" />
+          </div>
+        )}
+
+        <div className={cn('flex flex-wrap items-center gap-2', !inDrawer && 'ml-auto pb-0.5')}>
+          <button
+            type="button"
+            onClick={reset}
+            data-testid="filters-reset"
+            className="inline-flex h-9 items-center gap-1.5 rounded-md border border-line bg-surface px-3 text-xs font-medium text-muted transition hover:border-teal hover:text-teal"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+            Reset
+          </button>
+          <button
+            type="button"
+            onClick={exportData}
+            data-testid="filters-export"
+            className="inline-flex h-9 items-center gap-1.5 rounded-md bg-navy px-3 text-xs font-medium text-white transition hover:bg-navy-light"
+          >
+            <Download className="h-3.5 w-3.5" />
+            Export
+          </button>
+          <button
+            type="button"
+            onClick={toggleCompare}
+            data-testid="compare-toggle"
+            className={cn(
+              'inline-flex h-9 items-center gap-1.5 rounded-md border px-3 text-xs font-medium transition',
+              compare ? 'border-teal bg-teal-light text-teal-dark' : 'border-line bg-surface text-muted hover:border-teal',
+            )}
+          >
+            <GitCompareArrows className="h-3.5 w-3.5" />
+            Compare
+          </button>
+          {inDrawer && (
+            <IconButton onClick={() => setDrawerOpen(false)} aria-label="Close filters">
+              <X className="h-4 w-4" />
+            </IconButton>
+          )}
+        </div>
+        {compare && !inDrawer && <Badge tone="info">Comparing with previous period</Badge>}
+      </div>
+
       {!inDrawer && (
-        <button type="button" onClick={() => setDrawerOpen(true)} className="ml-auto flex items-center gap-1.5 text-xs text-slate-600 lg:hidden">
+        <button type="button" onClick={() => setDrawerOpen(true)} className="flex items-center gap-1.5 text-xs text-muted lg:hidden">
           <SlidersHorizontal className="h-4 w-4" />
           Filters
         </button>
